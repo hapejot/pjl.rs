@@ -4,7 +4,7 @@ use std::{
     collections::BTreeMap,
     sync::{Arc, Mutex, MutexGuard, PoisonError},
 };
-use tracing::{info, trace};
+use tracing::{trace};
 
 lazy_static! {
     pub static ref APP: Application = Application::new();
@@ -205,7 +205,7 @@ impl Application {
     }
 
     pub fn get_entries(&self, objid: usize) -> BTreeMap<String, Value> {
-        if let Ok(mut d) = self.get_lock() {
+        if let Ok(d) = self.get_lock() {
             d.get_all(objid)
         } else {
             BTreeMap::new()

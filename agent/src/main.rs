@@ -10,23 +10,23 @@ use axum::{
 };
 use clap::Parser;
 use db::SharedData;
-use minijinja::filters::default;
-use minijinja::{context, Environment, Template};
 
-use std::borrow::BorrowMut;
+use minijinja::{context, Environment};
+
+
 use std::sync::Mutex;
-use std::{collections::HashMap, time::Duration};
+use std::{collections::HashMap};
 use std::{
     fs::{self},
     net::SocketAddr,
 };
 use tracing::{error, info, warn};
 
-use lazy_static::{__Deref, lazy_static};
+use lazy_static::{lazy_static};
 use pjl_proto::{trace_init, Command, Connection, RequestPacket, ResponsePacket, Value};
 use tokio::{
     net::{TcpListener, TcpStream},
-    signal, task, time,
+    signal,
 };
 
 struct Templates<'source> {

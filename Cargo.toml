@@ -1,4 +1,4 @@
 [workspace]
 resolver = "2"
-members = ["agent", "pjl-proto"]
+members = ["agent", "pjl-proto", "simple-file-server"]
 
