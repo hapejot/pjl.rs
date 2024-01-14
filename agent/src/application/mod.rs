@@ -4,7 +4,7 @@ use std::{
     collections::BTreeMap,
     sync::{Arc, Mutex, MutexGuard, PoisonError},
 };
-use tracing::{trace};
+use tracing::trace;
 
 lazy_static! {
     pub static ref APP: Application = Application::new();
@@ -46,6 +46,7 @@ impl Data {
         }
     }
 
+    #[allow(dead_code)]
     fn get(&self, objid: usize, key: &String) -> Option<Value> {
         if let Some(x) = self.entries.get(&objid) {
             if let Some(y) = x.get(key) {
@@ -181,7 +182,7 @@ impl Application {
             d.set(objid, key, value);
         }
     }
-
+#[allow(dead_code)]
     pub fn get(&self, objid: usize, key: &String) -> Option<Value> {
         if let Ok(d) = self.get_lock() {
             d.get(objid, key)

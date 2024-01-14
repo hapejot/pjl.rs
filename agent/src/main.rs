@@ -15,14 +15,14 @@ use minijinja::{context, Environment};
 
 
 use std::sync::Mutex;
-use std::{collections::HashMap};
+use std::collections::HashMap;
 use std::{
-    fs::{self},
+    fs,
     net::SocketAddr,
 };
 use tracing::{error, info, warn};
 
-use lazy_static::{lazy_static};
+use lazy_static::lazy_static;
 use pjl_proto::{trace_init, Command, Connection, RequestPacket, ResponsePacket, Value};
 use tokio::{
     net::{TcpListener, TcpStream},
@@ -77,6 +77,7 @@ impl<'source> Templates<'source> {
     }
 }
 
+#[allow(dead_code)]
 fn load_templates() {}
 
 pub type Error = Box<dyn std::error::Error + Send + Sync>;
