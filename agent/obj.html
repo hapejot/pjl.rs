@@ -1,0 +1,31 @@
+<html>
+
+<head>
+    <title>Object {{objid}}</title>
+</head>
+
+<body>
+    <h1>Object {{objid}}</h1>
+    <form method="post">
+        <table>
+            {% for name, item in values %}
+            <tr>
+                <th>{{ name }}</th>
+                <td><input type="text" value='{{ item }}' name='{{ name }}'></td>
+            </tr>
+            {% endfor %}
+            {% for name, id in objs %}
+            <tr>
+                <th>{{ name }}</th>
+                <td><a href="/dir/{{ id }}">Ref</a></td>
+            </tr>
+            {% endfor %}
+        </table>
+        <button type="submit" name="@cmd" value="save">Save</button>
+        <button name="@cmd" value="new obj">new object</button>
+        <button name="@cmd" value="new value">new value</button>
+        <input type="text" name="@name"/>
+    </form>
+</body>
+
+</html> 

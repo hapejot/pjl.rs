@@ -1,0 +1,16 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta HTTP-EQUIV="PRAGMA" CONTENT="NO-CACHE">
+<script>
+function redirectOnLoad() {
+    if (window.location.replace){ 
+        window.location.replace('{{target_location}}');
+    } else {
+        window.location.href ='{{target_location}}';
+    } 
+} 
+redirectOnLoad();
+</script>
+</head>
+</html>

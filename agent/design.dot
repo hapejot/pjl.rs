@@ -1,0 +1,10 @@
+digraph a {
+    "Job List" -> "Job Scheduler";
+    "Job Scheduler" -> "FS-Scan";
+
+    "FS-Scan" -> "File DB";
+    "Scan Command" -> "FS-Scan";
+    "Stat Command" -> "File DB";
+    "Stat Command" -> "Remote Client";
+    "Dir Command" -> "File DB"
+}
