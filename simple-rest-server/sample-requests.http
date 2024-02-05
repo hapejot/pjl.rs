@@ -1,0 +1,54 @@
+https://services.odata.org/TripPinRESTierService
+
+###
+
+https://services.odata.org/TripPinRESTierService/(S(w5zdoetchk1pe5e0y50ppmqc))/$metadata
+
+###
+
+https://services.odata.org/TripPinRESTierService/(S(w5zdoetchk1pe5e0y50ppmqc))/People
+
+###
+POST https://services.odata.org/TripPinRESTierService/(S(w5zdoetchk1pe5e0y50ppmqc))/People
+content-type: application/json
+
+{
+    "UserName":"lewisblack",
+    "FirstName":"Lewis",
+    "LastName":"Black",
+    "Emails":[
+        "lewisblack@example.com"
+    ],
+    "AddressInfo": [
+    {
+      "Address": "187 Suffolk Ln.",
+      "City": {
+        "Name": "Boise",
+        "CountryRegion": "United States",
+        "Region": "ID"
+      }
+    }
+    ]
+}
+
+###
+
+DELETE  https://services.odata.org/TripPinRESTierService/(S(w5zdoetchk1pe5e0y50ppmqc))/People('lewisblack')
+
+###
+PATCH https://services.odata.org/TripPinRESTierService/(S(w5zdoetchk1pe5e0y50ppmqc))/People('lewisblack')
+content-type: application/json
+
+{
+    "FirstName":"Lewis 2",
+    "MiddleName": "Francis",
+    "LastName":"Blackx"
+}
+###
+https://services.odata.org/TripPinRESTierService/(S(w5zdoetchk1pe5e0y50ppmqc))/People('lewisblack')
+###
+# with ETAG...
+GET https://services.odata.org/TripPinRESTierService/Airlines('AA')
+###
+GET https://services.odata.org/TripPinRESTierService/Airlines
+###

@@ -1,0 +1,18 @@
+[package]
+name = "dbx"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+edm = { version = "0.1.0", path = "../edm" }
+env_logger = "0.11.1"
+log = "0.4.20"
+rusqlite = { version = "*", features = ["modern-full", "bundled-full"] }
+serde = { version = "1.0.195", features = ["derive"] }
+serde_derive = "1.0.195"
+serde_yaml = "0.9.30"
+# tracing = "0.1.40"
+# tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
+uuid = { version = "1.7.0", features = ["v4"] }

@@ -1,0 +1,38 @@
+http://localhost:3000/1
+###
+http://localhost:3000/2
+###
+POST http://localhost:3000/
+content-type: application/json
+
+{
+    "__metadata": {
+        "type": "person"
+    },
+    "name1": "Hugo",
+    "name2": "Hausmeister",
+    "communications": [
+        {
+            "__metadata": {
+            "type": "email"
+            },
+            "address": "ab-xy@c.de",
+            "id": "21",
+            "person": "1",
+            "role": "null"
+        },
+        {
+            "__metadata": {
+            "type": "phone"
+            },
+            "id": "31",
+            "number": "+123 456 789",
+            "person": "1",
+            "role": "null"
+        }
+    ],
+}
+###
+http://localhost:3000/
+###
+http://localhost:3000/$metadata

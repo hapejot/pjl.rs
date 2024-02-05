@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="PJL">
+      <EnumType Name="PersonGender" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+        <Member Name="Male" Value="0" />
+        <Member Name="Female" Value="1" />
+        <Member Name="Unknown" Value="2" />
+      </EnumType>
+      <ComplexType Name="Location" OpenType="true">
+        <Property Name="Address" Type="Edm.String" Nullable="false" />
+        <Property Name="City" Type="PJL.City" Nullable="false" />
+      </ComplexType>
+      <ComplexType Name="City">
+        <Property Name="CountryRegion" Type="Edm.String" Nullable="false" />
+        <Property Name="Name" Type="Edm.String" Nullable="false" />
+        <Property Name="Region" Type="Edm.String" Nullable="false" />
+      </ComplexType>
+      <EntityType Name="Person" OpenType="true">
+        <Key>
+          <PropertyRef Name="UserName" />
+        </Key>
+        <Property Name="UserName" Type="Edm.String" Nullable="false">
+          <Annotation Term="Org.OData.Core.V1.Permissions">
+            <EnumMember>Org.OData.Core.V1.Permission/Read</EnumMember>
+          </Annotation>
+        </Property>
+        <Property Name="FirstName" Type="Edm.String" Nullable="false" />
+        <Property Name="LastName" Type="Edm.String" Nullable="false" />
+        <Property Name="Emails" Type="Collection(Edm.String)" />
+        <Property Name="AddressInfo" Type="Collection(PJL.Location)" />
+        <Property Name="Gender" Type="PJL.PersonGender" />
+        <Property Name="Concurrency" Type="Edm.Int64" Nullable="false">
+          <Annotation Term="Org.OData.Core.V1.Computed" Bool="true" />
+        </Property>
+        <NavigationProperty Name="Friends" Type="Collection(PJL.Person)" />
+      </EntityType>
+      <EntityContainer Name="DefaultContainer">
+        <EntitySet Name="People" EntityType="PJL.Person">
+          <NavigationPropertyBinding Path="Friends" Target="People" />
+        </EntitySet>
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

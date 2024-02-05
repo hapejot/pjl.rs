@@ -1,0 +1,14 @@
+id: 1
+name1: Peter
+name2: Jaeckel
+name3: ...
+name4: n/a
+communications:
+  - !email
+    id: 21
+    address: ab-xy@c.de
+  - !phone
+    id: 31
+    number: +123 456 789
+identification:
+  A: X
