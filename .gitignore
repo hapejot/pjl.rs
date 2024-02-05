@@ -1,2 +1,16 @@
 .vscode
 */target
+architecture.md
+client
+file-database
+filesystem
+large-buffer
+linux-fuser-adapter
+log
+logging.md
+network
+path
+target
+templates
+tmp
+yaml
