@@ -7,7 +7,8 @@ use dbx::{
     data::model::{DataModel, Table},
     Database,
 };
-
+use tower::ServiceExt;
+// use tower_http::{ServeDir, ServerFile};
 use std::{
     cell::RefCell,
     collections::{BTreeMap, HashMap},
@@ -22,9 +23,10 @@ use axum::{
     http::{header::CONTENT_TYPE, Request},
     response::Response,
     routing::get,
+    handler::HandlerWithoutStateExt,
     Router,
 };
-
+use tower_http::services::{ServeDir, ServeFile};
 use serde_json::Value;
 
 use tracing::{debug, info};
@@ -36,6 +38,14 @@ mod error;
 mod models;
 
 
+use clap::Parser;
+
+#[derive(Parser)]
+struct CmdArgs {
+    #[clap(short, default_value="0.0.0.0:3000")]
+    port: String,
+    root_path: String,
+}
 
 
 #[derive(Clone)]
@@ -466,8 +476,15 @@ async fn catch_all(request: Request<Body>) -> String {
     "...".into()
 }
 
+fn using_serve_dir(server_dir: &str) -> Router {
+    // serve the file in the "assets" directory under `/assets`
+    Router::new().nest_service("/", ServeDir::new(server_dir))
+}
+
 #[tokio::main]
 async fn main() {
+    let args = CmdArgs::parse();
+
     let env_filter =
         std::env::var("RUST_LOG").unwrap_or_else(|_| "simple_rest_server=debug".into());
     tracing_subscriber::registry()
@@ -482,12 +499,11 @@ async fn main() {
         .route("/$metadata", get(metadata))
         .layer(Extension(extension));
 
-    let app = Router::new().nest("/", svc);
+    let app = Router::new()
+                .nest("/api/invoice", svc)
+                .nest_service("/", ServeDir::new(args.root_path));
 
-    let port = "0.0.0.0:3000".parse::<SocketAddr>().unwrap();
-    tracing::debug!("listening on {}", port);
-    axum::Server::bind(&port)
-        .serve(app.into_make_service())
-        .await
-        .unwrap();
+    tracing::debug!("listening on {}", args.port);
+    let listener = tokio::net::TcpListener::bind(args.port).await.unwrap();
+    axum::serve(listener, app).await.unwrap();
 }
