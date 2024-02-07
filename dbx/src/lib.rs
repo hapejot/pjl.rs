@@ -216,7 +216,7 @@ impl DBRow {
         self.values[idx].0.as_str()
     }
 
-    fn table(&self) -> &str {
+    pub fn table(&self) -> &str {
         match &self.table {
             Some(t) => {
                 if let Some(idx) = t.find(".") {
@@ -425,8 +425,9 @@ impl Database {
             let x = self.locked();
             (*x).model()
         } {
+            debug!("serialize row");
             let x = ser::serialize_row(model, value)?;
-            info!("serialization generated {} rows.", x.len());
+            info!("serialization generated {} rows. ***************", x.len());
             for r in x {
                 info!("write row: {}", r);
                 self.modify_from(r.table(), &r);

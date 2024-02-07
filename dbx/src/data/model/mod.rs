@@ -198,7 +198,7 @@ impl Table {
         self.name.as_str()
     }
 
-    pub(crate) fn fields(&self) -> std::slice::Iter<'_, Field> {
+    pub fn fields(&self) -> std::slice::Iter<'_, Field> {
         self.fields.iter()
     }
 
@@ -209,10 +209,10 @@ impl Table {
             .map(|x| x.name.as_str())
     }
 
-    fn find_field(&self, as_str: &str) -> Option<&Field> {
+    pub fn find_field(&self, as_str: &str) -> Option<&Field> {
         self.fields().find(|x| x.name() == as_str)
     }
-    fn find_field_mut(&mut self, as_str: &str) -> Option<&mut Field> {
+    pub fn find_field_mut(&mut self, as_str: &str) -> Option<&mut Field> {
         self.fields.iter_mut().find(|x| x.name() == as_str)
     }
 }

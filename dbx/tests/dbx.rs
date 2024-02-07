@@ -1,9 +1,9 @@
-use std::collections::BTreeMap;
-use dbx::data::model::FieldType::Text;
 use dbx::data::model::FieldType::Lookup;
+use dbx::data::model::FieldType::Text;
+use std::collections::BTreeMap;
 
-use serde_derive::Serialize;
 use log::*;
+use serde_derive::Serialize;
 
 use dbx::{
     data::model::DataModel,
@@ -109,11 +109,15 @@ fn serialize() {
         ],
         id: new_guid(),
     };
-
+    env_logger::Builder::from_default_env()
+        .filter_level(LevelFilter::Trace)
+        .init();
+    // env_logger::init();
     let db = prepare_person_db();
     assert!(db.is_connected());
-
+    trace!("** modify *******************************************");
     db.modify_from_ser(&p).unwrap();
+    trace!("** select *******************************************");
     let res = db.execute_query("select * from person");
     assert_eq!(1, res.len());
     for x in res {
@@ -121,10 +125,10 @@ fn serialize() {
     }
 
     let res = db.execute_query("select * from email");
+    assert_eq!(1, res.len());
     for x in res.iter() {
         info!("email: {}", x);
     }
-    assert_eq!(1, res.len());
 
     let res = db.execute_query("select * from phone");
     assert_eq!(1, res.len());
@@ -160,14 +164,28 @@ fn make_person_model() -> DataModel {
         .table(
             Table::new("email")
                 .field("id", true, Text(20))
-                .field("person", false, Lookup { table: "person".into(), as_field: "communication".into() })
+                .field(
+                    "person",
+                    false,
+                    Lookup {
+                        table: "person".into(),
+                        as_field: "communications".into(),
+                    },
+                )
                 .field("role", false, Text(100))
                 .field("address", false, Text(100)),
         )
         .table(
             Table::new("phone")
                 .field("id", true, Text(20))
-                .field("person", false, Lookup { table: "person".into(), as_field: "communication".into() })
+                .field(
+                    "person",
+                    false,
+                    Lookup {
+                        table: "person".into(),
+                        as_field: "communications".into(),
+                    },
+                )
                 .field("role", false, Text(100))
                 .field("number", false, Text(100)),
         );
@@ -175,6 +193,7 @@ fn make_person_model() -> DataModel {
     meta.define_relation(One, "person", "communication.email", "email");
     meta.define_relation(One, "person", "communication.phone", "phone");
     // model.set_meta(meta);
+    model.build();
     model
 }
 
