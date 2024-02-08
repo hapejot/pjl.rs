@@ -135,9 +135,10 @@ struct Order {
 
 #[test]
 fn order_serializer() {
-    env_logger::Builder::from_default_env()
-        .filter_level(log::LevelFilter::Trace)
-        .init();
+    // env_logger::Builder::try
+    // env_logger::Builder::from_default_env()
+    //     .filter_level(log::LevelFilter::Trace)
+    //     .init();
     let o = Order {
         number: "#100".to_string(),
         sold_to: Person {
