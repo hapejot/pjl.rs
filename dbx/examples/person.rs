@@ -81,10 +81,6 @@ fn make_person_model() -> DataModel {
                 .field("role", false, Text(100))
                 .field("number", false, Text(100)),
         );
-    // let mut meta = Meta::new();
-    // meta.define_relation(One, "person", "Communication.email", "email");
-    // meta.define_relation(One, "person", "Communication.phone", "phone");
-    // model.set_meta(meta);
     model.build();
     model
 }

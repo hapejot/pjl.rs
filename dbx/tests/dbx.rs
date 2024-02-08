@@ -1,12 +1,12 @@
-use dbx::data::model::FieldType::Lookup;
-use dbx::data::model::FieldType::Text;
 use std::collections::BTreeMap;
 
 use log::*;
 use serde_derive::Serialize;
 
 use dbx::{
-    data::model::DataModel,
+    data::model::FieldType::Lookup,
+    data::model::FieldType::Text,
+        data::model::DataModel,
     data::model::{
         meta::{Meta, RelationKind::One},
         Table,
@@ -109,10 +109,7 @@ fn serialize() {
         ],
         id: new_guid(),
     };
-    env_logger::Builder::from_default_env()
-        .filter_level(LevelFilter::Trace)
-        .init();
-    // env_logger::init();
+
     let db = prepare_person_db();
     assert!(db.is_connected());
     trace!("** modify *******************************************");

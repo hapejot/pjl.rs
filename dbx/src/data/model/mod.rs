@@ -1,4 +1,4 @@
-use log::{debug, error};
+use log::{debug, error, info};
 
 pub mod meta {
 
@@ -112,7 +112,9 @@ impl DataModel {
                                 on_field: lu_fld.clone(),
                             });
                         }
-                        _ => todo!(),
+                        _ => {
+                            debug!("fieldtype ignored {:?}", fieldtype);
+                        }
                     }
                 } else {
                     debug!("list field {} to be defined.", dep_fld);
@@ -160,6 +162,21 @@ impl DataModel {
             }
         }
         dep_list
+    }
+
+    pub fn dump(&self) {
+        info!("Model Dump: {}", self.name);
+        for t in self.tables() {
+            info!("Table {}", t.name());
+            for f in t.fields() {
+                info!(
+                    "   {:2} {:20} {:?}",
+                    if f.key { "o" } else { " " },
+                    f.name(),
+                    f.fieldtype
+                );
+            }
+        }
     }
 }
 

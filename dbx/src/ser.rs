@@ -12,6 +12,9 @@ use std::rc::Rc;
 use std::result::Result;
 use log::{info, trace};
 
+
+
+
 pub fn serialize_row<T>(model: Rc<DataModel>, v: T) -> Result<Vec<crate::DBRow>, Error>
 where
     T: serde::Serialize,

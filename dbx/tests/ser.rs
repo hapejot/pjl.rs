@@ -1,9 +1,69 @@
 use std::{collections::BTreeMap, rc::Rc};
 
-use dbx::{data::model::DataModel, error::Error, ser::{serialize_row, CopyRule}, SqlValue};
+use dbx::{
+    data::model::{
+        meta::{Meta, RelationKind::One},
+        DataModel,
+        FieldType::{self, Lookup, Text},
+        Table,
+    },
+    error::Error,
+    ser::{serialize_row, CopyRule},
+    SqlValue,
+};
 
+use log::{debug, info};
 use serde_derive::Serialize;
-use log::info;
+fn make_person_model() -> DataModel {
+    let mut model = DataModel::new("Person");
+    let tab = Table::new("person")
+        .field("personid", true, Text(20))
+        .field("name", false, Text(100))
+        .field("gender", false, Text(100))
+        .field("age", false, Text(100))
+        .field(
+            "identification",
+            false,
+            Lookup {
+                table: "identification".into(),
+                as_field: "A".into(),
+            },
+        );
+    model = model
+        .table(tab)
+        .table(Table::new("email").field("address", true, Text(100)).field(
+            "personid",
+            false,
+            Lookup {
+                table: "person".into(),
+                as_field: "communications".into(),
+            },
+        ))
+        .table(Table::new("order").field("number", true, Text(100)).field(
+            "sold_to",
+            false,
+            Lookup {
+                table: "person".into(),
+                as_field: "personid".into(),
+            },
+        ))
+        .table(Table::new("phone").field("number", true, Text(100)).field(
+            "personid",
+            false,
+            Lookup {
+                table: "person".into(),
+                as_field: "communications".into(),
+            },
+        ))
+        .table(Table::new("identification").field("A", true, Text(100)));
+    // let mut meta = Meta::new();
+    // meta.define_relation(One, "person", "communication.email", "email");
+    // meta.define_relation(One, "person", "communication.phone", "phone");
+    // model.set_meta(meta);
+    model.build();
+    model.dump();
+    model
+}
 
 #[allow(dead_code)]
 #[derive(Serialize)]
@@ -27,12 +87,17 @@ struct Person {
 
 #[derive(Serialize)]
 enum Communication {
+    #[serde(rename = "email")]
     EMail { personid: String, address: String },
+    #[serde(rename = "phone")]
     Phone { personid: String, number: String },
 }
 
 #[test]
 fn row_serializer() -> Result<(), Error> {
+    env_logger::Builder::from_default_env()
+        .filter_level(log::LevelFilter::Trace)
+        .init();
     let p = Person {
         personid: "#1".into(),
         name: "Peter Jaeckel".into(),
@@ -50,10 +115,8 @@ fn row_serializer() -> Result<(), Error> {
             },
         ],
     };
-    let model = DataModel::new("person");
-
+    let model = make_person_model();
     let rs = serialize_row(Rc::new(model), p)?;
-    println!("row serialized: {:#?}", rs);
     assert_eq!(4, rs.len());
     let r = &rs[0];
     assert_eq!(String::from(r.get("name").unwrap()), "Peter Jaeckel");
@@ -64,6 +127,7 @@ fn row_serializer() -> Result<(), Error> {
 }
 
 #[derive(Serialize)]
+#[serde(rename = "order")]
 struct Order {
     number: String,
     sold_to: Person,
@@ -71,6 +135,9 @@ struct Order {
 
 #[test]
 fn order_serializer() {
+    env_logger::Builder::from_default_env()
+        .filter_level(log::LevelFilter::Trace)
+        .init();
     let o = Order {
         number: "#100".to_string(),
         sold_to: Person {
@@ -78,25 +145,14 @@ fn order_serializer() {
             name: "Lizzy".to_string(),
             gender: Gender::Female,
             age: 21,
-            identification: BTreeMap::from([("X".to_string(), "Y".to_string())]),
+            identification: BTreeMap::from([("A".to_string(), "Y".to_string())]),
             communications: vec![Communication::EMail {
                 personid: String::new(),
                 address: "ab@c.de".into(),
             }],
         },
     };
-    let model = DataModel::new("order");
-    let _rule = CopyRule::new(vec![]);
-
-    // let mut meta = Meta::new();
-
-    // let rel = meta.define_relation(One, "Order", "sold_to", "Person");
-    // meta.map_field(rel.as_str(), "sold_to_id", "personid");
-
-    // let rel = meta.define_relation(Many, "Person", "communications", "EMail");
-    // meta.map_field(rel.as_str(), "personid", "personid");
-
-    // model.set_meta(meta);
+    let model = make_person_model();
 
     let rs = serialize_row(Rc::new(model), o).unwrap();
     assert_eq!(4, rs.len());
@@ -107,8 +163,10 @@ fn order_serializer() {
                 assert!(r.get("sold_to_id") == Some(&SqlValue::from("#2")));
             }
             "person" => info!("result row: {}", r),
-            "EMail" => info!("result row: {}", r),
+            "email" => info!("result row: {}", r),
             "map" => info!("result row: {}", r),
+            "order" => info!("result row: {}", r),
+            "identification" => info!("result row: {}", r),
             _ => panic!("unknown row type {}", r.table()),
         }
     }
