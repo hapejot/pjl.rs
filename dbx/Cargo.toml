@@ -14,6 +14,7 @@ rusqlite = { version = "*", features = ["modern-full", "bundled-full"] }
 serde = { version = "1.0.195", features = ["derive"] }
 serde_derive = "1.0.195"
 serde_yaml = "0.9.30"
+simple-logging = "2.0.2"
 # tracing = "0.1.40"
 # tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 uuid = { version = "1.7.0", features = ["v4"] }

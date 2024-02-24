@@ -1,12 +1,11 @@
 use std::{rc::Rc, slice::Iter};
 
+use edm::structure::StructureValue;
 use edm::{list::ListValue, primitive::PrimitiveValue};
 use log::{debug, error, info, trace};
-use rusqlite::{
-    ffi::Error,
-    types::{Value, ValueRef},
-    ErrorCode,
-};
+use rusqlite::{ffi::Error, types::ValueRef, ErrorCode};
+
+use rusqlite::types::Value as SQLiteValue;
 
 use crate::{
     build_alter_table, build_create_table, create_insert_statement_from,
@@ -18,7 +17,7 @@ use crate::{
         },
         Query, WhereCondition,
     },
-    de, DBRow, DBTable, SqlValue,
+    de, DBTable, SqlValue,
 };
 
 pub struct DatabaseImpl {
@@ -35,36 +34,38 @@ impl DatabaseImpl {
     /// could update more than one row.
     ///
     #[allow(dead_code)]
-    pub fn modify_from(&self, table_name: &str, row: DBRow) {
-        let (sql_ins, params) = create_insert_statement_from(&table_name, &row);
-        if let Some(con) = &self.con {
-            let mut stmt = con.prepare(sql_ins.as_str()).unwrap();
-            match stmt.execute(rusqlite::params_from_iter(params)) {
-                Ok(_) => {}
-                Err(rusqlite::Error::SqliteFailure(
-                    Error {
-                        code: ErrorCode::ConstraintViolation,
-                        extended_code: 1555,
-                    },
-                    _,
-                )) => {
-                    debug!("PK already exists");
-                    let (sql_upd, params) = create_update_statement_from(table_name, &[], &row);
-                    let mut stmt = con.prepare(sql_upd.as_str()).unwrap();
+    pub fn modify_from(&self, table_name: &str, row: &edm::value::Value) {
+        if let edm::value::Value::StructureValue(row) = row {
+            let (sql_ins, params) = create_insert_statement_from(&table_name, &row);
+            if let Some(con) = &self.con {
+                let mut stmt = con.prepare(sql_ins.as_str()).unwrap();
+                match stmt.execute(rusqlite::params_from_iter(params)) {
+                    Ok(_) => {}
+                    Err(rusqlite::Error::SqliteFailure(
+                        Error {
+                            code: ErrorCode::ConstraintViolation,
+                            extended_code: 1555,
+                        },
+                        _,
+                    )) => {
+                        debug!("PK already exists");
+                        let (sql_upd, params) = create_update_statement_from(table_name, &[], &row);
+                        let mut stmt = con.prepare(sql_upd.as_str()).unwrap();
 
-                    match stmt.execute(rusqlite::params_from_iter(params)) {
-                        Ok(x) => {
-                            assert_eq!(x, 1);
+                        match stmt.execute(rusqlite::params_from_iter(params)) {
+                            Ok(x) => {
+                                assert_eq!(x, 1);
+                            }
+                            Err(_) => todo!(),
                         }
-                        Err(_) => todo!(),
                     }
+                    _ => panic!(),
                 }
-                _ => panic!(),
             }
         }
     }
 
-    pub fn modify_from_upd_first(&self, table_name: &str, row: &DBRow) {
+    pub fn modify_from_upd_first(&self, table_name: &str, row: &edm::structure::StructureValue) {
         if let (Some(con), Some(tab)) = (&self.con, self.table(table_name)) {
             let key = tab.key();
             trace!("{:}", tab);
@@ -207,8 +208,8 @@ impl DatabaseImpl {
         }
     }
 
-    pub fn execute_query(&self, arg: &str) -> Vec<DBRow> {
-        let mut result: Vec<DBRow> = vec![];
+    pub fn execute_query(&self, arg: &str) -> Vec<edm::structure::StructureValue> {
+        let mut result = vec![];
         if let Some(con) = &self.con {
             let mut stmt_m = con.prepare(arg).unwrap();
             let sql_result = stmt_m.query([]);
@@ -223,10 +224,10 @@ impl DatabaseImpl {
                         .map(|x| x.to_string())
                         .collect::<Vec<_>>();
                     while let Some(row) = rows.next().unwrap() {
-                        let mut res_row = DBRow::new("#query");
+                        let mut res_row = StructureValue::new();
                         for idx in 0..names.len() {
-                            let v = Value::from(row.get::<_, Value>(idx).unwrap());
-                            res_row.insert(names[idx].clone(), SqlValue(v));
+                            let v = SQLiteValue::from(row.get::<_, SQLiteValue>(idx).unwrap());
+                            res_row[names[idx].as_str()] = edm::value::Value::from_sql(v);
                         }
                         result.push(res_row);
                     }
@@ -349,4 +350,24 @@ fn structure_from(table: String, row: &rusqlite::Row<'_>) -> edm::value::Value {
         }
     }
     res.into()
+}
+
+pub trait IntoValue {
+    fn from_sql(value: SQLiteValue) -> Self;
+}
+
+impl IntoValue for edm::value::Value {
+    fn from_sql(value: SQLiteValue) -> Self {
+        match value {
+            SQLiteValue::Null => edm::value::Value::PrimitiveValue(PrimitiveValue::Null),
+            SQLiteValue::Integer(v) => {
+                edm::value::Value::PrimitiveValue(PrimitiveValue::Decimal(v.into()))
+            }
+            SQLiteValue::Real(v) => {
+                edm::value::Value::PrimitiveValue(PrimitiveValue::Decimal(v.into()))
+            }
+            SQLiteValue::Text(v) => edm::value::Value::PrimitiveValue(PrimitiveValue::String(v)),
+            SQLiteValue::Blob(_) => todo!(),
+        }
+    }
 }

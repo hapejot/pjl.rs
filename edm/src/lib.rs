@@ -109,6 +109,13 @@ mod testing {
         println!("{lst:#?}");
     }
 
+    #[test]
+    fn from_f64() {
+        let v:f64 = 1298.23;
+        let x = Value::from(v);
+        assert_eq!("1298.23", x.to_string());
+    }
+
     mod atom {
         use std::{cell::RefCell, rc::Rc};
 

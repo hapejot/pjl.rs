@@ -2,7 +2,7 @@ use crate::value::Value;
 
 #[derive(Debug, Clone)]
 pub struct ListValue {
-    values: Vec<Value>,
+    pub values: Vec<Value>,
 }
 
 impl ListValue {

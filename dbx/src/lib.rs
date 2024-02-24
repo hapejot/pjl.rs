@@ -4,6 +4,9 @@ pub mod error;
 use crate::error::Error;
 use data::model::FieldType::{Lookup, Number, Text};
 use dbimpl::DatabaseImpl;
+use edm::structure::StructureValue;
+use edm::structure::StructureValue as DBRow;
+use log::*;
 use rusqlite::{
     types::{ToSqlOutput, Value},
     Connection, Row, ToSql,
@@ -16,7 +19,7 @@ use std::{
     rc::Rc,
     sync::{Arc, Mutex, MutexGuard},
 };
-use log::*;
+
 pub mod de;
 pub mod ser;
 
@@ -61,10 +64,15 @@ impl From<edm::value::Value> for SqlValue {
         match value {
             edm::value::Value::PrimitiveValue(v) => match v {
                 edm::primitive::PrimitiveValue::Null => SqlValue(Value::Null),
-                edm::primitive::PrimitiveValue::Boolean(v) => SqlValue(Value::Integer(if v { 1 } else { 0 })),
+                edm::primitive::PrimitiveValue::Boolean(v) => {
+                    SqlValue(Value::Integer(if v { 1 } else { 0 }))
+                }
                 edm::primitive::PrimitiveValue::Decimal(_) => todo!(),
                 edm::primitive::PrimitiveValue::String(v) => SqlValue(Value::Text(v)),
-                edm::primitive::PrimitiveValue::Custom { datatype: _, value: _ } => todo!(),
+                edm::primitive::PrimitiveValue::Custom {
+                    datatype: _,
+                    value: _,
+                } => todo!(),
             },
             edm::value::Value::StructureValue(_) => todo!(),
             edm::value::Value::ListValue(_) => todo!(),
@@ -129,142 +137,141 @@ impl From<SqlValue> for u64 {
     }
 }
 
-#[derive(Debug, Clone)]
-pub struct DBRow {
-    table: Option<String>,
-    values: Vec<(String, SqlValue)>,
-}
+// #[derive(Debug, Clone)]
+// pub struct DBRow {
+//     table: Option<String>,
+//     values: Vec<(String, SqlValue)>,
+// }
 
-#[allow(dead_code)]
-impl DBRow {
-    pub fn get(&self, k: &str) -> Option<&SqlValue> {
-        if let (Some(tabname), Some(idx)) = (&self.table, k.find(".")) {
-            let fld = &k[idx + 1..];
-            let tab = &k[..idx];
-            info!("find field {} {}", tab, fld);
-            if tab == tabname {
-                if let Some((_, val)) = self.values.iter().find(|(key, _)| key == fld) {
-                    Some(val)
-                } else {
-                    None
-                }
-            } else {
-                None
-            }
-        } else {
-            if let Some((_, val)) = self.values.iter().find(|(key, _)| key == k) {
-                Some(val)
-            } else {
-                None
-            }
-        }
-    }
+// #[allow(dead_code)]
+// impl DBRow {
+//     pub fn get(&self, k: &str) -> Option<&SqlValue> {
+//         if let (Some(tabname), Some(idx)) = (&self.table, k.find(".")) {
+//             let fld = &k[idx + 1..];
+//             let tab = &k[..idx];
+//             info!("find field {} {}", tab, fld);
+//             if tab == tabname {
+//                 if let Some((_, val)) = self.values.iter().find(|(key, _)| key == fld) {
+//                     Some(val)
+//                 } else {
+//                     None
+//                 }
+//             } else {
+//                 None
+//             }
+//         } else {
+//             if let Some((_, val)) = self.values.iter().find(|(key, _)| key == k) {
+//                 Some(val)
+//             } else {
+//                 None
+//             }
+//         }
+//     }
 
-    pub fn new(name: &str) -> DBRow {
-        DBRow {
-            table: Some(name.into()),
-            values: vec![],
-        }
-    }
+//     pub fn new(name: &str) -> DBRow {
+//         DBRow {
+//             table: Some(name.into()),
+//             values: vec![],
+//         }
+//     }
 
-    pub fn insert(&mut self, k: String, v: SqlValue) {
-        let mut remove_idx = None;
-        for idx in 0..self.values.len() {
-            if self.values[idx].0 == k {
-                remove_idx = Some(idx);
-                break;
-            }
-        }
-        if let Some(idx) = remove_idx {
-            self.values.remove(idx);
-        }
-        self.values.push((k.clone(), v));
-    }
+//     pub fn insert(&mut self, k: String, v: SqlValue) {
+//         let mut remove_idx = None;
+//         for idx in 0..self.values.len() {
+//             if self.values[idx].0 == k {
+//                 remove_idx = Some(idx);
+//                 break;
+//             }
+//         }
+//         if let Some(idx) = remove_idx {
+//             self.values.remove(idx);
+//         }
+//         self.values.push((k.clone(), v));
+//     }
 
-    pub fn keys(&self) -> Vec<&str> {
-        self.values.iter().map(|(k, _)| k.as_str()).collect()
-    }
+//     pub fn keys(&self) -> Vec<&str> {
+//         self.values.iter().map(|(k, _)| k.as_str()).collect()
+//     }
 
-    pub fn exists(&self, k: &str) -> bool {
-        self.values.iter().any(|(key, _)| key == k)
-    }
+//     pub fn exists(&self, k: &str) -> bool {
+//         self.values.iter().any(|(key, _)| key == k)
+//     }
 
-    pub fn index(&self, k: &str) -> Option<usize> {
-        self.values.iter().position(|(key, _)| key == k)
-    }
+//     pub fn index(&self, k: &str) -> Option<usize> {
+//         self.values.iter().position(|(key, _)| key == k)
+//     }
 
-    pub fn remove(&mut self, k: &str) {
-        if let Some(pos) = self.index(k) {
-            self.values.remove(pos);
-        }
-    }
+//     pub fn remove(&mut self, k: &str) {
+//         if let Some(pos) = self.index(k) {
+//             self.values.remove(pos);
+//         }
+//     }
 
-    pub fn set(&mut self, k: &str, v: SqlValue) {
-        self.remove(k);
-        self.values.push((k.into(), v));
-    }
+//     pub fn set(&mut self, k: &str, v: SqlValue) {
+//         self.remove(k);
+//         self.values.push((k.into(), v));
+//     }
 
-    pub fn get_at(&self, idx: usize) -> &SqlValue {
-        &self.values[idx].1
-    }
+//     pub fn get_at(&self, idx: usize) -> &SqlValue {
+//         &self.values[idx].1
+//     }
 
-    pub fn len(&self) -> usize {
-        self.values.len()
-    }
+//     pub fn len(&self) -> usize {
+//         self.values.len()
+//     }
 
-    pub fn key_at(&self, idx: usize) -> &str {
-        self.values[idx].0.as_str()
-    }
+//     pub fn key_at(&self, idx: usize) -> &str {
+//         self.values[idx].0.as_str()
+//     }
 
-    pub fn table(&self) -> &str {
-        match &self.table {
-            Some(t) => {
-                if let Some(idx) = t.find(".") {
-                    let tab = &t[idx + 1..];
-                    // let tab = &t[..idx];
-                    tab
-                } else {
-                    t.as_str()
-                }
-            }
-            None => todo!(),
-        }
-    }
+//     pub fn table(&self) -> &str {
+//         match &self.table {
+//             Some(t) => {
+//                 if let Some(idx) = t.find(".") {
+//                     let tab = &t[idx + 1..];
+//                     // let tab = &t[..idx];
+//                     tab
+//                 } else {
+//                     t.as_str()
+//                 }
+//             }
+//             None => todo!(),
+//         }
+//     }
 
-    fn create_from(table: String, row: &Row<'_>) -> DBRow {
-        let mut r = DBRow::new(table.as_str());
-        for field in row.as_ref().column_names() {
-            let v: Value = row.get(field).unwrap();
-            r.insert(field.into(), SqlValue(v));
-        }
-        r
-    }
-}
+//     fn create_from(table: String, row: &Row<'_>) -> DBRow {
+//         let mut r = DBRow::new(table.as_str());
+//         for field in row.as_ref().column_names() {
+//             let v: Value = row.get(field).unwrap();
+//             r.insert(field.into(), SqlValue(v));
+//         }
+//         r
+//     }
+// }
 
-impl Display for DBRow {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match &self.table {
-            Some(tab_name) => write!(f, "{}(", tab_name),
-            None => write!(f, "("),
-        }?;
+// impl Display for DBRow {
+//     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+//         match &self.table {
+//             Some(tab_name) => write!(f, "{}(", tab_name),
+//             None => write!(f, "("),
+//         }?;
 
-        let mut sep = "";
-        for (name, SqlValue(v)) in self.values.iter() {
-            write!(f, "{}{}=", sep, name)?;
-            match v {
-                Value::Null => write!(f, "Null"),
-                Value::Integer(v) => write!(f, "{}", v),
-                Value::Real(_) => todo!(),
-                Value::Text(v) => write!(f, "{}", v),
-                Value::Blob(_) => todo!(),
-            }?;
-            sep = ", ";
-        }
-        write!(f, ")")
-    }
-}
+//         let mut sep = "";
+//         for (name, SqlValue(v)) in self.values.iter() {
+//             write!(f, "{}{}=", sep, name)?;
+//             match v {
+//                 Value::Null => write!(f, "Null"),
+//                 Value::Integer(v) => write!(f, "{}", v),
+//                 Value::Real(_) => todo!(),
+//                 Value::Text(v) => write!(f, "{}", v),
+//                 Value::Blob(_) => todo!(),
+//             }?;
+//             sep = ", ";
+//         }
+//         write!(f, ")")
+//     }
+// }
 
-#[allow(dead_code)]
 #[derive(Clone)]
 pub struct Database {
     arc: Arc<DatabaseGuarded>,
@@ -275,7 +282,6 @@ pub struct DatabaseGuarded {
     mutex: Mutex<DatabaseImpl>,
 }
 
-#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct Field {
     name: String,
@@ -287,7 +293,6 @@ pub struct Field {
     default: Option<String>,
 }
 
-#[allow(dead_code)]
 #[derive(Debug)]
 pub struct DBField {
     name: String,
@@ -407,9 +412,13 @@ impl Database {
     //     Structure::new()
     // }
 
-    pub fn modify_from(&self, table_name: &str, row: &DBRow) {
-        let x = self.locked();
-        x.modify_from_upd_first(table_name, row);
+    pub fn modify_from(&self, table_name: &str, row: &edm::value::Value) {
+        if let edm::value::Value::StructureValue(v) = row {
+            let x = self.locked();
+            x.modify_from_upd_first(table_name, v);
+        } else {
+            panic!("expected a structure value as paramter.");
+        }
     }
 
     pub fn select<T: DeserializeOwned>(&self, q: crate::data::Query) -> Vec<T> {
@@ -428,9 +437,10 @@ impl Database {
             debug!("serialize row");
             let x = ser::serialize_row(model, value)?;
             info!("serialization generated {} rows. ***************", x.len());
-            for r in x {
-                info!("write row: {}", r);
-                self.modify_from(r.table(), &r);
+            for r in x.iter() {
+                info!("write row: {:?}", r);
+                let v = edm::value::Value::StructureValue(r.clone());
+                self.modify_from(r.datatype(), &v);
             }
         }
         Ok(())
@@ -559,22 +569,18 @@ fn create_update_statement_from<'a>(
     let mut sep = "";
     let mut params = vec![];
     for (k, v) in row.values.iter() {
-        let sqlv = v.to_sql();
+        let sqlv = v;
         write!(&mut sql, "{}{} = ?", sep, k).unwrap();
         sep = ",";
-        params.push(sqlv);
+        params.push(value_to_sql(sqlv));
     }
     write!(&mut sql, " WHERE ").unwrap();
     sep = "";
     for k in key.iter() {
-        if let Some(sqlv) = row.get(k) {
-            write!(&mut sql, "{}{} = ?", sep, k).unwrap();
-            sep = " AND ";
-            params.push(sqlv.to_sql());
-        } else {
-            error!("dbrow: {:?}", row);
-            panic!("key field '{}' not in row", k);
-        }
+        let sqlv = &row[*k];
+        write!(&mut sql, "{}{} = ?", sep, k).unwrap();
+        sep = " AND ";
+        params.push(value_to_sql(&sqlv));
     }
     (sql, params)
 }
@@ -593,10 +599,24 @@ fn create_insert_statement_from<'a>(arg: &str, s: &'a DBRow) -> (String, Vec<ToS
     for (_k, v) in s.values.iter() {
         write!(&mut sql, "{}?", sep).unwrap();
         sep = ",";
-        params.push(v.to_sql());
+        params.push(value_to_sql(v));
     }
 
     write!(&mut sql, ")").unwrap();
     // println!("insert: {}", sql);
     (sql, params)
+}
+
+fn value_to_sql(v: &edm::value::Value) -> ToSqlOutput<'_> {
+    match v {
+        edm::value::Value::PrimitiveValue(v) => match v {
+            edm::primitive::PrimitiveValue::Null => ToSqlOutput::Owned(Value::Null),
+            edm::primitive::PrimitiveValue::Boolean(_) => todo!(),
+            edm::primitive::PrimitiveValue::Decimal(_) => todo!(),
+            edm::primitive::PrimitiveValue::String(v) => ToSqlOutput::Owned(Value::Text(v.clone())),
+            edm::primitive::PrimitiveValue::Custom { datatype, value } => todo!(),
+        },
+        edm::value::Value::StructureValue(_) => todo!(),
+        edm::value::Value::ListValue(_) => todo!(),
+    }
 }

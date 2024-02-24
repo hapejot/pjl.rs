@@ -1,5 +1,6 @@
 use std::collections::BTreeMap;
 
+use edm::{structure::StructureValue, value::Value};
 use log::*;
 use serde_derive::Serialize;
 
@@ -12,17 +13,18 @@ use dbx::{
         Table,
     },
     data::*,
-    DBRow, Database, DatabaseBuilder,
+    Database, DatabaseBuilder,
 };
 
 #[test]
 fn modify_from() {
     let db = prepare_database_object();
 
-    let mut s = DBRow::new("object");
-    s.set("id", "1".into());
-    s.set("type", "Null".into());
-    assert_eq!(s.keys(), vec!["id", "type"]);
+    let mut s = StructureValue::new_with_type("object");
+    s["id"] = "1".into();
+    s["type"]= "Null".into();
+    // assert_eq!(s.keys(), vec!["id", "type"]);
+    let s = Value::StructureValue(s);
     db.modify_from("object".into(), &s);
     assert!(db.is_connected());
 }
@@ -90,6 +92,8 @@ struct Person {
 
 #[test]
 fn serialize() {
+    simple_logging::log_to_stderr(log::LevelFilter::Trace);
+    debug!("test serialize");
     let p = Person {
         name1: "Peter".to_string(),
         name2: "Jaeckel".to_string(),

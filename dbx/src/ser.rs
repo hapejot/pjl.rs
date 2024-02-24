@@ -4,16 +4,16 @@ use super::{DBRow, SqlValue};
 use crate::data::model::DataModel;
 use crate::error::Error;
 use asrows::AsRows;
-use element::SerElement;
+use edm::list::ListValue;
+use edm::primitive::PrimitiveValue;
+use edm::structure::StructureValue;
+use edm::value::Value;
+use log::{info, trace};
 use serde::ser::{Impossible, SerializeMap, SerializeSeq, SerializeStruct, SerializeStructVariant};
 use serde::{ser, Serialize};
 use std::collections::BTreeMap;
 use std::rc::Rc;
 use std::result::Result;
-use log::{info, trace};
-
-
-
 
 pub fn serialize_row<T>(model: Rc<DataModel>, v: T) -> Result<Vec<crate::DBRow>, Error>
 where
@@ -37,7 +37,7 @@ where
     let mut s = RowSerializer::new(model.clone());
     s.with_default(default);
     match &v.serialize(&s) {
-        Ok(x) => x.as_rows(None),
+        Ok(x) => model.as_rows(x).unwrap(),
         Err(_) => todo!(),
     }
 }
@@ -300,8 +300,7 @@ struct RowSerializer {
 #[derive(Debug)]
 struct DBRowSerializer {
     model: Rc<DataModel>,
-    result: Vec<(String, SerElement)>,
-    name: Option<String>,
+    result: StructureValue,
 }
 
 #[allow(dead_code)]
@@ -309,8 +308,7 @@ impl DBRowSerializer {
     pub fn new(model: Rc<DataModel>, name: &str) -> Self {
         Self {
             model,
-            result: vec![],
-            name: Some(name.into()),
+            result: StructureValue::new_with_type(name),
         }
     }
 
@@ -319,7 +317,7 @@ impl DBRowSerializer {
     }
 }
 impl SerializeStruct for DBRowSerializer {
-    type Ok = SerElement;
+    type Ok = Value;
 
     type Error = Error;
 
@@ -336,18 +334,17 @@ impl SerializeStruct for DBRowSerializer {
             model: self.model.clone(),
             name: Some(key.into()),
         };
-        self.result.push((key.into(), value.serialize(s).unwrap()));
+        self.result[key] = value.serialize(s).unwrap();
         Ok(())
     }
 
     fn end(self) -> Result<Self::Ok, Self::Error> {
-        trace!("serialize struct end: {:?}", self.name);
-        Ok(SerElement::Row(self.name.unwrap(), self.result))
+        Ok(Value::StructureValue(self.result.clone()))
     }
 }
 
 impl SerializeStructVariant for DBRowSerializer {
-    type Ok = SerElement;
+    type Ok = Value;
     type Error = Error;
 
     fn serialize_field<T: ?Sized>(
@@ -362,13 +359,12 @@ impl SerializeStructVariant for DBRowSerializer {
             model: self.model.clone(),
             name: Some(key.into()),
         };
-        self.result.push((key.into(), value.serialize(s).unwrap()));
+        self.result[key] = value.serialize(s).unwrap();
         Ok(())
     }
 
     fn end(self) -> Result<Self::Ok, Self::Error> {
-        trace!("serialize struct variant end: {:?}", self.name);
-        Ok(SerElement::Row(self.name.unwrap(), self.result))
+        Ok(Value::StructureValue(self.result))
     }
 }
 
@@ -386,7 +382,7 @@ impl RowSerializer {
 }
 
 impl ser::SerializeMap for DBRowSerializer {
-    type Ok = SerElement;
+    type Ok = Value;
     type Error = Error;
 
     fn serialize_key<T: ?Sized>(&mut self, key: &T) -> Result<(), Self::Error>
@@ -411,7 +407,7 @@ impl ser::SerializeMap for DBRowSerializer {
     }
 
     fn end(self) -> Result<Self::Ok, Self::Error> {
-        Ok(SerElement::Value("N/N".into()))
+        Ok(Value::StructureValue(self.result))
     }
 }
 
@@ -421,7 +417,7 @@ struct SQLValueSerializer {
 }
 
 impl ser::Serializer for SQLValueSerializer {
-    type Ok = SerElement;
+    type Ok = Value;
     type Error = Error;
     type SerializeSeq = TableSerializer;
     type SerializeTuple = Impossible<Self::Ok, Self::Error>;
@@ -432,65 +428,66 @@ impl ser::Serializer for SQLValueSerializer {
     type SerializeStructVariant = StructSerializer;
 
     fn serialize_bool(self, v: bool) -> Result<Self::Ok, Self::Error> {
-        Ok(SerElement::Value(SqlValue::new(v)))
+        Ok(v.into())
     }
 
     fn serialize_i8(self, v: i8) -> Result<Self::Ok, Self::Error> {
-        Ok(SerElement::Value(SqlValue::new(v)))
+        Ok(v.into())
     }
 
     fn serialize_i16(self, v: i16) -> Result<Self::Ok, Self::Error> {
-        Ok(SerElement::Value(SqlValue::new(v)))
+        Ok(v.into())
     }
 
     fn serialize_i32(self, v: i32) -> Result<Self::Ok, Self::Error> {
-        Ok(SerElement::Value(SqlValue::new(v)))
+        Ok(v.into())
     }
 
     fn serialize_i64(self, v: i64) -> Result<Self::Ok, Self::Error> {
-        Ok(SerElement::Value(SqlValue::new(v)))
+        Ok(v.into())
     }
 
     fn serialize_u8(self, v: u8) -> Result<Self::Ok, Self::Error> {
-        Ok(SerElement::Value(SqlValue::new(v)))
+        Ok(v.into())
     }
 
     fn serialize_u16(self, v: u16) -> Result<Self::Ok, Self::Error> {
-        Ok(SerElement::Value(SqlValue::new(v)))
+        Ok(v.into())
     }
 
     fn serialize_u32(self, v: u32) -> Result<Self::Ok, Self::Error> {
-        Ok(SerElement::Value(SqlValue::new(v)))
+        Ok(v.into())
     }
 
     fn serialize_u64(self, v: u64) -> Result<Self::Ok, Self::Error> {
-        Ok(SerElement::Value(SqlValue::new(v)))
+        Ok(v.into())
     }
 
     fn serialize_f32(self, v: f32) -> Result<Self::Ok, Self::Error> {
-        Ok(SerElement::Value(SqlValue::new(v)))
+        Ok(v.into())
     }
 
     fn serialize_f64(self, v: f64) -> Result<Self::Ok, Self::Error> {
-        Ok(SerElement::Value(SqlValue::new(v)))
+        Ok(v.into())
     }
 
     fn serialize_char(self, v: char) -> Result<Self::Ok, Self::Error> {
-        Ok(SerElement::Value(SqlValue::new(v as u16)))
+        Ok(String::from(v).as_str().into())
     }
 
     fn serialize_str(self, v: &str) -> Result<Self::Ok, Self::Error> {
-        Ok(SerElement::Value(SqlValue::new(v)))
+        Ok(v.into())
     }
 
     fn serialize_bytes(self, v: &[u8]) -> Result<Self::Ok, Self::Error> {
-        Ok(SerElement::Value(SqlValue::new(v)))
+        Ok(Value::PrimitiveValue(PrimitiveValue::Custom {
+            datatype: "Blob".into(),
+            value: format!("{:02X?}", v),
+        }))
     }
 
     fn serialize_none(self) -> Result<Self::Ok, Self::Error> {
-        Ok(SerElement::Value(SqlValue::new(
-            rusqlite::types::Value::Null,
-        )))
+        Ok(Value::null())
     }
 
     fn serialize_some<T: ?Sized>(self, value: &T) -> Result<Self::Ok, Self::Error>
@@ -520,7 +517,7 @@ impl ser::Serializer for SQLValueSerializer {
         // implicitly derived from the sequence in the enum.
         // instead one could use digits as special names in order to assign ids to the values.
         // Ok(SerElement::Value(SqlValue::new(variant_index)))
-        Ok(SerElement::Value(variant.into()))
+        Ok(variant.into())
     }
 
     fn serialize_newtype_struct<T: ?Sized>(
@@ -550,7 +547,7 @@ impl ser::Serializer for SQLValueSerializer {
     fn serialize_seq(self, _len: Option<usize>) -> Result<Self::SerializeSeq, Self::Error> {
         Ok(TableSerializer {
             model: self.model,
-            rows: vec![],
+            result: ListValue::new(),
             name: self.name.clone(),
         })
     }
@@ -611,7 +608,7 @@ impl ser::Serializer for SQLValueSerializer {
 }
 
 impl<'de> ser::Serializer for &RowSerializer {
-    type Ok = SerElement;
+    type Ok = Value;
     type Error = Error;
     type SerializeSeq = TableSerializer;
     type SerializeTuple = Impossible<Self::Ok, Self::Error>;
@@ -732,7 +729,7 @@ impl<'de> ser::Serializer for &RowSerializer {
     fn serialize_seq(self, _len: Option<usize>) -> Result<Self::SerializeSeq, Self::Error> {
         info!("serialize sequence");
         let s = TableSerializer {
-            rows: vec![],
+            result: ListValue::new(),
             model: self.model.clone(),
             name: None,
         };
@@ -800,8 +797,10 @@ impl StructSerializer {
             key: None,
             parent: DBRowSerializer {
                 model,
-                result: vec![],
-                name,
+                result: match name {
+                    Some(n) => StructureValue::new_with_type(n.as_str()),
+                    None => StructureValue::new(),
+                },
             },
         }
     }
@@ -816,7 +815,7 @@ impl StructSerializer {
 }
 
 impl SerializeMap for StructSerializer {
-    type Ok = SerElement;
+    type Ok = Value;
     type Error = Error;
 
     fn serialize_key<T: ?Sized>(&mut self, key: &T) -> Result<(), Self::Error>
@@ -838,21 +837,19 @@ impl SerializeMap for StructSerializer {
                 model: self.parent.model.clone(),
                 name: Some(key.into()),
             };
-            self.parent
-                .result
-                .push((key.into(), value.serialize(s).unwrap()));
+            self.parent.result[key.as_str()] = value.serialize(s).unwrap();
         };
         Ok(())
     }
 
     fn end(self) -> Result<Self::Ok, Self::Error> {
         trace!("serialize map for struct serializer - end");
-        Ok(SerElement::Row("map".to_string(), self.parent.result))
+        Ok(Value::StructureValue(self.parent.result))
     }
 }
 
 impl SerializeStruct for StructSerializer {
-    type Ok = SerElement;
+    type Ok = Value;
 
     type Error = Error;
 
@@ -868,19 +865,12 @@ impl SerializeStruct for StructSerializer {
     }
 
     fn end(self) -> Result<Self::Ok, Self::Error> {
-        trace!(
-            "serialize struct for struct serializer - end - parent name: {:?}",
-            self.parent.name
-        );
-        Ok(SerElement::Row(
-            self.parent.name.unwrap(),
-            self.parent.result,
-        ))
+        Ok(Value::StructureValue(self.parent.result))
     }
 }
 
 impl SerializeStructVariant for StructSerializer {
-    type Ok = SerElement;
+    type Ok = Value;
 
     type Error = Error;
 
@@ -896,25 +886,18 @@ impl SerializeStructVariant for StructSerializer {
     }
 
     fn end(self) -> Result<Self::Ok, Self::Error> {
-        trace!(
-            "serialize struct variant for struct serializer - end - entity name: {:#?}",
-            self.parent.name.as_ref().unwrap()
-        );
-        Ok(SerElement::Row(
-            self.parent.name.unwrap(),
-            self.parent.result,
-        ))
+        Ok(Value::StructureValue(self.parent.result))
     }
 }
 
 struct TableSerializer {
-    rows: Vec<SerElement>,
-    model: Rc<DataModel>,
     name: Option<String>,
+    model: Rc<DataModel>,
+    result: ListValue,
 }
 
 impl SerializeSeq for TableSerializer {
-    type Ok = SerElement;
+    type Ok = Value;
     type Error = Error;
 
     fn serialize_element<T: ?Sized>(&mut self, value: &T) -> Result<(), Self::Error>
@@ -927,12 +910,11 @@ impl SerializeSeq for TableSerializer {
         };
 
         // let r = serialize_row_with_default(self.model.clone(), default, value);
-        self.rows.push(value.serialize(s).unwrap());
+        self.result.push(value.serialize(s).unwrap());
         Ok(())
     }
 
     fn end(self) -> Result<Self::Ok, Self::Error> {
-        Ok(SerElement::Sequence(self.rows))
+        Ok(Value::ListValue(self.result))
     }
 }
-

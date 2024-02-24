@@ -6,17 +6,17 @@ use std::clone::Clone;
 use std::fmt::Write;
 use log::trace;
 
-#[derive(Debug, Clone)]
-pub enum Scalar {
-    String(String),
-}
-impl Scalar {
-    pub fn into_string(&self) -> String {
-        match self {
-            Scalar::String(s) => s.clone(),
-        }
-    }
-}
+// #[derive(Debug, Clone)]
+// pub enum Scalar {
+//     String(String),
+// }
+// impl Scalar {
+//     pub fn into_string(&self) -> String {
+//         match self {
+//             Scalar::String(s) => s.clone(),
+//         }
+//     }
+// }
 
 // #[derive(Debug, Clone)]
 // pub struct Structure {

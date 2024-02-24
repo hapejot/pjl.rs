@@ -1,11 +1,12 @@
 use crate::value::Value;
 use std::collections::BTreeMap;
+use std::fmt::Display;
 use std::ops;
 
 #[derive(Debug, Clone)]
 pub struct StructureValue {
-    datatype: String,
-    values: BTreeMap<String, Value>,
+    pub datatype: String,
+    pub values: BTreeMap<String, Value>,
 }
 impl StructureValue {
     pub fn new() -> Self {
@@ -48,5 +49,12 @@ impl ops::IndexMut<&str> for StructureValue {
             );
         }
         self.values.get_mut(index).unwrap()
+    }
+}
+
+
+impl Display for StructureValue {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self)
     }
 }

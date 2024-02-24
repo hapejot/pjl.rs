@@ -1,6 +1,6 @@
-use crate::{
-    list::ListValue, primitive::PrimitiveValue, structure::StructureValue,
-};
+use std::fmt::Display;
+
+use crate::{list::ListValue, primitive::PrimitiveValue, structure::StructureValue};
 
 #[derive(Debug, Clone)]
 pub enum Value {
@@ -40,5 +40,21 @@ where
     fn from(value: T) -> Self {
         let v: PrimitiveValue = value.into();
         Self::PrimitiveValue(v.into())
+    }
+}
+
+impl Display for Value {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Value::PrimitiveValue(v) => match v {
+                PrimitiveValue::Null => write!(f, "Null"),
+                PrimitiveValue::Boolean(x) => write!(f, "{}", x),
+                PrimitiveValue::Decimal(x) => write!(f, "{}", x),
+                PrimitiveValue::String(x) => write!(f, "{}", x),
+                PrimitiveValue::Custom { datatype, value } => write!(f, "{}({})", datatype, value),
+            },
+            Value::StructureValue(_) => todo!(),
+            Value::ListValue(_) => todo!(),
+        }
     }
 }
