@@ -3,6 +3,7 @@ resolver = "2"
 members = [
     "agent", 
     "dbx",
+    "xdd",
     "edm",
     "pjl-proto", 
     "simple-file-server", 

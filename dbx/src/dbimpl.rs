@@ -17,7 +17,7 @@ use crate::{
         },
         Query, WhereCondition,
     },
-    de, DBTable, SqlValue,
+    de, DBTable,
 };
 
 pub struct DatabaseImpl {

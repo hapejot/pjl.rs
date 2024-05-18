@@ -2,17 +2,15 @@ use std::{collections::BTreeMap, rc::Rc};
 
 use dbx::{
     data::model::{
-        meta::{Meta, RelationKind::One},
         DataModel,
-        FieldType::{self, Lookup, Text},
+        FieldType::{Lookup, Text},
         Table,
     },
     error::Error,
-    ser::{serialize_row, CopyRule},
-    SqlValue,
+    ser::serialize_row,    
 };
 
-use log::{debug, info};
+use log::info;
 use serde_derive::Serialize;
 fn make_person_model() -> DataModel {
     let mut model = DataModel::new("Person");

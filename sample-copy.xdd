@@ -1,0 +1,120 @@
+
+
+model: 
+    name: actor    
+    entities: 
+        Date: !Atom
+            basetype: string
+        Gender: !Enum
+            values:
+                1: Male
+                2: Female
+        Path: !Structure
+            attributes:
+                name:
+                    type: string
+        File: !Structure
+            attributes:
+                pathid:
+                    type: &Path
+                size:
+                    type: int
+                name:
+                    type: string
+        Actor:  !Structure
+            attributes:
+                name:
+                    type: string
+                bio:
+                    type: string
+                birthPlace:                   
+                    type: string
+                birthday:                   
+                    type: Date
+                gender:                   
+                    type: Gender
+                height:                   
+                    type: string
+                lastSceneReleaseDate:                   
+                    type: string
+                measurements:                   
+                    type: string
+                rank:                   
+                    type: string
+                weight:                   
+                    type: string
+        Tag: !Structure
+            attributes:
+                name:
+                    type: string
+                category:
+                    type: string
+                categoryOrder:
+                    type: string
+        Scene: !Structure
+            attributes:
+                title:
+                    types: string
+                description:
+                    types: string
+                video_1080p_sizeBytes:
+                    types: string
+                video_1080p_download:
+                    types: string
+                video_1080p_view:
+                    types: string
+                video_1080p_format:
+                    types: string
+                video_length:
+                    types: int
+                actors: Actor+ as actor_scene
+                tags: Tag* as scene_tag"
+                paths: Path* as path_scene
+n_m_relations:
+    actor_tag:
+        attributes:
+            actorid: actor.id
+            tagid: tag.id
+        left: actor
+        right: tag
+    scene_tag:
+        attributes:
+            sceneid: scene.id
+            tagid: tag.id
+        left: scene
+        right: tag
+    actor_scene:
+        attributes:
+            actorid: actor.id
+            sceneid: scene.id
+        left: actor
+        right: scene
+    path_scene:
+        attributes:
+            pathid: path.id
+            sceneid: scene.id
+            ignore: false
+        left: path
+        right: scene
+embedded_relations:
+    video:
+        prefix: video
+        to: scene
+        on: videoid
+        for: videos
+    videos:
+        to: Videos
+        on: full
+        for: videoid
+    files:
+        to: Video
+        on: files
+        for: to
+    r1080p:
+        to: Files
+        on: 1080p
+        for: to
+    media:
+        to: Media
+        on: urls
+        for: to

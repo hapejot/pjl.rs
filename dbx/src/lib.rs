@@ -4,12 +4,11 @@ pub mod error;
 use crate::error::Error;
 use data::model::FieldType::{Lookup, Number, Text};
 use dbimpl::DatabaseImpl;
-use edm::structure::StructureValue;
 use edm::structure::StructureValue as DBRow;
 use log::*;
 use rusqlite::{
     types::{ToSqlOutput, Value},
-    Connection, Row, ToSql,
+    Connection, ToSql,
 };
 use serde::{de::DeserializeOwned, Serialize};
 #[allow(dead_code)]
@@ -41,7 +40,7 @@ impl SqlValue {
             Err(_) => todo!(),
         }
     }
-
+    #[allow(dead_code)]
     fn to_sql(&self) -> ToSqlOutput<'_> {
         self.0.to_sql().unwrap()
     }
@@ -273,6 +272,7 @@ impl From<SqlValue> for u64 {
 // }
 
 #[derive(Clone)]
+#[allow(dead_code)]
 pub struct Database {
     arc: Arc<DatabaseGuarded>,
     model: Option<Rc<DataModel>>,
@@ -281,7 +281,7 @@ pub struct Database {
 pub struct DatabaseGuarded {
     mutex: Mutex<DatabaseImpl>,
 }
-
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct Field {
     name: String,
@@ -292,7 +292,7 @@ pub struct Field {
     changed: bool,
     default: Option<String>,
 }
-
+#[allow(dead_code)]
 #[derive(Debug)]
 pub struct DBField {
     name: String,
@@ -614,7 +614,7 @@ fn value_to_sql(v: &edm::value::Value) -> ToSqlOutput<'_> {
             edm::primitive::PrimitiveValue::Boolean(_) => todo!(),
             edm::primitive::PrimitiveValue::Decimal(_) => todo!(),
             edm::primitive::PrimitiveValue::String(v) => ToSqlOutput::Owned(Value::Text(v.clone())),
-            edm::primitive::PrimitiveValue::Custom { datatype, value } => todo!(),
+            edm::primitive::PrimitiveValue::Custom { .. } => todo!(),
         },
         edm::value::Value::StructureValue(_) => todo!(),
         edm::value::Value::ListValue(_) => todo!(),

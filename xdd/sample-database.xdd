@@ -1,0 +1,46 @@
+model: 
+    name: actor    
+    entities: 
+        Date: !Atom
+            basetype: string
+        Gender: !Enum
+            values:
+                1: Male
+                2: Female
+        Path: !Structure
+            attributes:
+                name: string                
+        File: !Structure
+            attributes:
+                pathid: -> Path
+                size: int
+                name: string
+        Actor:  !Structure
+            attributes:
+                name: string
+                bio: string
+                birthPlace: string
+                birthday: Date
+                gender: Gender
+                height: string
+                lastSceneReleaseDate: string
+                measurements: string
+                rank: string
+                weight: string
+        Tag: !Structure
+            attributes:
+                name: string
+                category: string
+                categoryOrder: string
+        Scene: !Structure
+            attributes:
+                title: string
+                description: string
+                video_1080p_sizeBytes: string
+                video_1080p_download: string
+                video_1080p_view: string
+                video_1080p_format: string
+                video_length: int
+                actors: Actor+ as actor_scene
+                tags: Tag* as scene_tag
+                paths: Path* as path_scene

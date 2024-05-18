@@ -125,7 +125,7 @@ impl DataModel {
                     }
                     FieldType::DependentList(_) => match value {
                         EdmValue::PrimitiveValue(_) => todo!(),
-                        EdmValue::StructureValue(StructureValue { datatype, values }) => {
+                        EdmValue::StructureValue(StructureValue { values, .. }) => {
                             for (_, child) in values {
                                 debug!("dependent list building from {:?}", child);
                                 self.gen_dep(
@@ -153,9 +153,9 @@ impl DataModel {
                         }
                     },
                     FieldType::Lookup { table, as_field } => {
-                        if let EdmValue::StructureValue(StructureValue { datatype, values }) = value
+                        if let EdmValue::StructureValue(StructureValue { values, .. }) = value
                         {
-                            if let Some(val) = values.iter().find(|(k, v)| *k == as_field) {
+                            if let Some(val) = values.iter().find(|(k, _)| *k == as_field) {
                                 current_row[field_name.as_str()] = val.1.clone();
                                 debug!("serialize lookup row '{}'", table);
                                 let values =
