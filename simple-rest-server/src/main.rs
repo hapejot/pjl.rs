@@ -7,12 +7,11 @@ use dbx::{
     data::model::{DataModel, Table},
     Database,
 };
-use tower::ServiceExt;
+
 // use tower_http::{ServeDir, ServerFile};
 use std::{
     cell::RefCell,
     collections::{BTreeMap, HashMap},
-    net::SocketAddr,
     rc::Rc,
     sync::{Arc, Mutex},
 };
@@ -23,10 +22,9 @@ use axum::{
     http::{header::CONTENT_TYPE, Request},
     response::Response,
     routing::get,
-    handler::HandlerWithoutStateExt,
     Router,
 };
-use tower_http::services::{ServeDir, ServeFile};
+use tower_http::services::ServeDir;
 use serde_json::Value;
 
 use tracing::{debug, info};
@@ -42,12 +40,13 @@ use clap::Parser;
 
 #[derive(Parser)]
 struct CmdArgs {
-    #[clap(short, default_value="0.0.0.0:3000")]
+    #[clap(short, default_value="0.0.0.0:8001")]
     port: String,
     root_path: String,
 }
 
 
+#[allow(dead_code)]
 #[derive(Clone)]
 struct State {
     last_call: usize,
@@ -107,11 +106,13 @@ async fn get_handler(Path(objtype): Path<String>) -> axum::Json<serde_json::Valu
     )]))
 }
 
+#[allow(dead_code)]
 #[derive(Clone, Debug)]
 struct SampleData {
     value: usize,
 }
 
+#[allow(dead_code)]
 async fn handler_out() -> (Extension<SampleData>, String) {
     (
         Extension(SampleData { value: 42 }),
@@ -119,6 +120,7 @@ async fn handler_out() -> (Extension<SampleData>, String) {
     )
 }
 
+#[allow(dead_code)]
 async fn handler_in(e: Extension<Arc<Mutex<State>>>) -> String {
     if let Ok(mut x) = e.try_lock() {
         x.last_call += 1;
@@ -186,6 +188,7 @@ async fn metadata( _e: Extension<Arc<Mutex<State>>>) -> Response<Body> {
     res
 }
 
+#[allow(dead_code)]
 async fn handle_entity_set(
     Path(entity): Path<String>,
     Query(q): Query<HashMap<String, String>>,
@@ -471,11 +474,13 @@ async fn handler_meta(request: Request<Body>) -> Response<Body> {
     res
 }
 
+#[allow(dead_code)]
 async fn catch_all(request: Request<Body>) -> String {
     debug!("request: {:#?}", request);
     "...".into()
 }
 
+#[allow(dead_code)]
 fn using_serve_dir(server_dir: &str) -> Router {
     // serve the file in the "assets" directory under `/assets`
     Router::new().nest_service("/", ServeDir::new(server_dir))

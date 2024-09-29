@@ -58,3 +58,47 @@ impl Display for Value {
         }
     }
 }
+
+impl serde::ser::Serialize for Value {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeSeq;
+        use serde::ser::SerializeStruct;
+
+        match self {
+            Value::PrimitiveValue(v) => match v {
+                PrimitiveValue::Null => serializer.serialize_none(),
+                PrimitiveValue::Boolean(_) => todo!(),
+                PrimitiveValue::Decimal(x) => {
+                    if x.is_int() {
+                        serializer.serialize_i64(x.as_i64())
+                    } else {
+                        serializer.serialize_f64(x.as_f64())
+                    }
+                }
+                PrimitiveValue::String(x) => serializer.serialize_str(x),
+                PrimitiveValue::Custom { .. } => todo!(),
+            },
+            Value::StructureValue(v) => {
+                let name = v.datatype.clone();
+                let name = name.leak();
+                let mut s = serializer.serialize_struct(name, v.values.len())?;
+                for (k, vv) in v.values.iter() {
+                    let key = k.clone().leak();
+                    s.serialize_field(key, vv)?;
+                }
+
+                s.end()
+            }
+            Value::ListValue(v) => {
+                let mut s = serializer.serialize_seq(Some(v.len()))?;
+                for x in v.iter() {
+                    s.serialize_element(x)?;
+                }
+                s.end()
+            }
+        }
+    }
+}

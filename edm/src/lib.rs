@@ -9,8 +9,45 @@ pub mod value;
 #[cfg(test)]
 mod testing {
     use crate::{
-        list::ListValue, primitive::PrimitiveValue, structure::StructureValue, value::Value,
+        list::ListValue, number::Number, primitive::PrimitiveValue, structure::StructureValue, value::Value
     };
+
+    #[test]
+    fn serialize_struct_to_yaml() {
+        let value = Value::StructureValue(setup_typed_structure());
+        let s = serde_yaml::to_string(&value).unwrap();
+        let expected = r#"City: Berlin
+Country@associationLink: Customers('ALFKI')/Address/Country/$ref
+Country@navigationLink: Customers('ALFKI')/Address/Country
+PostalCode: 12209
+Region: null
+Street: Obere Str. 57
+"#;
+        assert_eq!(expected, s);
+    }
+
+    #[test]
+    fn serialize_list_to_yaml() {
+        let mut result = ListValue::new();
+        result.push(Value::StructureValue(setup_typed_structure()));
+        result.push(Value::StructureValue(setup_typed_structure()));
+        let value = Value::ListValue(result);
+        let s = serde_yaml::to_string(&value).unwrap();
+        let expected = r#"- City: Berlin
+  Country@associationLink: Customers('ALFKI')/Address/Country/$ref
+  Country@navigationLink: Customers('ALFKI')/Address/Country
+  PostalCode: 12209
+  Region: null
+  Street: Obere Str. 57
+- City: Berlin
+  Country@associationLink: Customers('ALFKI')/Address/Country/$ref
+  Country@navigationLink: Customers('ALFKI')/Address/Country
+  PostalCode: 12209
+  Region: null
+  Street: Obere Str. 57
+"#;
+        assert_eq!(expected, s);
+    }
 
     #[test]
     fn test_1() {
@@ -71,6 +108,12 @@ mod testing {
 
     #[test]
     fn test_typed_structure() {
+        let addr = setup_typed_structure();
+
+        println!("{addr:#?}")
+    }
+
+    fn setup_typed_structure() -> StructureValue {
         let mut addr = StructureValue::new_with_type("Address");
         addr["Street"] = "Obere Str. 57".into();
         addr["City"] = "Berlin".into();
@@ -78,8 +121,7 @@ mod testing {
         addr["PostalCode"] = 12209.into();
         addr["Country@associationLink"] = "Customers('ALFKI')/Address/Country/$ref".into();
         addr["Country@navigationLink"] = "Customers('ALFKI')/Address/Country".into();
-
-        println!("{addr:#?}")
+        addr
     }
 
     #[test]
@@ -111,9 +153,15 @@ mod testing {
 
     #[test]
     fn from_f64() {
-        let v:f64 = 1298.23;
+        let v: f64 = 1298.23;
         let x = Value::from(v);
         assert_eq!("1298.23", x.to_string());
+    }
+
+    #[test]
+    fn to_i64_err() {
+        let v = Number::from(12.5);
+        assert!(!v.is_int());
     }
 
     mod atom {
@@ -141,7 +189,10 @@ mod testing {
                 v.into()
             };
             fmt.convert(&val).unwrap();
-            assert_eq!("<test><a>1</a><asdlfkjsdf>testing more values</asdlfkjsdf></test>", *buf.borrow());
+            assert_eq!(
+                "<test><a>1</a><asdlfkjsdf>testing more values</asdlfkjsdf></test>",
+                *buf.borrow()
+            );
         }
     }
 
@@ -170,7 +221,10 @@ mod testing {
                 v.into()
             };
             fmt.convert(&val).unwrap();
-            assert_eq!(r#"{"__metadata":{"type":"test"},"a":"1","asdlfkjsdf":"testing more values"}"#, *buf.borrow());
+            assert_eq!(
+                r#"{"__metadata":{"type":"test"},"a":"1","asdlfkjsdf":"testing more values"}"#,
+                *buf.borrow()
+            );
         }
 
         #[test]
@@ -179,7 +233,7 @@ mod testing {
             let fmt = crate::json::Format::new(buf.clone());
             let val: crate::value::Value = {
                 let mut v = ListValue::new();
-                v.push( 1.into());
+                v.push(1.into());
                 v.push("testing more values".into());
                 v.into()
             };
@@ -187,5 +241,4 @@ mod testing {
             assert_eq!(r#"["1","testing more values"]"#, *buf.borrow());
         }
     }
-
 }

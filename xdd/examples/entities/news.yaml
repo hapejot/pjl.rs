@@ -1,0 +1,36 @@
+entity:
+  name: NewsItem
+  plural: News
+  default_name: news
+  belongs_to:
+    - project
+    - author:
+        entity: User
+  has_many:
+    comments:
+        lambda: {order("created_on")}
+        as: commented
+        dependent: delete_all
+  attributes:
+    title: 
+      type: string
+      required:
+      max_length: 60 
+    summary:
+      type: string
+      max_length: 255
+    description: 
+      type: string
+      required:
+
+  after_create:
+    add_author_as_watcher: all
+
+  after_create_commit:
+    send_notification: all
+
+  scope: 
+    visible: (lambda do |*args|
+                joins(:project).
+                where(Project.allowed_to_condition(args.shift || User.current, :view_news, *args))
+              end)

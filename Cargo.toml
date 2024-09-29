@@ -7,5 +7,5 @@ members = [
     "edm",
     "pjl-proto", 
     "simple-file-server", 
-    "simple-rest-server"    ]
+    "simple-rest-server"    , "compund-material"]
 

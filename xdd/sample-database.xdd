@@ -18,15 +18,15 @@ model:
         Actor:  !Structure
             attributes:
                 name: string
-                bio: string
-                birthPlace: string
-                birthday: Date
-                gender: Gender
-                height: string
-                lastSceneReleaseDate: string
-                measurements: string
-                rank: string
-                weight: string
+                bio: string?
+                birthPlace: string?
+                birthday: Date?
+                gender: Gender?
+                height: string?
+                lastSceneReleaseDate: string?
+                measurements: string?
+                rank: string?
+                weight: string?
         Tag: !Structure
             attributes:
                 name: string

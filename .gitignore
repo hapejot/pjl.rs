@@ -14,3 +14,6 @@ target
 templates
 tmp
 yaml
+*.sqlite
+out
+err

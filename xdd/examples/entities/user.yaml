@@ -1,0 +1,15 @@
+entity:
+  name: User
+  plural: Users
+  has_and_belongs_to_many: 
+    - groups
+  has_many:
+    - changes
+    - communication_items
+  has_one:
+    - preference
+    - atom_token
+    - api_token
+    - email_address
+  belongs_to: 
+    - auth_source

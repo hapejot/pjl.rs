@@ -1,0 +1,8 @@
+EmailAddress:
+  extends: communication_item
+  belongs_to:
+    user:
+  attributes:
+    email: string
+    kind: string
+    remark: string
