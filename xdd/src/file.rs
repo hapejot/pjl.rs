@@ -80,11 +80,11 @@ impl ModelFile {
             AttributeModel::Empty => todo!(),
             AttributeModel::Name(name) => match self.lookup_entity(name) {
                 Some(Entity::Atom { basetype }) => basetype.clone(),
-                Some(Entity::Enum { values }) => String::from("string"),
+                Some(Entity::Enum { values: _ }) => String::from("string"),
                 Some(Entity::Structure(StructureEntity {
                     name,
-                    sql_name,
-                    attributes,
+                    sql_name: _,
+                    attributes: _,
                 })) => name.as_ref().unwrap().clone(),
                 None => name.clone(),
             },
@@ -93,7 +93,7 @@ impl ModelFile {
             AttributeModel::Many0(_) => todo!(),
             AttributeModel::Many1(_) => todo!(),
             AttributeModel::Key(_) => todo!(),
-            AttributeModel::Named { name, model } => todo!(),
+            AttributeModel::Named { name: _, model: _ } => todo!(),
         }
     }
 }

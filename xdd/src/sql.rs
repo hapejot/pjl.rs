@@ -78,7 +78,7 @@ impl SqlModel {
         ts.get_mut(name)
     }
 
-    fn generate_table(&mut self, v: &ModelFile, name: &String, entity: &StructureEntity) {
+    fn generate_table(&mut self, v: &ModelFile, _name: &String, entity: &StructureEntity) {
         let t = self.ensure_table(entity.sql_name().as_str());
         for (an, src) in entity.attributes() {
             eprintln!("{:} {} - {:?}", entity.sql_name(), an, src);
@@ -89,12 +89,12 @@ impl SqlModel {
 }
 
 fn make_field_def(src: &AttributeModel, v: &ModelFile, an: &String) -> SqlField {
-    let mut types = String::new();
-    let mut null = false;
-    let mut key = false;
+    // let types = String::new();
+    // let null = false;
+    // let mut key = false;
     match src {
         AttributeModel::Empty => todo!("why is field {} empty?", an),
-        AttributeModel::Name(type_name) => {
+        AttributeModel::Name(_type_name) => {
             let types = v.derive_type_name(&src).clone();
             SqlField {
                 name: an.clone(),
@@ -159,6 +159,7 @@ impl std::fmt::Display for SqlTable {
     }
 }
 
+#[allow(dead_code)]
 fn handle_attribute(
     src: AttributeModel,
     v: &ModelFile,
@@ -179,7 +180,7 @@ fn handle_attribute(
         AttributeModel::Optional(type_name) => {
             t.add_field(an, v.derive_type_name(&type_name).clone(), true);
         }
-        AttributeModel::Key(model) => todo!(),
+        AttributeModel::Key(_model) => todo!(),
         AttributeModel::Many0(_) => self::panic!(),
         AttributeModel::Many1(_) => self::panic!(),
         AttributeModel::Named { name, model } => match *model {
@@ -189,8 +190,7 @@ fn handle_attribute(
                 {
                     backlog.push((name.clone(), n1));
                     backlog.push((name, n2));
-                }
-                else {
+                } else {
                     eprintln!("{} * {} could not be resolved.", ename, x);
                 }
             }
@@ -200,8 +200,7 @@ fn handle_attribute(
                 {
                     backlog.push((name.clone(), n1));
                     backlog.push((name, n2));
-                }
-                else {
+                } else {
                     eprintln!("{} * {} could not be resolved.", ename, x);
                 }
             }

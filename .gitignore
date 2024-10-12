@@ -1,7 +1,6 @@
-.vscode
-*/target
 architecture.md
 client
+err
 file-database
 filesystem
 large-buffer
@@ -9,11 +8,13 @@ linux-fuser-adapter
 log
 logging.md
 network
+out
 path
+*.sqlite
+*.tar
+*/target
 target
 templates
 tmp
+.vscode
 yaml
-*.sqlite
-out
-err

@@ -2,7 +2,7 @@ use core::panic;
 use santiago::{grammar::Grammar, lexer::LexerRules};
 
 pub use file::{Entity, ModelFile, StructureEntity};
-pub use sql::{generate_sql, SqlField, SqlTable, SqlModel, diff};
+pub use sql::{diff, generate_sql, SqlField, SqlModel, SqlTable};
 
 mod file;
 mod sql;
@@ -241,7 +241,7 @@ model:
     fn load_yaml() {
         // let s = std::fs::read_to_string("sample-database.xdd").unwrap();
         let v = ModelFile::from_str(SAMPLE);
-        for (n, e) in v.entities() {
+        for (n, _e) in v.entities() {
             println!("entity: {n}");
             // for (an, src) in e.attributes() {
             //     println!("{an}: {src}");
