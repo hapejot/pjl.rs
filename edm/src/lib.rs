@@ -6,10 +6,84 @@ pub mod primitive;
 pub mod structure;
 pub mod value;
 
+pub mod csdl {
+    use serde::{Deserialize, Serialize};
+
+    #[derive(Debug, Serialize, Deserialize)]
+    pub struct Schema {
+        pub annotations: Vec<Annotation>,
+        pub associations: Vec<Association>,
+        pub complex_types: Vec<ComplexType>,
+        pub entity_containers: Vec<EntityContianer>,
+        pub entity_types: Vec<EntityType>,
+        pub enum_types: Vec<EnumType>,
+        pub functions: Vec<Function>,
+        pub usings: Vec<Using>,
+        pub value_terms: Vec<ValueTerm>,
+    }
+    #[derive(Debug, Serialize, Deserialize)]
+    pub struct Annotation {}
+    #[derive(Debug, Serialize, Deserialize)]
+    pub struct Association {}
+    #[derive(Debug, Serialize, Deserialize)]
+    pub struct ComplexType {
+        pub name: String,
+        pub base: Option<String>,
+        pub open: bool,
+        pub properties: Vec<Property>,
+    }
+    #[derive(Debug, Serialize, Deserialize)]
+    pub struct EntityContianer {}
+    #[derive(Debug, Serialize, Deserialize)]
+    pub struct EntityType {
+        pub name: String,
+        pub base: Option<String>,
+        pub open: bool,
+        pub key: Option<Key>,
+        pub properties: Vec<Property>,
+    }
+
+    #[derive(Debug, Serialize, Deserialize)]
+    pub struct EnumType {
+        pub name: String,
+        pub underlying_type: String,
+        pub is_flags: bool,
+        pub members: Vec<Member>,
+    }
+    #[derive(Debug, Serialize, Deserialize)]
+    pub struct Function {}
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    pub struct Key {
+        pub properties: Vec<String>,
+    }
+    #[derive(Debug, Serialize, Deserialize)]
+    pub struct Member {
+        pub name: String,
+        pub value: String,
+    }
+    #[derive(Debug, Serialize, Deserialize)]
+    pub struct Using {}
+    #[derive(Debug, Serialize, Deserialize)]
+    pub struct ValueTerm {}
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    pub struct Property {
+        pub name: String,
+        #[serde(rename = "type")]
+        pub ptype: String,
+        pub nullable: bool,
+        pub navigation: bool,
+    }
+}
+
+pub trait HelloMacro {
+    fn hello();
+}
+
 #[cfg(test)]
 mod testing {
     use crate::{
-        list::ListValue, number::Number, primitive::PrimitiveValue, structure::StructureValue, value::Value
+        list::ListValue, number::Number, primitive::PrimitiveValue, structure::StructureValue,
+        value::Value,
     };
 
     #[test]

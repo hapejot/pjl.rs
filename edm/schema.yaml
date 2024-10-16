@@ -1,0 +1,292 @@
+start
+Schema [
+    OwnedAttribute {
+        name: OwnedName {
+            local_name: "Namespace",
+            namespace: None,
+            prefix: None,
+        },
+        value: "Microsoft.OData.SampleService.Models.TripPin",
+    },
+]
+annotations: []
+associations: []
+complex_types:
+- name: City
+  base: null
+  open: false
+  properties:
+  - name: CountryRegion
+    type: Edm.String
+    nullable: false
+    navigation: false
+  - name: Name
+    type: Edm.String
+    nullable: false
+    navigation: false
+  - name: Region
+    type: Edm.String
+    nullable: false
+    navigation: false
+- name: Location
+  base: null
+  open: true
+  properties:
+  - name: Address
+    type: Edm.String
+    nullable: false
+    navigation: false
+  - name: City
+    type: Microsoft.OData.SampleService.Models.TripPin.City
+    nullable: false
+    navigation: false
+- name: EventLocation
+  base: Microsoft.OData.SampleService.Models.TripPin.Location
+  open: true
+  properties:
+  - name: BuildingInfo
+    type: Edm.String
+    nullable: true
+    navigation: false
+- name: AirportLocation
+  base: Microsoft.OData.SampleService.Models.TripPin.Location
+  open: true
+  properties:
+  - name: Loc
+    type: Edm.GeographyPoint
+    nullable: false
+    navigation: false
+entity_containers: []
+entity_types:
+- name: Photo
+  base: null
+  open: false
+  key:
+    properties:
+    - Id
+  properties:
+  - name: Id
+    type: Edm.Int64
+    nullable: false
+    navigation: false
+  - name: Name
+    type: Edm.String
+    nullable: true
+    navigation: false
+- name: Person
+  base: null
+  open: true
+  key:
+    properties:
+    - UserName
+  properties:
+  - name: UserName
+    type: Edm.String
+    nullable: false
+    navigation: false
+  - name: FirstName
+    type: Edm.String
+    nullable: false
+    navigation: false
+  - name: LastName
+    type: Edm.String
+    nullable: false
+    navigation: false
+  - name: Emails
+    type: Collection(Edm.String)
+    nullable: true
+    navigation: false
+  - name: AddressInfo
+    type: Collection(Microsoft.OData.SampleService.Models.TripPin.Location)
+    nullable: true
+    navigation: false
+  - name: Gender
+    type: Microsoft.OData.SampleService.Models.TripPin.PersonGender
+    nullable: true
+    navigation: false
+  - name: Concurrency
+    type: Edm.Int64
+    nullable: false
+    navigation: false
+  - name: Friends
+    type: Collection(Microsoft.OData.SampleService.Models.TripPin.Person)
+    nullable: true
+    navigation: true
+  - name: Trips
+    type: Collection(Microsoft.OData.SampleService.Models.TripPin.Trip)
+    nullable: true
+    navigation: true
+  - name: Photo
+    type: Microsoft.OData.SampleService.Models.TripPin.Photo
+    nullable: true
+    navigation: true
+- name: Airline
+  base: null
+  open: false
+  key:
+    properties:
+    - AirlineCode
+  properties:
+  - name: AirlineCode
+    type: Edm.String
+    nullable: false
+    navigation: false
+  - name: Name
+    type: Edm.String
+    nullable: false
+    navigation: false
+- name: Airport
+  base: null
+  open: false
+  key:
+    properties:
+    - IcaoCode
+  properties:
+  - name: IcaoCode
+    type: Edm.String
+    nullable: false
+    navigation: false
+  - name: Name
+    type: Edm.String
+    nullable: false
+    navigation: false
+  - name: IataCode
+    type: Edm.String
+    nullable: false
+    navigation: false
+  - name: Location
+    type: Microsoft.OData.SampleService.Models.TripPin.AirportLocation
+    nullable: false
+    navigation: false
+- name: PlanItem
+  base: null
+  open: false
+  key:
+    properties:
+    - PlanItemId
+  properties:
+  - name: PlanItemId
+    type: Edm.Int32
+    nullable: false
+    navigation: false
+  - name: ConfirmationCode
+    type: Edm.String
+    nullable: true
+    navigation: false
+  - name: StartsAt
+    type: Edm.DateTimeOffset
+    nullable: true
+    navigation: false
+  - name: EndsAt
+    type: Edm.DateTimeOffset
+    nullable: true
+    navigation: false
+  - name: Duration
+    type: Edm.Duration
+    nullable: true
+    navigation: false
+- name: PublicTransportation
+  base: Microsoft.OData.SampleService.Models.TripPin.PlanItem
+  open: false
+  key: null
+  properties:
+  - name: SeatNumber
+    type: Edm.String
+    nullable: true
+    navigation: false
+- name: Flight
+  base: Microsoft.OData.SampleService.Models.TripPin.PublicTransportation
+  open: false
+  key: null
+  properties:
+  - name: FlightNumber
+    type: Edm.String
+    nullable: false
+    navigation: false
+  - name: From
+    type: Microsoft.OData.SampleService.Models.TripPin.Airport
+    nullable: false
+    navigation: true
+  - name: To
+    type: Microsoft.OData.SampleService.Models.TripPin.Airport
+    nullable: false
+    navigation: true
+  - name: Airline
+    type: Microsoft.OData.SampleService.Models.TripPin.Airline
+    nullable: false
+    navigation: true
+- name: Event
+  base: Microsoft.OData.SampleService.Models.TripPin.PlanItem
+  open: true
+  key: null
+  properties:
+  - name: Description
+    type: Edm.String
+    nullable: true
+    navigation: false
+  - name: OccursAt
+    type: Microsoft.OData.SampleService.Models.TripPin.EventLocation
+    nullable: false
+    navigation: false
+- name: Trip
+  base: null
+  open: false
+  key:
+    properties:
+    - TripId
+  properties:
+  - name: TripId
+    type: Edm.Int32
+    nullable: false
+    navigation: false
+  - name: ShareId
+    type: Edm.Guid
+    nullable: true
+    navigation: false
+  - name: Description
+    type: Edm.String
+    nullable: true
+    navigation: false
+  - name: Name
+    type: Edm.String
+    nullable: false
+    navigation: false
+  - name: Budget
+    type: Edm.Single
+    nullable: false
+    navigation: false
+  - name: StartsAt
+    type: Edm.DateTimeOffset
+    nullable: false
+    navigation: false
+  - name: EndsAt
+    type: Edm.DateTimeOffset
+    nullable: false
+    navigation: false
+  - name: Tags
+    type: Collection(Edm.String)
+    nullable: false
+    navigation: false
+  - name: Photos
+    type: Collection(Microsoft.OData.SampleService.Models.TripPin.Photo)
+    nullable: true
+    navigation: true
+  - name: PlanItems
+    type: Collection(Microsoft.OData.SampleService.Models.TripPin.PlanItem)
+    nullable: true
+    navigation: true
+enum_types:
+- name: PersonGender
+  underlying_type: ''
+  is_flags: false
+  members:
+  - name: Male
+    value: '0'
+  - name: Female
+    value: '1'
+  - name: Unknown
+    value: '2'
+functions: []
+usings: []
+value_terms: []
+

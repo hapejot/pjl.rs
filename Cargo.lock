@@ -508,7 +508,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b6a852b24ab71dffc585bcb46eaf7959d175cb865a7152e35b348d1b2960422"
 
 [[package]]
-name = "compund-material"
+name = "compound-material"
 version = "0.1.0"
 
 [[package]]
@@ -670,8 +670,11 @@ dependencies = [
 name = "edm"
 version = "0.1.0"
 dependencies = [
+ "paste",
  "serde",
  "serde_yaml 0.9.35",
+ "xml-rs",
+ "xml_derive",
 ]
 
 [[package]]
@@ -1484,6 +1487,12 @@ dependencies = [
  "rand_core",
  "subtle",
 ]
+
+[[package]]
+name = "paste"
+version = "1.0.15"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a"
 
 [[package]]
 name = "pbkdf2"
@@ -2704,6 +2713,19 @@ dependencies = [
  "santiago",
  "serde",
  "serde_yaml 0.9.35",
+]
+
+[[package]]
+name = "xml-rs"
+version = "0.8.22"
+source = "git+https://github.com/hapejot/xml-rs.git#19b6cbb28e5f5bf0daa2f7d30002dbca88d44e4f"
+
+[[package]]
+name = "xml_derive"
+version = "0.1.0"
+dependencies = [
+ "quote",
+ "syn 2.0.64",
 ]
 
 [[package]]

@@ -8,5 +8,7 @@ members = [
     "pjl-proto", 
     "simple-file-server", 
     "linux-fuser-adapter",
-    "simple-rest-server"    , "compund-material", "navi"]
+    "simple-rest-server", 
+    "compound-material", 
+    "navi", "xml_derive"]
 
