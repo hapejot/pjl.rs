@@ -30,6 +30,10 @@ impl StructureValue {
     pub fn datatype(&self) -> &str {
         self.datatype.as_ref()
     }
+
+    pub fn has_field(&self, name: &str) -> bool {
+        self.values.contains_key(name)
+    }
 }
 
 impl ops::Index<&str> for StructureValue {
@@ -51,7 +55,6 @@ impl ops::IndexMut<&str> for StructureValue {
         self.values.get_mut(index).unwrap()
     }
 }
-
 
 impl Display for StructureValue {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

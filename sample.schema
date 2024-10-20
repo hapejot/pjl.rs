@@ -1,0 +1,19 @@
+tables:
+- name: person
+  fields:
+  - name: id
+    ftype: INTEGER
+    nullable: false
+    key: true
+  - name: name
+    ftype: TEXT
+    nullable: false
+    key: false
+  - name: data
+    ftype: BLOB
+    nullable: true
+    key: false
+  - name: birth_date
+    ftype: date
+    nullable: true
+    key: false

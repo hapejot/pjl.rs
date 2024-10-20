@@ -20,11 +20,15 @@ impl Number {
     pub fn is_int(&self) -> bool {
         self.is_int
     }
+
+    pub fn as_str(&self) -> &str {
+        &self.val
+    }
 }
 
 impl std::fmt::Display for Number {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.val.as_str())
+        write!(f, "{}", self.val)
     }
 }
 

@@ -13,7 +13,7 @@ log = "0.4.20"
 rusqlite = { version = "*", features = ["modern-full", "bundled-full"] }
 serde = { version = "1.0.195", features = ["derive"] }
 serde_derive = "1.0.195"
-serde_yaml = "0.9.30"
+serde_yaml = { git = "https://github.com/hapejot/serde-yaml.git", version = "0.9.*" }
 simple-logging = "2.0.2"
 # tracing = "0.1.40"
 # tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }

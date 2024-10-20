@@ -1,0 +1,12 @@
+[package]
+name = "dbc"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bytes = "1.7.2"
+edm = { version = "0.1.0", path = "../edm" }
+postgres = "0.19.9"
+rusqlite = { version = "0.32.1", features = ["bundled-full"] }
+serde = { version = "1.0.210", features = ["derive"] }
+serde_yaml = { git = "https://github.com/hapejot/serde-yaml.git", version = "0.9.*" }
