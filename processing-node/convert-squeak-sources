@@ -1,0 +1,1 @@
+cat ~/Downloads/SqueakV1.sources | tr '\r' '\n' | iconv --from-code=mac --to-code=utf8 >> v1.script

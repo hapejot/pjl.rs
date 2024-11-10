@@ -1,8 +1,6 @@
 use dbc::model::*;
 use dbc::sqlite::*;
-use rusqlite::{params, Connection};
-use std::fmt::Write;
-use std::fs::File;
+use rusqlite::Connection;
 
 #[derive(Debug)]
 struct Person {

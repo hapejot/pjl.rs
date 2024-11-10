@@ -1,0 +1,8 @@
+2024-11-09T11:39:12.841930Z  INFO starting
+2024-11-09T11:39:12.841986Z  INFO terminal size: 257 cols, 22 rows
+2024-11-09T11:39:15.108136Z DEBUG key KeyEvent { code: Char('a'), modifiers: KeyModifiers(0x0), kind: Press, state: KeyEventState(0x0) }
+2024-11-09T11:39:15.151726Z DEBUG key KeyEvent { code: Char('s'), modifiers: KeyModifiers(0x0), kind: Press, state: KeyEventState(0x0) }
+2024-11-09T11:39:15.287927Z DEBUG key KeyEvent { code: Char('d'), modifiers: KeyModifiers(0x0), kind: Press, state: KeyEventState(0x0) }
+2024-11-09T11:39:15.355724Z DEBUG key KeyEvent { code: Char('f'), modifiers: KeyModifiers(0x0), kind: Press, state: KeyEventState(0x0) }
+2024-11-09T11:39:17.464321Z DEBUG resize
+2024-11-09T11:39:17.537539Z DEBUG resize

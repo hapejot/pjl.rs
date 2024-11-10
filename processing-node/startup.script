@@ -1,0 +1,773 @@
+#!/usr/bin/env -vS cargo run --example script-client -- --format chunks
+
+
+"This package provides an improved implementation of the Smalltalk windowing system, as defined in StandardSystemView.  The aims of the package are twofold:
+1. To provide improved performance when moving between windows, and
+2. To eliminate the unpleasant effects that occur when windows are moved, resized, collapsed or closed (i.e., the space they occupy is simply filled with gray halftone).
+The first aim is achieved by caching for each StandardSystemView open in the current project a bitmap of its deselected state.  This bitmap is not used when a view is active, only when is deselected.  The bitmaps are saved whenever a view is de-emphasised, and are discarded entirely when the project is exited or a snapshot saved.  Otherwise, a vast amount of space would be occupied by bitmaps of views which were off-screen.
+When a view is selected, the cached bitmap is used to redraw the view if available, otherwise the default display mechanism is used.  
+The second aim, that of eliminating the gray-fill when views are repositioned or closed, is eliminated by providing protocol in ControlManager for redisplaying the views but clipping the redisplay to an arbitrary set of rectangular regions.  A new class, RectangleSet, performs the calculations required.  Whenever the position of a view is changed, the difference in areas between the new position and the old position are calculated, and the underlying view are projected through to fixup the screen in those areas.  
+
+Note: this implementation requires a virtual machine that can cope with requests for lots of extra memory (perhaps 100Kb for the cached bitmaps) and has a fair amount of performance.  A lack of performance will be particularly evident when a window is moved.
+
+Protocol is also for provided for changing the background color of the screen.
+
+If something untoward should occur (such as you need all the memory you can get), the action of this package can be inhibited by assigning false to the global variable CacheBitmaps.
+"
+
+'From Smalltalk-80, version 2, of April 1, 1983 on 19 January 1987 at 6:23:24 pm'!
+
+Set variableSubclass: #RectangleSet
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Interface-Support'!
+RectangleSet comment:
+'I represent sets of points bounded by rectangles.  I know to how to compute unions, intersections, differences, etc., of such sets.'!
+
+
+!RectangleSet methodsFor: 'intersection'!
+
+intersect: aRectangleSet
+	"Answer a new RectangleSet that is the intersection of me and aRectangleSet."
+	| resultSet |
+	resultSet _ RectangleSet new.
+	aRectangleSet do: [ :aRectangle |
+		resultSet addAll: (self intersectRectangle: aRectangle)].
+	^resultSet!
+
+intersectRectangle: aRectangle
+	"Answer a new RectangleSet that is the intersection of me and aRectangle."
+	| resultSet |
+	resultSet _ RectangleSet new.
+	self do: [ :myRectangle |
+		(myRectangle intersects: aRectangle)
+			ifTrue: [resultSet add: (myRectangle intersect: aRectangle)]].
+	^resultSet!
+
+intersectsRectangle: aRectangle
+	"Answer whether or not I intersect aRectangle."
+	self detect: [ :myRectangle | myRectangle intersects: aRectangle]
+		 ifNone: [^false].
+	^true! !
+
+!RectangleSet methodsFor: 'translating'!
+
+translateBy: aPoint
+	^self collect: [ :aRectangle | aRectangle translateBy: aPoint]! !
+
+!RectangleSet methodsFor: 'difference'!
+
+difference: aRectangleSet
+	"Answer a new RectangleSet that is me without the points in aRectangleSet"
+	^aRectangleSet inject: self
+		  into: [ :resultSet :aRectangle | resultSet differenceRectangle: aRectangle]!
+
+differenceRectangle: aRectangle
+	"Answer a new RectangleSet that is me without the points in aRectangle"
+	| resultSet commonRectangle |
+	resultSet _ RectangleSet new.
+	(self intersectsRectangle: aRectangle)
+		ifFalse: [resultSet _ self deepCopy. ^resultSet].
+	self do: [ :myRectangle |
+		resultSet addAll: (myRectangle difference: aRectangle)].
+	^resultSet!
+
+subtract: aRectangleSet
+	"Subtract aRectangleSet from me and return myself"
+	| addset removeset |
+	addset _ RectangleSet new.
+	removeset _ RectangleSet new.
+	aRectangleSet do: [ :aRectangle |
+		self do: [ :myRectangle |
+			(myRectangle intersects: aRectangle)
+				ifTrue: [removeset add: myRectangle.
+						addset addAll: ((myRectangle difference: aRectangle) difference: aRectangleSet)]]].
+	self addAll: addset.
+	self removeAll: removeset! !
+
+!RectangleSet methodsFor: 'displaying'!
+
+displayColored: aForm
+	| quad |
+	self do: [ :aRectangle |
+		quad _ Quadrangle region: aRectangle
+			borderWidth: 0
+			borderColor: Form white
+			insideColor: aForm.
+		quad display]! !
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+RectangleSet class
+	instanceVariableNames: ''!
+
+
+!RectangleSet class methodsFor: 'instance creation'!
+
+fromUser
+	"Create an instance of me by repeatedly calling Rectangle fromUser until either the yellow or blue button is pressed."
+	| resultSet continue |
+	resultSet _ self new.
+
+	[Sensor waitNoButton.
+	Sensor waitButton.
+	 continue _ Sensor redButtonPressed.
+	 continue ifTrue:
+		[resultSet add: Rectangle fromUser]] doUntil: [continue not].
+	^resultSet!
+
+fromUser: aColor
+	"Create an instance of me by repeatedly calling Rectangle fromUser until either the yellow or blue button is pressed."
+	| rect resultSet quad cont |
+	resultSet _ self new.
+
+	[Sensor waitNoButton.
+	 Sensor waitButton.
+	 (cont _ Sensor redButtonPressed) ifTrue:
+		[rect _ Rectangle fromUser.
+		quad _ Quadrangle region: rect
+			borderWidth: 0
+			borderColor: aColor
+			insideColor: aColor.
+		 quad display.
+		 resultSet add: rect]]
+			 doWhile: [cont].
+	^resultSet! !
+
+!RectangleSet class methodsFor: 'examples'!
+
+example
+	"Select a set of rectangles using the left button, then terminate with any other button.  Select a second set.  The screen will then display the differences."
+	| r1 r2 |
+	Display white.
+	r1 _ RectangleSet fromUser: Form veryLightGray.
+	r2 _ RectangleSet fromUser: Form lightGray.
+	r1 subtract: r2.
+	r1 displayColored: Form gray.
+	Sensor waitClickButton.
+	ScheduledControllers restore
+
+	"RectangleSet example"! !
+
+!Rectangle methodsFor: 'rectangle set functions'!
+
+difference: aRectangle
+	"Answer a RectangleSet that is me without the points in aRectangle"
+	| resultSet commonRectangle leftMargin rightMargin topMargin bottomMargin |
+	resultSet _ RectangleSet new.
+	(self intersects: aRectangle)
+		ifFalse: [resultSet add: self.  ^resultSet].
+	commonRectangle _ self intersect: aRectangle.
+	topMargin _ commonRectangle top - self top.
+	bottomMargin _ self bottom - commonRectangle bottom.
+	leftMargin _ commonRectangle left - self left.
+	rightMargin _ self right - commonRectangle right.
+	topMargin > 0
+		ifTrue: [resultSet add: (origin extent: self width @ topMargin)].
+	bottomMargin > 0
+		ifTrue: [resultSet add: ((self left @ commonRectangle bottom) corner: corner)].
+	leftMargin > 0
+		ifTrue: [resultSet add: ((self left @ commonRectangle top) corner: commonRectangle bottomLeft)].
+	rightMargin > 0 
+		ifTrue: [resultSet add: (commonRectangle topRight extent: (rightMargin @ commonRectangle height))].
+	^resultSet! !
+
+!Set methodsFor: 'enumerating'!
+
+collect: aBlock 
+	"Evaluate aBlock with each of the receiver's elements as the argument.  Collect the 
+	resulting values into another Set.  Answer the new Set.  We override the general
+	method, so that we make a big enough set and avoid growing. "
+
+	| newSet size index element |
+	tally = 0 ifTrue: [^self species new: 2].
+	newSet _ self species new: (size _ self basicSize).
+	index _ 0.
+	[(index _ index + 1) <= size] whileTrue:
+		[(element _ self basicAt: index) == nil ifFalse:
+			[newSet add: (aBlock value: element)]].
+	^newSet! !
+
+
+!ProjectController methodsFor: 'menu messages'!
+
+enter
+	"Exchange projects so that the receiver's model is the context in which the user works."
+	view topView deEmphasize.
+	Smalltalk removeDependent: Project current.
+	model enter! !
+
+Smalltalk at: #CacheBitmaps put: true! !
+
+StandardSystemController methodsFor: 'basic control sequence'!
+
+controlTerminate
+	status == #closed
+		ifTrue: 
+			[view ~~ nil ifTrue: [view release].
+			ScheduledControllers unschedule: self.
+			^self].
+	status == #inactive
+		ifTrue: 
+			[view deEmphasize.
+			CacheBitmaps ifTrue: 
+				[ScheduledControllers pushTopToBottom.
+				ScheduledControllers
+					displayViewsThrough: view computeBoundingRectangleSet
+					on: Display
+					excluding: nil]
+			ifFalse:
+				[ScheduledControllers pullBottomToTop].
+			^self].
+	view deEmphasize! !
+
+!StandardSystemController methodsFor: 'menu messages'!
+
+expand
+	"The receiver's view was collapsed;  open it again and ask the user to
+	designate its rectangular area."
+
+	view erase.
+	view expand.
+	view resize.
+	view displayEmphasized.
+	sensor cursorPoint: view displayBox center.
+	sensor waitNoButton!
+
+move
+	"Ask the user to designate a new origin position for the receiver's view."
+	| labelForm labelOrigin viewBackground cursorPoint oldCursorPoint screenArea oldArea |
+	view deEmphasize.
+	sensor cursorPoint: view labelDisplayBox origin.
+	CacheBitmaps & view displayForm notNil
+		ifFalse:
+			[labelForm _ Form fromDisplay: (view labelDisplayBox).
+			 view erase.
+			 Cursor origin showWhile:
+				[labelForm follow: [sensor cursorPoint] while: [sensor noButtonPressed]].
+			 labelOrigin _ sensor cursorPoint.
+			 view align: view labelDisplayBox origin
+				with: labelOrigin.
+			view displayEmphasized]
+		ifTrue:
+			[Cursor origin showWhile:
+				[oldCursorPoint _ sensor cursorPoint.
+				 oldArea _ view computeBoundingRectangleSet.
+
+				 [sensor noButtonPressed] whileTrue: [
+					cursorPoint _ sensor cursorPoint.
+					cursorPoint ~= oldCursorPoint ifTrue:
+						[view align: oldCursorPoint with: cursorPoint.
+						 screenArea _ view computeBoundingRectangleSet.
+						 oldCursorPoint _ cursorPoint.
+						 view display.
+						 ScheduledControllers
+							displayViewsThrough: (oldArea difference: screenArea)
+							on: Display
+							excluding: view.
+						 oldArea _ screenArea]]].
+			 view releaseSavedForms.
+			 view displayEmphasized.
+			 sensor cursorPoint: view displayBox center.
+			 sensor waitNoButton]!
+
+under
+	"Deactive the receiver's scheduled view and pass control to any view that
+	might be positioned directly underneath it and the cursor."
+
+	status _ #inactive! !
+
+
+!ControlManager methodsFor: 'initialize-release'!
+
+initialize
+	"Initialize the receiver to refer to only the background controller."
+	| screenView |
+	screenController _ ScreenController new.
+	screenView _ FormView new.
+	screenView model: (InfiniteForm with: ScheduledControllers screenController model) controller: screenController.
+	screenView window: Display boundingBox.
+	scheduledControllers _ OrderedCollection with: screenController! !
+
+!ControlManager methodsFor: 'accessing'!
+
+activeController: aController 
+	"Set aController to be the currently active controller.  Give the user control in it."
+
+	activeController _ aController.
+	self promote: activeController.
+	activeControllerProcess _ 
+			[activeController startUp.
+			self searchForActiveController] newProcess.
+	activeControllerProcess priority: Processor userSchedulingPriority.
+	self relegate: screenController.	"this ensures that screenController is always at the bottom"
+	activeControllerProcess resume!
+
+screenController
+	"returns the current screenController"
+
+	^screenController! !
+
+!ControlManager methodsFor: 'scheduling'!
+
+interruptName: title
+	"Create a Notifier on the active scheduling process whose label is title
+	Make the Notifier the active controller."
+
+	| newActiveController suspendingList |
+	suspendingList _ activeControllerProcess suspendingList.
+	suspendingList isNil
+		ifTrue: [activeControllerProcess==Processor activeProcess
+						ifTrue: [activeControllerProcess suspend]]
+		ifFalse: [suspendingList remove: activeControllerProcess.
+				 activeControllerProcess offList].
+	activeController ~~ nil
+			ifTrue: [activeController controlTerminate].
+	newActiveController _ 
+		(NotifierView openInterrupt: title
+					  onProcess: activeControllerProcess)
+							controller.
+	newActiveController centerCursorInView.
+	self activeController: newActiveController!
+
+pushTopToBottom
+	"Make the top view the bottom view (but above screenController)."
+
+	self relegate: self activeController.
+	self relegate: screenController!
+
+relegate: aController
+	"Make aController be the last scheduled controller in the ordered collection."
+	
+	scheduledControllers remove: aController.
+	scheduledControllers addLast: aController! !
+
+!ControlManager methodsFor: 'displaying'!
+
+background: aForm 
+	"Sets the current project background to be aForm. Re-display the  
+	screen."
+
+	| rectSet |
+	screenController model form: aForm.
+	rectSet _ RectangleSet with: screenController view window.
+	scheduledControllers do: [ :aController |
+		aController ~~ screenController
+			ifTrue: [rectSet subtract: aController view computeBoundingRectangleSet]].
+	screenController view displayThrough: rectSet on: Display
+
+	"ScheduledControllers background: Cursor spiral."
+	"ScheduledControllers background: Form lightGray."!
+
+displayViewsThrough: aRectangleSet on: aDisplayMedium excluding: excludedView
+	"Display all the views, excluding aView, on aDisplayMedium, clipping to aRectangleSet.  Note that aRectangleSet is modified by this method."
+
+	| rectSet |
+	rectSet _ aRectangleSet.
+	scheduledControllers do: [:aController |
+		aController view ~~ excludedView
+			ifTrue: [aController view displayThrough: rectSet on: aDisplayMedium.
+					rectSet subtract: aController view computeBoundingRectangleSet]]!
+
+restore
+	"Clear the screen to gray and then redisplay all the scheduled views."
+
+	self relegate: screenController.
+	screenController view window: Display boundingBox.
+	Project current releaseFormsForAllViews.
+	scheduledControllers reverseDo: 
+		[:aController | aController view display; deEmphasize].
+	Cursor normal show! !
+
+
+!Paragraph methodsFor: 'displaying'!
+
+displayLines: lineInterval on: aDisplayMedium
+	"Display on a new destination medium -- typically a form."
+
+	self displayLines: lineInterval
+		on: aDisplayMedium
+		at: compositionRectangle topLeft
+		clippingBox: clippingRectangle
+		rule: rule
+		mask: mask!
+
+displayLines: lineInterval on: aDisplayMedium at: aDisplayPoint clippingBox: clipRectangle rule: ruleInteger mask: aForm
+	"Display the specified lines"
+
+	destinationForm _ aDisplayMedium.
+	clippingRectangle _ clipRectangle.
+	rule _ ruleInteger.
+	mask _ aForm.
+	compositionRectangle moveTo: aDisplayPoint.
+	(lastLine == nil or: [lastLine < 1]) ifTrue: [self composeAll].
+	self displayLines: lineInterval!
+
+displayOn: aDisplayMedium at: aDisplayPoint clippingBox: clipRectangle rule: ruleInteger mask: aForm
+	"Default display message when aDisplayPoint is in absolute screen 
+	coordinates. "
+
+	self displayLines: (1 to: lastLine) on: aDisplayMedium at: aDisplayPoint clippingBox: clipRectangle rule: ruleInteg 
+!Quadrangle methodsFor: 'displaying-generic'!
+
+displayOn: aDisplayMedium
+	"Display the border and insideRegion of the receiver."
+
+	insideColor ~~ nil ifTrue: 
+		[aDisplayMedium fill: self inside mask: insideColor.
+	 	borderWidth ~~ 0
+			ifTrue: 
+				[aDisplayMedium fill: self region mask: borderColor.
+				 aDisplayMedium fill: self inside mask: insideColor]]!
+
+displayOn: aDisplayMedium clippingBox: aRectangle
+	"Display the border and insideRegion of the receiver, clipping to aRectangle."
+
+	insideColor ~~ nil ifTrue: 
+		[aDisplayMedium fill: (self inside intersect: aRectangle) mask: insideColor.
+	 	borderWidth ~~ 0
+			ifTrue: 
+				[aDisplayMedium fill: (self region intersect: aRectangle) mask: borderColor.
+				 aDisplayMedium fill: (self inside intersect: aRectangle) mask: insideColor]]!
+
+displayThrough: aRectangleSet on: aDisplayMedium
+	"Display the border and insideRegion of the receiver."
+
+	aRectangleSet do: [ :aRectangle |
+		self displayOn: aDisplayMedium clippingBox: aRectangle]! !
+
+
+!Project methodsFor: 'controlling'!
+
+enter
+	"The user has chosen to change the context of the workspace to be that of
+	the receiver.  Change the ChangeSet, Transcript, and collection of scheduled
+	views accordingly."
+
+	Smalltalk newChanges: projectChangeSet.
+	Smalltalk addDependent: self.	"to release bitmaps before snapshot"
+	CurrentProject _ self.
+	TextCollector newTranscript: projectTranscript.
+	ControlManager newScheduler: projectWindows!
+
+exit
+	"Leave the current project and enter the project in which the receiver's view
+	is scheduled."
+	self releaseFormsForAllViews.
+	Smalltalk removeDependent: self.
+	projectHolder enter! !
+
+!Project methodsFor: 'private'!
+
+releaseFormsForAllViews
+	"tell all the views of this project to release their displayForms"
+	projectWindows scheduledControllers do: [ :aController | aController view releaseSavedForms]!
+
+update: aParameter
+	"release all the displayed bitmaps before snapshots"
+	aParameter = #aboutToSnapshot | aParameter = #aboutToSnapshotAndQuit
+		ifTrue: [self releaseFormsForAllViews]! !
+
+
+!View methodsFor: 'initialize-release'!
+
+release
+	"Remove the receiver from its model's list of dependents (if the model exists), and 
+	release all of its subViews.  It is used to break possible cycles in the receiver and 
+	should be sent when the receiver is no longer needed.  Subclasses should include 
+	'super release.' when redefining release."
+
+	super release.
+	model removeDependent: self.
+	model _ nil.
+	controller release.
+	controller _ nil.
+	subViews ~~ nil ifTrue: [subViews do: [:aView | aView release]].
+	subViews _ nil.
+	superView _ nil! !
+
+!View methodsFor: 'display box access'!
+
+computeBoundingRectangleSet
+	"Answer the RectangleSet that encloses the display area of the 
+	receiver."
+
+	^RectangleSet with: self displayBox! !
+
+!View methodsFor: 'displaying'!
+
+display
+	"Display the receiver's border, display the receiver, then display
+	the subViews of the receiver. 
+	Can be sent to the top View of a structured picture in order to display the entire 
+	structure, or to any particular View in the structure in order to display that 
+	View and its subViews. It is typically sent in response to an update request to 
+	a View."
+
+	self displayBorder.
+	self displayView.
+	self displaySubViews! !
+
+!View methodsFor: 'deEmphasizing'!
+
+deEmphasize
+	"Modify the emphasis (highlighting, special tabs) of the receiver.  This includes
+	objects such as labels, lines, and boxes.  Typically used so that the receiver is not
+	presented as active.  Do this for the receiver and then for each of the receiver's
+	subViews."
+
+	self deEmphasizeView.
+	self deEmphasizeSubViews!
+
+deEmphasizeView
+	"Subclasses should redefine View|deEmphasizeView in order to modify 
+	the emphasis (highlighting, special tabs) of particular objects associated 
+	with the View such as labels, lines, and boxes."
+	^self! !
+
+
+!DisplayTextView methodsFor: 'deEmphasizing'!
+
+deEmphasizeView
+	(self controller isKindOf: ParagraphEditor)
+	 	ifTrue: [controller deselect]! !
+
+
+
+
+!FormView methodsFor: 'deEmphasizing'!
+
+releaseSavedForms
+	"This is here because the view of a SCreenController is a FormView,
+	 and it must know about what to do when redisplay occurs.
+
+	However, there is actually nothing to do"! !
+
+!FormView methodsFor: 'displaying'!
+
+displayThrough: aRectangleSet on: aDisplayMedium
+	"Display the receiver, clipping to within the are defined by aRectangleSet."
+
+	| oldOffset rectSet |
+	CacheBitmaps
+		ifTrue: 
+			[rectSet _ aRectangleSet intersectRectangle: self insetDisplayBox.
+			insideColor == nil ifFalse: 
+				[rectSet displayColored: insideColor].
+			oldOffset _ model offset.
+			model offset: 0@0.
+			rectSet do: [ :aRectangle |
+				model
+					displayOn: Display
+					transformation: self displayTransformation
+					clippingBox: aRectangle
+					rule: self rule
+					mask: self mask].
+			model offset: oldOffset]! !
+
+
+!ListView methodsFor: 'deEmphasizing'!
+
+clearSelectionBox
+	Display white: (self selectionBox intersect: self clippingBox)!
+
+deEmphasizeView
+	| aRectangle newForm |
+	self deselect.
+	selection ~= 0 
+		ifTrue: [aRectangle _ (self selectionBox intersect: self clippingBox).
+				aRectangle _ aRectangle insetOriginBy: 0@-1 cornerBy: 0@0.
+				newForm _ Form fromDisplay: aRectangle.
+				newForm
+					displayOn: Display
+					at: (aRectangle topLeft + (1@0))
+					clippingBox: aRectangle 
+					rule: Form under 
+					mask: Form black.
+				Display fill: aRectangle rule: Form under mask: Form lightGray]!
+
+emphasizeView
+	| selectedLine |
+	CacheBitmaps & (selection ~= 0)
+		ifTrue: [self isUnlocked ifTrue: [self positionList].
+				self clearSelectionBox.
+				selectedLine _ selection + self minimumSelection - 1.
+				list displayLines: (selectedLine to: selectedLine) on: Display.
+				self displaySelectionBox]! !
+
+
+View subclass: #StandardSystemView
+	instanceVariableNames: 'labelFrame labelText isLabelComplemented savedSubViews minimumSize maximumSize displayForm '
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Interface-Support'!
+
+StandardSystemView comment:
+'I represent a view that has a label above its top left corner.  The text in the label identifies the kind of view.  In addition to a label, I add control over the maximum and minimum size of the display box of my instance.  My default controller is StandardSystemController.  The elements of ScheduledControllers, the sole instance of ControlManager, usually contain controllers for instances of me.
+
+Instance Variables:
+	labelFrame				<Quadrangle>
+	labelText				<Paragraph>
+	isLabelComplemented	<Boolean> true if the label is complemented
+	savedSubViews			<Array> of Views
+	minimumSize			<Point> representing minimum width and height
+	maximumSize			<Point> representing maximum width and height
+	displayForm				<Form>, or nil --- when the view is part of the current project, but not currently selected, the display representation of the view is cached in this form.'!
+
+
+
+!StandardSystemView methodsFor: 'framing'!
+
+collapse
+	"If the receiver is not already collapsed, change its view to be that of
+	its label only."
+
+	self isCollapsed
+		ifFalse:
+			[CacheBitmaps ifTrue: [self releaseSavedForms].
+			savedSubViews _ subViews.
+			self resetSubViews.
+			labelText isNil ifTrue: [self label: 'No Label'].
+			self window: (self inverseDisplayTransform: self labelDisplayBox region).
+			labelFrame borderWidthLeft: 2 right: 2 top: 2 bottom: 2]!erase
+	"Clear the display box of the receiver to be gray, as in the screen background."
+
+	CacheBitmaps
+		ifFalse:
+			[self clear: Form gray.
+			 Display fill: self labelDisplayBox region mask: Form gray]
+		ifTrue:
+			[ScheduledControllers
+				displayViewsThrough: self computeBoundingRectangleSet
+				on: Display
+				excluding: self].
+	isLabelComplemented _ false.
+	self releaseSavedForms!
+
+resize
+	"Determine the rectangular area for the receiver, adjusted to the minimum
+	and maximum sizes."
+
+	| aRectangle |
+	aRectangle _ self getFrame.
+	aRectangle _ aRectangle origin extent:
+					(self computeFramePointFrom: aRectangle extent max: maximumSize min: minimumSize).
+	self window: self window viewport: aRectangle! !
+
+!StandardSystemView methodsFor: 'displaying'!
+
+display
+	"Display the receiver's border, display the receiver, then display
+	the subViews of the receiver. 
+	Can be sent to the top View of a structured picture in order to display the entire 
+	structure, or to any particular View in the structure in order to display that 
+	View and its subViews. It is typically sent in response to an update request to 
+	a View."
+
+	"This has to redefined in StandardSystemView because the label is not part of the display box."
+
+	CacheBitmaps & displayForm notNil
+		ifTrue: [displayForm displayAt: self displayBox topLeft.
+				 self displayView]
+		ifFalse: [self displayBorder.
+				self displayView.
+				self displaySubViews]!
+
+displayLabelThrough: aRectangleSet on: aDisplayMedium
+	| clippingBox labelDisplayBox rectangleSet labelOrigin |
+	labelText isNil
+		ifFalse:
+			[clippingBox _ self clippingBox.
+			(aRectangleSet intersectsRectangle: clippingBox)
+				ifFalse: [^self].	"nothing to display"
+			labelDisplayBox _ self labelDisplayBox.
+			rectangleSet _ aRectangleSet intersectRectangle: (labelDisplayBox intersect: clippingBox).
+			(labelDisplayBox intersect: clippingBox) displayThrough: rectangleSet on: Display.
+			labelOrigin _ labelDisplayBox center -
+						(labelText boundingBox center -
+							labelText boundingBox topLeft).
+			rectangleSet do: [ :aRectangle |
+				labelText
+					displayOn: aDisplayMedium
+					at: labelOrigin
+					clippingBox: aRectangle]]!
+
+displayThrough: aRectangleSet on: aDisplayMedium
+	"Display the receiver, clipping to within the are defined by aRectangleSet."
+
+	CacheBitmaps & displayForm notNil
+		ifTrue: [aRectangleSet do: [ :aRectangle |
+					displayForm displayOn: aDisplayMedium
+								at: self displayBox topLeft
+								clippingBox: aRectangle]].
+	self displayLabelThrough: aRectangleSet on: aDisplayMedium! !
+
+!StandardSystemView methodsFor: 'deEmphasizing'!
+
+deEmphasize
+	super deEmphasize.
+	self isCollapsed ifFalse: [self saveTopViewForm]!
+
+deEmphasizeView
+	self deEmphasizeLabel! !
+
+!StandardSystemView methodsFor: 'display box access'!
+
+computeBoundingRectangleSet
+	| rs |
+	rs _ super computeBoundingRectangleSet.
+	rs add: self labelDisplayBox.
+	^rs! !
+
+!StandardSystemView methodsFor: 'display form access'!
+
+displayForm
+	^displayForm!
+
+releaseSavedForms
+	"Discard any cached display forms; not all views have display forms, to economise on storage space.  In particular, views that are not part of the current project should not have display forms."
+
+	displayForm _ nil!
+
+saveTopViewForm
+	"The top view saves its display image in displayForm whenever it is de-emphasized."
+	self isTopView ifTrue: [
+		CacheBitmaps ifTrue: [displayForm _ Form fromDisplay: self displayBox]].! !
+
+
+!StringHolderView methodsFor: 'deEmphasizing'!
+
+deEmphasizeView
+	(self controller isKindOf: ParagraphEditor)
+	 	ifTrue: [controller deselect]!
+
+ !
+
+
+!SwitchView methodsFor: 'deEmphasizing'!
+
+deEmphasizeView
+	| newForm |
+	complemented
+		ifTrue: [self highlight.
+				newForm _ Form fromDisplay: self insetDisplayBox.
+				newForm
+					displayOn: Display
+					at: (self insetDisplayBox topLeft + (1@0))
+					clippingBox: self insetDisplayBox 
+					rule: Form under 
+					mask: Form black.
+				Display fill: self insetDisplayBox rule: Form under mask: Form lightGray]!
+
+emphasizeView
+	complemented ifTrue: [self displayView.  self highlight]! !
+
+Smalltalk addDependent: Project current!
+
+
+!TextView methodsFor: 'deEmphasizing'!
+
+deEmphasizeView
+	self controller deselect! !
+
+CacheBitmaps _ true!

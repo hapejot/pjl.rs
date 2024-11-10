@@ -1,0 +1,8 @@
+#!/usr/bin/env -vS cargo run --example script-client -- --dump-tokens
+
+comeFullyUpOnReload
+    "Internalize myself into a fully alive object after raw loading
+     from a DataStream. (See my class comment.)
+     The sender (the DataStream facility) will substitute the answer
+     for myself, even if that means doing ‘me become: myAnswer’."
+    | globalObj |
