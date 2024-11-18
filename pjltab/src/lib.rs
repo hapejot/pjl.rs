@@ -84,6 +84,13 @@ impl Table {
         Ok(())
     }
 
+    pub fn lines(&self) -> usize {
+        if let Ok(x) = self.d.try_lock() {
+            x.row_count
+        } else {
+            todo!("what if the table cannot be locked.")
+        }
+    }
     pub fn new_row(&self) -> Row<'_> {
         if let Ok(mut x) = self.d.try_lock() {
             x.row_count += 1;
@@ -136,6 +143,53 @@ impl Table {
         if let Ok(x) = self.d.try_lock() {
             let k = (id, idx);
             x.data.get(&k).map(|x| x.clone())
+        } else {
+            todo!("what if the table cannot be locked.")
+        }
+    }
+
+    pub fn dump(&self) {
+        if let Ok(x) = self.d.try_lock() {
+            let mut w = vec![0; x.columns.len()];
+            // calculate widths...
+            for ((_, col), val) in x.data.iter() {
+                let n = val.len();
+                if w[col - 1] < n {
+                    w[col - 1] = n;
+                }
+            }
+            let mut sep = String::from("+");
+            for idx in 0..x.columns.len() {
+                let len = w[idx];
+                let s = "-".repeat(len);
+                sep.push_str(&s);
+                sep.push('+');
+            }
+
+            println!("{sep}");
+            // print head
+            print!("|");
+            for idx in 0..x.columns.len() {
+                let hd = &x.columns[idx];
+                let len = w[idx];
+                print!("{:1$}|", hd, len);
+            }
+            println!();
+            println!("{sep}");
+            for rownum in 1..x.row_count + 1 {
+                print!("|");
+                for idx in 0..x.columns.len() {
+                    let k = (rownum, idx + 1);
+                    let len = w[idx];
+                    if let Some(v) = x.data.get(&k) {
+                        print!("{:1$}|", v, len);
+                    } else {
+                        print!("{:1$}|", "", len);
+                    }
+                }
+                println!();
+            }
+            println!("{sep}");
         } else {
             todo!("what if the table cannot be locked.")
         }
