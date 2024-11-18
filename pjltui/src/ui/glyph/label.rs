@@ -1,10 +1,11 @@
 use crossterm::{cursor::MoveTo, style::Print, QueueableCommand};
-use tracing::info;
-
+use tracing::*;
+// use std::backtrace::Backtrace;
 use super::{
-    next_glyph_number, AppError::{self, NotRelevant}, AppRequest::{self, SetValue}, AppResponse, AppResult::Redraw, Glyph, Rect, Requirements
+    next_glyph_number, AppError::{self, NotRelevant}, AppRequest::{self, SetValue}, AppResponse, AppResult::Redraw, Glyph, Rect, Requirements, TermEvent
 };
 
+#[derive(Debug)]
 pub struct Label {
     id: u16,
     area: Rect,
@@ -15,11 +16,12 @@ pub struct Label {
 impl Label {
     pub fn new<T: ToString, U: ToString>(name: T, txt: U) -> Self {
         let id = next_glyph_number();
+        let txt = txt.to_string();
         Self {
             id,
-            area: Rect::new(30, 1),
+            area: Rect::new(txt.len() as u16, 1),
             name: name.to_string(),
-            txt: txt.to_string(),
+            txt,
         }
     }
 }
@@ -35,7 +37,7 @@ impl Glyph for Label {
     }
 
     fn area(&self) -> Rect {
-        todo!()
+        self.area.clone()
     }
 
     fn resize(&mut self, _width: u16, _height: u16) {
@@ -44,18 +46,20 @@ impl Glyph for Label {
 
     fn handle_term_event(
         &mut self,
-        event: crossterm::event::Event,
+        event: TermEvent,
     ) -> AppResponse {
         match event {
             _ => Err(AppError::NotRelevant),
         }
     }
 
-    fn request(&mut self) -> super::Requirements {
-        Requirements {
-            w: super::Requirement::Max,
-            h: super::Requirement::Chars(1),
-        }
+    fn request(&self) -> super::Requirements {
+        let r = Requirements {
+            w: super::Requirement::Chars(self.area.w),
+            h: super::Requirement::Chars(self.area.h),
+        };
+        trace!("requirement: {:?} ", r); // , Backtrace::force_capture());
+        r
     }
 
     fn allocate(&mut self, allocation: Rect) {

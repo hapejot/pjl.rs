@@ -2,19 +2,21 @@ use std::io::Write;
 
 use crossterm::{
     cursor::MoveTo,
-    event::Event::{self},
     style::Print,
     terminal, QueueableCommand,
 };
 
 use tracing::*;
 
+use crate::ui::glyph::Requirement;
+
 use super::{
     next_glyph_number,
     AppError::{self, NotRelevant},
-    AppRequest, AppResponse, Glyph, Rect,
+    AppRequest, AppResponse, Glyph, Rect, TermEvent,
 };
 
+#[derive(Debug)]
 pub struct Panel {
     id: u16,
     area: Rect,
@@ -73,7 +75,7 @@ impl Glyph for Panel {
     fn area(&self) -> super::Rect {
         self.area.clone()
     }
-    fn handle_term_event(&mut self, event: Event) -> AppResponse {
+    fn handle_term_event(&mut self, event: TermEvent) -> AppResponse {
         match event {
             r => {
                 let mut handled = Err(AppError::NotRelevant);
@@ -87,7 +89,7 @@ impl Glyph for Panel {
             }
         }
     }
-    fn request(&mut self) -> super::Requirements {
+    fn request(&self) -> super::Requirements {
         todo!()
     }
     fn allocate(&mut self, allocation: Rect) {
@@ -95,26 +97,39 @@ impl Glyph for Panel {
         info!("allocate {:?}", self.area);
         let mut y = self.area.y;
         let max_y = self.area.y + self.area.h;
-        for x in self.elements.iter_mut() {
+        let mut x = self.area.x;
+        let max_x = self.area.x + self.area.w;
+        for element in self.elements.iter_mut() {
             assert!(max_y >= y);
-            let request = x.request();
+            let request = element.request();
             match request.h {
-                crate::ui::glyph::Requirement::Chars(n) => {
-                    x.allocate(Rect {
-                        x: allocation.x,
-                        y: y,
-                        w: allocation.w,
-                        h: n,
-                    });
-                    y += n;
+                Requirement::Chars(1) => match request.w {
+                    Requirement::Chars(w) => {
+                        if w + x > max_x {
+                            x = self.area.x;
+                            y += 1;
+                        }
+                        element.allocate(Rect { x, y, h: 1, w });
+                        x += w;
+                    }
+                    Requirement::Max => {
+                        let w = max_x - x;
+                        element.allocate(Rect { x, y, h: 1, w });
+                        y += 1;
+                        x = self.area.x;
+                    }
+                },
+                Requirement::Chars(h) => {
+                    let x = allocation.x;
+                    let w = allocation.w;
+                    element.allocate(Rect { x, y, w, h });
+                    y += h;
                 }
-                crate::ui::glyph::Requirement::Max => {
-                    x.allocate(Rect {
-                        x: allocation.x,
-                        y: y,
-                        w: allocation.w,
-                        h: max_y - y,
-                    });
+                Requirement::Max => {
+                    let x = allocation.x;
+                    let w = allocation.w;
+                    let h = max_y - y;
+                    element.allocate(Rect { x, y, w, h });
                     y = max_y;
                 }
             }

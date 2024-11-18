@@ -18,3 +18,5 @@ templates
 tmp
 .vscode
 yaml
+*.out
+*.trace

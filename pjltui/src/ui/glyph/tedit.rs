@@ -1,15 +1,15 @@
 use crossterm::{
     cursor::MoveTo,
-    event::{Event, KeyCode, KeyEvent},
     style::Print,
 };
 use tracing::info;
 
 use super::{
     next_glyph_number, AppError, AppRequest, AppResponse, AppResult, Glyph, Rect, Requirement,
-    Requirements,
+    Requirements, TermEvent,
 };
 
+#[derive(Debug)]
 pub struct TextEdit {
     id: u16,
     area: Rect,
@@ -63,77 +63,37 @@ impl Glyph for TextEdit {
         todo!()
     }
 
-    fn handle_term_event(&mut self, r: Event) -> AppResponse {
+    fn handle_term_event(&mut self, r: TermEvent) -> AppResponse {
         info!("event {:?}", r);
         match r {
-            Event::FocusGained => todo!(),
-            Event::FocusLost => todo!(),
-            Event::Key(KeyEvent {
-                code,
-                modifiers,
-                kind,
-                state,
-            }) => match code {
-                KeyCode::Char(c) => {
-                    let _ = (modifiers, kind, state);
-                    while self.txt.len() <= self.pos.1 as usize {
-                        self.txt.push(vec![]);
-                    }
-                    let l = self.txt.get_mut(self.pos.1 as usize).unwrap();
-                    // l.push(c);
-                    while l.len() <= self.pos.0 as usize {
-                        l.push(' ');
-                    }
-                    {
-                        let x = self.pos.0 as usize;
-                        l[x] = c;
-                        self.pos.0 += 1;
-                    }
-                    let new_pos = AppResult::NewCursorPosition(
-                        self.area.x + self.pos.0,
-                        self.area.y + self.pos.1,
-                    );
-                    Ok(vec![new_pos, AppResult::Redraw])
+            TermEvent::Key(c) => {
+                while self.txt.len() <= self.pos.1 as usize {
+                    self.txt.push(vec![]);
                 }
-                KeyCode::Backspace => todo!(),
-                KeyCode::Enter => todo!(),
-                KeyCode::Left => todo!(),
-                KeyCode::Right => todo!(),
-                KeyCode::Up => todo!(),
-                KeyCode::Down => todo!(),
-                KeyCode::Home => todo!(),
-                KeyCode::End => todo!(),
-                KeyCode::PageUp => todo!(),
-                KeyCode::PageDown => todo!(),
-                KeyCode::Tab => todo!(),
-                KeyCode::BackTab => todo!(),
-                KeyCode::Delete => todo!(),
-                KeyCode::Insert => todo!(),
-                KeyCode::F(_) => todo!(),
-                KeyCode::Null => todo!(),
-                KeyCode::Esc => todo!(),
-                KeyCode::CapsLock => todo!(),
-                KeyCode::ScrollLock => todo!(),
-                KeyCode::NumLock => todo!(),
-                KeyCode::PrintScreen => todo!(),
-                KeyCode::Pause => todo!(),
-                KeyCode::Menu => todo!(),
-                KeyCode::KeypadBegin => todo!(),
-                KeyCode::Media(_) => todo!(),
-                KeyCode::Modifier(_) => todo!(),
-            },
-            Event::Mouse(_) => todo!(),
-            Event::Paste(_) => todo!(),
-            Event::Resize(_, _) => todo!(),
+                let l = self.txt.get_mut(self.pos.1 as usize).unwrap();
+                // l.push(c);
+                while l.len() <= self.pos.0 as usize {
+                    l.push(' ');
+                }
+                {
+                    let x = self.pos.0 as usize;
+                    l[x] = c;
+                    self.pos.0 += 1;
+                }
+                let new_pos = AppResult::NewCursorPosition(
+                    self.area.x + self.pos.0,
+                    self.area.y + self.pos.1,
+                );
+                Ok(vec![new_pos, AppResult::Redraw])
+            }
+            _ => todo!(),
         }
     }
 
     fn handle_app_request(&mut self, req: &AppRequest) -> AppResponse {
         info!("{} handle request {:?}", self.id, req);
         match req {
-            AppRequest::SetValue { .. } => {                
-                Err(AppError::NotRelevant)
-            }
+            AppRequest::SetValue { .. } => Err(AppError::NotRelevant),
             AppRequest::GetValue(_) => todo!(),
             AppRequest::CollectAllValues => {
                 let ls = self
@@ -150,7 +110,7 @@ impl Glyph for TextEdit {
         }
     }
 
-    fn request(&mut self) -> super::Requirements {
+    fn request(&self) -> super::Requirements {
         Requirements {
             w: Requirement::Max,
             h: Requirement::Max,

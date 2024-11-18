@@ -1,8 +1,120 @@
-2024-11-09T11:39:12.841930Z  INFO starting
-2024-11-09T11:39:12.841986Z  INFO terminal size: 257 cols, 22 rows
-2024-11-09T11:39:15.108136Z DEBUG key KeyEvent { code: Char('a'), modifiers: KeyModifiers(0x0), kind: Press, state: KeyEventState(0x0) }
-2024-11-09T11:39:15.151726Z DEBUG key KeyEvent { code: Char('s'), modifiers: KeyModifiers(0x0), kind: Press, state: KeyEventState(0x0) }
-2024-11-09T11:39:15.287927Z DEBUG key KeyEvent { code: Char('d'), modifiers: KeyModifiers(0x0), kind: Press, state: KeyEventState(0x0) }
-2024-11-09T11:39:15.355724Z DEBUG key KeyEvent { code: Char('f'), modifiers: KeyModifiers(0x0), kind: Press, state: KeyEventState(0x0) }
-2024-11-09T11:39:17.464321Z DEBUG resize
-2024-11-09T11:39:17.537539Z DEBUG resize
+2024-11-15T09:58:57.207540Z  INFO pjltodo: starting
+2024-11-15T09:58:57.207600Z  INFO pjltui::ui::glyph: next glyph: 1
+2024-11-15T09:58:57.207623Z  INFO pjltui::ui::glyph: next glyph: 2
+2024-11-15T09:58:57.207630Z  INFO pjltui::ui::glyph: next glyph: 3
+2024-11-15T09:58:57.207636Z  INFO pjltui::ui::glyph: next glyph: 4
+2024-11-15T09:58:57.207643Z  INFO pjltui::ui::glyph: next glyph: 5
+2024-11-15T09:58:57.207661Z  INFO pjltui::ui::glyph: next glyph: 6
+2024-11-15T09:58:57.207673Z  INFO pjltui::ui::glyph::frame: allocated Rect { x: 0, y: 0, w: 227, h: 21 }
+2024-11-15T09:58:57.207684Z TRACE pjltui::ui::glyph::label: requirement: Requirements { w: Chars(14), h: Chars(1) } 
+2024-11-15T09:58:57.207693Z TRACE pjltui::ui::glyph::label: requirement: Requirements { w: Chars(17), h: Chars(1) } 
+2024-11-15T09:58:57.207699Z TRACE pjltui::ui::glyph::label: requirement: Requirements { w: Chars(8), h: Chars(1) } 
+2024-11-15T09:58:57.207705Z TRACE pjltui::ui::glyph::label: requirement: Requirements { w: Chars(13), h: Chars(1) } 
+2024-11-15T09:58:57.207710Z TRACE pjltui::ui::glyph::label: requirement: Requirements { w: Chars(13), h: Chars(1) } 
+2024-11-15T09:58:57.207718Z DEBUG pjltui::ui::glyph::fgrid: rows: Sparse {
+    data: [
+        (
+            3,
+            Sparse {
+                data: [
+                    (
+                        0,
+                        Some(
+                            Requirements {
+                                w: Chars(
+                                    14,
+                                ),
+                                h: Chars(
+                                    1,
+                                ),
+                            },
+                        ),
+                    ),
+                ],
+                default: None,
+            },
+        ),
+        (
+            0,
+            Sparse {
+                data: [
+                    (
+                        0,
+                        Some(
+                            Requirements {
+                                w: Chars(
+                                    17,
+                                ),
+                                h: Chars(
+                                    1,
+                                ),
+                            },
+                        ),
+                    ),
+                    (
+                        1,
+                        Some(
+                            Requirements {
+                                w: Chars(
+                                    8,
+                                ),
+                                h: Chars(
+                                    1,
+                                ),
+                            },
+                        ),
+                    ),
+                ],
+                default: None,
+            },
+        ),
+        (
+            1,
+            Sparse {
+                data: [
+                    (
+                        0,
+                        Some(
+                            Requirements {
+                                w: Chars(
+                                    13,
+                                ),
+                                h: Chars(
+                                    1,
+                                ),
+                            },
+                        ),
+                    ),
+                ],
+                default: None,
+            },
+        ),
+        (
+            2,
+            Sparse {
+                data: [
+                    (
+                        0,
+                        Some(
+                            Requirements {
+                                w: Chars(
+                                    13,
+                                ),
+                                h: Chars(
+                                    1,
+                                ),
+                            },
+                        ),
+                    ),
+                ],
+                default: None,
+            },
+        ),
+    ],
+    default: Sparse {
+        data: [],
+        default: None,
+    },
+} widths: Sparse { data: [(0, 17), (1, 8)], default: 0 }
+2024-11-15T09:58:57.207859Z TRACE mio::poll: registering event source with poller: token=Token(0), interests=READABLE    
+2024-11-15T09:58:57.207907Z TRACE mio::poll: registering event source with poller: token=Token(1), interests=READABLE    

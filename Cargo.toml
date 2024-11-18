@@ -10,5 +10,5 @@ members = [
     "linux-fuser-adapter",
     "simple-rest-server", 
     "compound-material", 
-    "navi", "xml_derive", "dbc", "processing-node", "pjltui", "pjltodo"]
+    "navi", "xml_derive", "dbc", "processing-node", "pjltui", "pjltodo", "pjltab"]
 

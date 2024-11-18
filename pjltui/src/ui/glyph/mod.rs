@@ -7,6 +7,7 @@ pub mod input;
 pub mod label;
 pub mod panel;
 pub mod tedit;
+pub mod fgrid; // flexible grid
 
 #[derive(Debug, Clone)]
 pub struct Rect {
@@ -34,6 +35,14 @@ impl Rect {
 pub enum Requirement {
     Chars(u16),
     Max,
+}
+impl Requirement {
+    fn max(&self, col: u16) -> u16 {
+        match self {
+            Requirement::Chars(n) => if col > *n {col} else {*n},
+            Requirement::Max => col,
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -77,15 +86,31 @@ pub enum AppError {
 
 pub type AppResponse = Result<Vec<AppResult>, AppError>;
 
-pub trait Glyph {
+#[derive(Debug,Clone)]
+pub enum TermEvent{
+    None,
+    Key(char),
+    Up,
+    Down,
+    Left,
+    Right,
+    PageUp,
+    PageDown,
+    GoToStart,
+    GoToEnd,
+    BackSpace,
+}
+
+
+pub trait Glyph: std::fmt::Debug {
     fn id(&self) -> u16;
     fn hit(&mut self, x: u16, y: u16) -> AppResponse;
     fn write_to(&self, w: &mut dyn Write);
     fn area(&self) -> Rect;
     fn resize(&mut self, width: u16, height: u16);
-    fn handle_term_event(&mut self, r: crossterm::event::Event) -> AppResponse;
+    fn handle_term_event(&mut self, r: TermEvent) -> AppResponse;
     fn handle_app_request(&mut self, req: &AppRequest) -> AppResponse;
-    fn request(&mut self) -> Requirements;
+    fn request(&self) -> Requirements;
     fn allocate(&mut self, allocation: Rect);
     fn allocated(&self) -> bool;
     fn name(&self) -> String;

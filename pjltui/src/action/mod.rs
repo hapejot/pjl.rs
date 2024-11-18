@@ -1,9 +1,9 @@
-use crate::state::State;
+use crate::ActiveComponent;
 
 mod cursor;
 
-pub use cursor::{CursorDown, CursorUp, Exit};
+pub use cursor::{CursorDown, CursorUp, Exit, Resize};
 
-pub trait Action {
-    fn perform(&self, s: &mut State) -> bool;
+pub trait Action: std::fmt::Debug {
+    fn perform(&self, s: &dyn ActiveComponent) -> bool;
 }

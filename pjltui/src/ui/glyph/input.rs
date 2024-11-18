@@ -2,14 +2,9 @@ use super::AppError::*;
 use super::AppRequest::*;
 use super::AppResult::*;
 use super::*;
-use crossterm::event::Event;
-use crossterm::event::KeyCode;
-use crossterm::event::KeyEvent;
-use crossterm::event::KeyEventKind;
-use crossterm::event::KeyModifiers;
 use crossterm::{cursor::MoveTo, style::Print, QueueableCommand};
 
-
+#[derive(Debug)]
 pub struct Input {
     id: u16,
     active: bool,
@@ -20,18 +15,18 @@ pub struct Input {
 }
 
 impl Input {
-    pub fn new<T:ToString, U:ToString>(name: T, txt: U) -> Self {
+    pub fn new<T: ToString, U: ToString>(name: T, txt: U) -> Self {
         let id = next_glyph_number();
         Self {
             id,
             active: false,
             pos: 0,
-            area: Rect::new(30,1),
+            area: Rect::new(30, 1),
             txt: txt.to_string().chars().collect(),
             name: name.to_string(),
         }
     }
-    
+
     fn handle_backspace(&mut self) -> AppResponse {
         if self.active {
             if self.txt.len() >= self.pos as usize {
@@ -39,13 +34,16 @@ impl Input {
                 self.txt.remove(self.pos as usize);
                 Ok(vec![NewCursorPosition(self.area.x + self.pos, self.area.y)])
             } else {
-                Ok(vec![NewCursorPosition(self.area.x + self.pos - 1, self.area.y)])
+                Ok(vec![NewCursorPosition(
+                    self.area.x + self.pos - 1,
+                    self.area.y,
+                )])
             }
         } else {
             Err(NotRelevant)
         }
     }
-    
+
     fn handle_keypress(&mut self, ch: char) -> AppResponse {
         if self.active {
             if (self.txt.len() as u16) <= self.pos {
@@ -54,7 +52,7 @@ impl Input {
             } else {
                 self.txt[self.pos as usize] = ch;
                 self.pos += 1;
-            }            
+            }
             Ok(vec![NewCursorPosition(self.area.x + self.pos, self.area.y)])
         } else {
             Err(NotRelevant)
@@ -63,7 +61,9 @@ impl Input {
 }
 
 impl Glyph for Input {
-    fn id(&self) -> u16 {self.id}
+    fn id(&self) -> u16 {
+        self.id
+    }
     fn write_to(&self, w: &mut dyn std::io::Write) {
         w.queue(MoveTo(self.area.x, self.area.y)).unwrap();
         let mut idx = 0;
@@ -87,29 +87,15 @@ impl Glyph for Input {
         todo!()
     }
 
-    fn handle_term_event(&mut self, event: Event) ->AppResponse {
+    fn handle_term_event(&mut self, event: TermEvent) -> AppResponse {
         match event {
-            Event::Key(KeyEvent {
-                code: KeyCode::Backspace,
-                modifiers: KeyModifiers::NONE,
-                kind: KeyEventKind::Press,
-                ..
-            }) => {
-                self.handle_backspace()
-            }
-            Event::Key(KeyEvent {
-                code: KeyCode::Char(ch),
-                // modifiers,
-                kind: KeyEventKind::Press,
-                ..
-            }) => {
-                self.handle_keypress(ch)
-            }
+            TermEvent::BackSpace => self.handle_backspace(),
+            TermEvent::Key(ch) => self.handle_keypress(ch),
             _ => Err(AppError::NotRelevant),
         }
     }
 
-    fn request(&mut self) -> super::Requirements {
+    fn request(&self) -> super::Requirements {
         Requirements {
             w: super::Requirement::Max,
             h: super::Requirement::Chars(1),
@@ -145,7 +131,10 @@ impl Glyph for Input {
                     Err(NotRelevant)
                 }
             }
-            CollectAllValues => Ok(vec![Values(vec![(self.name.clone(), self.txt.iter().collect())])]),
+            CollectAllValues => Ok(vec![Values(vec![(
+                self.name.clone(),
+                self.txt.iter().collect(),
+            )])]),
             _ => Err(NotRelevant),
         }
     }

@@ -1,8 +1,9 @@
-use crossterm::{cursor::MoveTo, event::Event, style::Print, terminal, QueueableCommand};
+use crossterm::{cursor::MoveTo, style::Print, terminal, QueueableCommand};
 use tracing::*;
 
-use super::{next_glyph_number, AppRequest, AppResponse, AppResult, Glyph, Rect};
+use super::{next_glyph_number, AppRequest, AppResponse, Glyph, Rect, TermEvent};
 
+#[derive(Debug)]
 pub struct Frame {
     id: u16,
     area: Rect,
@@ -60,20 +61,12 @@ impl Glyph for Frame {
         self.content.resize(width, height);
     }
 
-    fn handle_term_event(&mut self, r: Event) -> AppResponse {
-        match r {
-            Event::Resize(w, h) => {
-                self.allocate(super::Rect { x: 0, y: 0, w, h });
-                Ok(vec![AppResult::Redraw])
-            }
-            x => {
-                let r = self.content.handle_term_event(x);
-                r
-            }
-        }
+    fn handle_term_event(&mut self, r: TermEvent) -> AppResponse {
+        let r = self.content.handle_term_event(r);
+        r
     }
 
-    fn request(&mut self) -> super::Requirements {
+    fn request(&self) -> super::Requirements {
         todo!()
     }
 
