@@ -1,5 +1,7 @@
+use memuse::DynamicUsage;
 use std::{
     collections::HashMap,
+    fmt::Write,
     ops::{Index, IndexMut},
     sync::Mutex,
 };
@@ -58,6 +60,28 @@ struct TableVar {
 pub struct Table {
     d: Mutex<TableVar>,
 }
+impl DynamicUsage for Table {
+    fn dynamic_usage(&self) -> usize {
+        match self.d.try_lock() {
+            Ok(x) => x.dynamic_usage() + size_of_val(self),
+            Err(_) => todo!(),
+        }
+    }
+
+    fn dynamic_usage_bounds(&self) -> (usize, Option<usize>) {
+        todo!()
+    }
+}
+
+impl DynamicUsage for TableVar {
+    fn dynamic_usage(&self) -> usize {
+        self.columns.dynamic_usage() + self.data.dynamic_usage() + self.row_count.dynamic_usage()
+    }
+
+    fn dynamic_usage_bounds(&self) -> (usize, Option<usize>) {
+        todo!()
+    }
+}
 
 impl Table {
     pub fn new() -> Self {
@@ -71,6 +95,10 @@ impl Table {
                 data,
             }),
         }
+    }
+
+    pub fn size(&self) -> usize {
+        size_of_val(self)
     }
 
     pub fn add_column(&self, name: &str) -> Result<(), String> {
@@ -148,12 +176,12 @@ impl Table {
         }
     }
 
-    pub fn dump(&self) {
+    pub fn dump(&self, out: &mut impl Write) {
         if let Ok(x) = self.d.try_lock() {
             let mut w = vec![0; x.columns.len()];
             // calculate widths...
             for ((_, col), val) in x.data.iter() {
-                let n = val.len();
+                let n = val.chars().count();
                 if w[col - 1] < n {
                     w[col - 1] = n;
                 }
@@ -166,30 +194,30 @@ impl Table {
                 sep.push('+');
             }
 
-            println!("{sep}");
+            writeln!(out, "{sep}").unwrap();
             // print head
-            print!("|");
+            write!(out, "|").unwrap();
             for idx in 0..x.columns.len() {
                 let hd = &x.columns[idx];
                 let len = w[idx];
-                print!("{:1$}|", hd, len);
+                write!(out, "{:1$}|", hd, len).unwrap();
             }
-            println!();
-            println!("{sep}");
+            writeln!(out).unwrap();
+            writeln!(out, "{sep}").unwrap();
             for rownum in 1..x.row_count + 1 {
-                print!("|");
+                write!(out, "|").unwrap();
                 for idx in 0..x.columns.len() {
                     let k = (rownum, idx + 1);
                     let len = w[idx];
                     if let Some(v) = x.data.get(&k) {
-                        print!("{:1$}|", v, len);
+                        write!(out, "{:1$}|", v, len).unwrap();
                     } else {
-                        print!("{:1$}|", "", len);
+                        write!(out, "{:1$}|", "", len).unwrap();
                     }
                 }
-                println!();
+                writeln!(out).unwrap();
             }
-            println!("{sep}");
+            writeln!(out, "{sep}").unwrap();
         } else {
             todo!("what if the table cannot be locked.")
         }
