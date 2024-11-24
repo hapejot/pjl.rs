@@ -29,6 +29,10 @@ impl<'a> Row<'a> {
             panic!("no column {}", name);
         }
     }
+
+    pub fn columns(&self) -> Vec<String> {
+        self.table.columns()
+    }
 }
 
 // impl<'a> Index<&str> for Row<'a> {
@@ -221,6 +225,16 @@ impl Table {
         } else {
             todo!("what if the table cannot be locked.")
         }
+    }
+
+    fn columns(&self) -> Vec<String> {
+        let mut r = vec![];
+        if let Ok(x) = self.d.try_lock() {
+            for c in x.columns.iter() {
+                r.push(c.clone());
+            }
+        }
+        r
     }
 
     // fn get_mut(&self, id: usize, idx: usize) -> Option<&mut String> {

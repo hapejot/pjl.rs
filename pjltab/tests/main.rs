@@ -12,8 +12,13 @@ fn create() {
     // row["ID"] = "Test";
     assert_eq!(row.get("ID"), Some(String::from("Test")));
 
+    let cols = row.columns();
+    assert_eq!(cols, vec!["id"]);
+
     row.set("NAME", "Müller");
     println!("{:#?}", t);
+    let cols = row.columns();
+    assert_eq!(cols, vec!["id", "name"]);
     assert_eq!(row.get("name"), Some(String::from("Müller")));
 
     let row = t.new_row();
