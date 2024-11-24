@@ -227,7 +227,7 @@ impl Table {
         }
     }
 
-    fn columns(&self) -> Vec<String> {
+    pub fn columns(&self) -> Vec<String> {
         let mut r = vec![];
         if let Ok(x) = self.d.try_lock() {
             for c in x.columns.iter() {
