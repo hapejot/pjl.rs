@@ -134,6 +134,16 @@ impl Table {
             todo!("what if the table cannot be locked.")
         }
     }
+    pub fn row(&self, idx: usize) -> Row<'_> {
+        if let Ok(x) = self.d.try_lock() {
+            Row {
+                table: self,
+                id: idx,
+            }
+        } else {
+            todo!("what if the table cannot be locked.")
+        }
+    }
 
     fn translate_col(&self, index: &str) -> Option<usize> {
         if let Ok(x) = self.d.try_lock() {

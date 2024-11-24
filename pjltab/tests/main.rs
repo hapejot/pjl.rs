@@ -41,4 +41,7 @@ fn create() {
     eprintln!("size of table {}", t.size());
 
     eprintln!("usage of table: {}", t.dynamic_usage());
+
+    let row = t.row(1);
+    assert_eq!(row.get("name"), Some(String::from("Müller")));
 }
