@@ -1,7 +1,14 @@
 use memuse::DynamicUsage;
+use serde::{
+    ser::{
+        SerializeMap, SerializeSeq, SerializeStruct, SerializeStructVariant, SerializeTuple,
+        SerializeTupleStruct, SerializeTupleVariant,
+    },
+    Deserialize, Serialize,
+};
 use std::{
     collections::HashMap,
-    fmt::Write,
+    fmt::{Error, Write},
     ops::{Index, IndexMut},
     sync::Mutex,
 };
@@ -64,6 +71,39 @@ struct TableVar {
 pub struct Table {
     d: Mutex<TableVar>,
 }
+
+pub struct TableIterator<'a> {
+    tab: &'a Table,
+    idx: usize,
+}
+
+impl<'a> Iterator for TableIterator<'a> {
+    type Item = Row<'a>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        todo!()
+    }
+}
+
+impl<'a> IntoIterator for &'a Table {
+    type Item = Row<'a>;
+    type IntoIter = TableIterator<'a>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        todo!()
+    }
+}
+
+impl serde::Serialize for Table {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let seq = serializer.serialize_seq(Some(0))?;
+        seq.end()
+    }
+}
+
 impl DynamicUsage for Table {
     fn dynamic_usage(&self) -> usize {
         match self.d.try_lock() {
@@ -123,6 +163,7 @@ impl Table {
             todo!("what if the table cannot be locked.")
         }
     }
+
     pub fn new_row(&self) -> Row<'_> {
         if let Ok(mut x) = self.d.try_lock() {
             x.row_count += 1;
@@ -259,4 +300,359 @@ impl Table {
     //         todo!("what if the table cannot be locked.")
     //     }
     // }
+}
+pub mod ser {
+    use crate::Row;
+
+    use super::Table;
+    use serde::{
+        ser::{
+            SerializeMap, SerializeSeq, SerializeStruct, SerializeStructVariant, SerializeTuple,
+            SerializeTupleStruct, SerializeTupleVariant,
+        },
+        Serialize,
+    };
+    use std::fmt::Error;
+    pub fn table_from<T>(x: T) -> Result<Table, String>
+    where
+        T: serde::Serialize,
+    {
+        let mut d = TableSer::new();
+        match &x.serialize(&mut d) {
+            Ok(_) => Ok(d.t),
+            Err(e) => Err(format!("de error {}", e)),
+        }
+    }
+
+    struct TableSer {
+        t: Table,
+        row: Option<usize>,
+        col: Option<&'static str>,
+        val: Option<String>,
+    }
+
+    impl<'a> TableSer {
+        fn new() -> Self {
+            Self {
+                t: Table::new(),
+                row: None,
+                col: None,
+                val: None,
+            }
+        }
+    }
+
+    impl<'a> serde::ser::Serializer for &'a mut TableSer {
+        type Ok = ();
+
+        type Error = std::fmt::Error;
+
+        type SerializeSeq = Self;
+
+        type SerializeTuple = Self;
+
+        type SerializeTupleStruct = Self;
+
+        type SerializeTupleVariant = Self;
+
+        type SerializeMap = Self;
+
+        type SerializeStruct = Self;
+
+        type SerializeStructVariant = Self;
+
+        fn serialize_bool(self, v: bool) -> Result<Self::Ok, Self::Error> {
+            todo!()
+        }
+
+        fn serialize_i8(self, v: i8) -> Result<Self::Ok, Self::Error> {
+            todo!()
+        }
+
+        fn serialize_i16(self, v: i16) -> Result<Self::Ok, Self::Error> {
+            todo!()
+        }
+
+        fn serialize_i32(self, v: i32) -> Result<Self::Ok, Self::Error> {
+            todo!()
+        }
+
+        fn serialize_i64(self, v: i64) -> Result<Self::Ok, Self::Error> {
+            todo!()
+        }
+
+        fn serialize_u8(self, v: u8) -> Result<Self::Ok, Self::Error> {
+            todo!()
+        }
+
+        fn serialize_u16(self, v: u16) -> Result<Self::Ok, Self::Error> {
+            todo!()
+        }
+
+        fn serialize_u32(self, v: u32) -> Result<Self::Ok, Self::Error> {
+            todo!()
+        }
+
+        fn serialize_u64(self, v: u64) -> Result<Self::Ok, Self::Error> {
+            todo!()
+        }
+
+        fn serialize_f32(self, v: f32) -> Result<Self::Ok, Self::Error> {
+            todo!()
+        }
+
+        fn serialize_f64(self, v: f64) -> Result<Self::Ok, Self::Error> {
+            todo!()
+        }
+
+        fn serialize_char(self, v: char) -> Result<Self::Ok, Self::Error> {
+            todo!()
+        }
+
+        fn serialize_str(self, v: &str) -> Result<Self::Ok, Self::Error> {
+            self.val = Some(v.into());
+            Ok(())
+        }
+
+        fn serialize_bytes(self, v: &[u8]) -> Result<Self::Ok, Self::Error> {
+            todo!()
+        }
+
+        fn serialize_none(self) -> Result<Self::Ok, Self::Error> {
+            todo!()
+        }
+
+        fn serialize_some<T>(self, value: &T) -> Result<Self::Ok, Self::Error>
+        where
+            T: ?Sized + Serialize,
+        {
+            todo!()
+        }
+
+        fn serialize_unit(self) -> Result<Self::Ok, Self::Error> {
+            todo!()
+        }
+
+        fn serialize_unit_struct(self, name: &'static str) -> Result<Self::Ok, Self::Error> {
+            todo!()
+        }
+
+        fn serialize_unit_variant(
+            self,
+            name: &'static str,
+            variant_index: u32,
+            variant: &'static str,
+        ) -> Result<Self::Ok, Self::Error> {
+            todo!()
+        }
+
+        fn serialize_newtype_struct<T>(
+            self,
+            name: &'static str,
+            value: &T,
+        ) -> Result<Self::Ok, Self::Error>
+        where
+            T: ?Sized + Serialize,
+        {
+            todo!()
+        }
+
+        fn serialize_newtype_variant<T>(
+            self,
+            name: &'static str,
+            variant_index: u32,
+            variant: &'static str,
+            value: &T,
+        ) -> Result<Self::Ok, Self::Error>
+        where
+            T: ?Sized + Serialize,
+        {
+            todo!()
+        }
+
+        fn serialize_seq(self, len: Option<usize>) -> Result<Self::SerializeSeq, Self::Error> {
+            Ok(self)
+        }
+
+        fn serialize_tuple(self, len: usize) -> Result<Self::SerializeTuple, Self::Error> {
+            Ok(self)
+        }
+
+        fn serialize_tuple_struct(
+            self,
+            name: &'static str,
+            len: usize,
+        ) -> Result<Self::SerializeTupleStruct, Self::Error> {
+            Ok(self)
+        }
+
+        fn serialize_tuple_variant(
+            self,
+            name: &'static str,
+            variant_index: u32,
+            variant: &'static str,
+            len: usize,
+        ) -> Result<Self::SerializeTupleVariant, Self::Error> {
+            Ok(self)
+        }
+
+        fn serialize_map(self, len: Option<usize>) -> Result<Self::SerializeMap, Self::Error> {
+            Ok(self)
+        }
+
+        fn serialize_struct(
+            self,
+            name: &'static str,
+            len: usize,
+        ) -> Result<Self::SerializeStruct, Self::Error> {
+            assert!(self.row.is_some());
+            Ok(self)
+        }
+
+        fn serialize_struct_variant(
+            self,
+            name: &'static str,
+            variant_index: u32,
+            variant: &'static str,
+            len: usize,
+        ) -> Result<Self::SerializeStructVariant, Self::Error> {
+            Ok(self)
+        }
+    }
+
+    impl SerializeSeq for &mut TableSer {
+        type Ok = ();
+
+        type Error = std::fmt::Error;
+
+        fn serialize_element<T>(&mut self, value: &T) -> Result<(), Self::Error>
+        where
+            T: ?Sized + Serialize,
+        {
+            let r = self.t.new_row();
+            self.row = Some(r.id);
+            value.serialize(&mut **self)
+        }
+
+        fn end(self) -> Result<Self::Ok, Self::Error> {
+            Ok(())
+        }
+    }
+
+    impl<'a> SerializeTuple for &mut TableSer {
+        type Ok = ();
+
+        type Error = std::fmt::Error;
+
+        fn serialize_element<T>(&mut self, value: &T) -> Result<(), Self::Error>
+        where
+            T: ?Sized + Serialize,
+        {
+            todo!()
+        }
+
+        fn end(self) -> Result<Self::Ok, Self::Error> {
+            todo!()
+        }
+    }
+
+    impl<'a> SerializeTupleStruct for &mut TableSer {
+        type Ok = ();
+
+        type Error = std::fmt::Error;
+
+        fn serialize_field<T>(&mut self, value: &T) -> Result<(), Self::Error>
+        where
+            T: ?Sized + Serialize,
+        {
+            todo!()
+        }
+
+        fn end(self) -> Result<Self::Ok, Self::Error> {
+            todo!()
+        }
+    }
+
+    impl<'a> SerializeTupleVariant for &mut TableSer {
+        type Ok = ();
+
+        type Error = Error;
+
+        fn serialize_field<T>(&mut self, value: &T) -> Result<(), Self::Error>
+        where
+            T: ?Sized + Serialize,
+        {
+            todo!()
+        }
+
+        fn end(self) -> Result<Self::Ok, Self::Error> {
+            todo!()
+        }
+    }
+
+    impl<'a> SerializeMap for &mut TableSer {
+        type Ok = ();
+
+        type Error = Error;
+
+        fn serialize_key<T>(&mut self, key: &T) -> Result<(), Self::Error>
+        where
+            T: ?Sized + Serialize,
+        {
+            todo!()
+        }
+
+        fn serialize_value<T>(&mut self, value: &T) -> Result<(), Self::Error>
+        where
+            T: ?Sized + Serialize,
+        {
+            todo!()
+        }
+
+        fn end(self) -> Result<Self::Ok, Self::Error> {
+            todo!()
+        }
+    }
+
+    impl<'a> SerializeStruct for &mut TableSer {
+        type Ok = ();
+
+        type Error = Error;
+
+        fn serialize_field<T>(&mut self, key: &'static str, value: &T) -> Result<(), Self::Error>
+        where
+            T: ?Sized + Serialize,
+        {
+            self.col = Some(key);
+            match value.serialize(&mut **self) {
+                Ok(_) => {
+                    let r = self.t.row(self.row.unwrap());
+                    r.set(self.col.unwrap(), self.val.as_ref().unwrap());
+                }
+                Err(_) => todo!(),
+            }
+            Ok(())
+        }
+
+        fn end(self) -> Result<Self::Ok, Self::Error> {
+            Ok(())
+        }
+    }
+
+    impl<'a> SerializeStructVariant for &mut TableSer {
+        type Ok = ();
+
+        type Error = Error;
+
+        fn serialize_field<T>(&mut self, key: &'static str, value: &T) -> Result<(), Self::Error>
+        where
+            T: ?Sized + Serialize,
+        {
+            todo!()
+        }
+
+        fn end(self) -> Result<Self::Ok, Self::Error> {
+            todo!()
+        }
+    }
 }

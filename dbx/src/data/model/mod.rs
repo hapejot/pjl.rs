@@ -1,4 +1,4 @@
-use log::{debug, error, info};
+use log::{debug, error, info, trace};
 
 pub mod meta {
 
@@ -165,11 +165,11 @@ impl DataModel {
     }
 
     pub fn dump(&self) {
-        info!("Model Dump: {}", self.name);
+        trace!("Model Dump: {}", self.name);
         for t in self.tables() {
-            info!("Table {}", t.name());
+            trace!("Table {}", t.name());
             for f in t.fields() {
-                info!(
+                trace!(
                     "   {:2} {:20} {:?}",
                     if f.key { "o" } else { " " },
                     f.name(),

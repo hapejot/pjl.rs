@@ -329,7 +329,7 @@ impl SerializeStruct for DBRowSerializer {
     where
         T: Serialize,
     {
-        // info!("serialize {}", key);
+        // trace!("serialize {}", key);
         let s = SQLValueSerializer {
             model: self.model.clone(),
             name: Some(key.into()),
@@ -727,7 +727,7 @@ impl<'de> ser::Serializer for &RowSerializer {
     }
 
     fn serialize_seq(self, _len: Option<usize>) -> Result<Self::SerializeSeq, Self::Error> {
-        info!("serialize sequence");
+        trace!("serialize sequence");
         let s = TableSerializer {
             result: ListValue::new(),
             model: self.model.clone(),
@@ -759,7 +759,7 @@ impl<'de> ser::Serializer for &RowSerializer {
     }
 
     fn serialize_map(self, _len: Option<usize>) -> Result<Self::SerializeMap, Self::Error> {
-        info!("serialize struct");
+        trace!("serialize struct");
         let s = DBRowSerializer::new(self.model.clone(), "person");
         Ok(s)
     }
@@ -769,7 +769,7 @@ impl<'de> ser::Serializer for &RowSerializer {
         name: &'static str,
         _len: usize,
     ) -> Result<Self::SerializeStruct, Self::Error> {
-        info!("serialize struct");
+        trace!("serialize struct");
         let s = DBRowSerializer::new(self.model.clone(), name);
         Ok(s)
     }

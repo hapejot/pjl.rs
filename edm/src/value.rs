@@ -31,6 +31,14 @@ impl Value {
     pub fn null() -> Value {
         Value::PrimitiveValue(PrimitiveValue::Null)
     }
+
+    pub fn count(&self) -> usize {
+        match self {
+            Value::PrimitiveValue(_) => 1,
+            Value::StructureValue(_) => 1,
+            Value::ListValue(list_value) => list_value.len(),
+        }
+    }
 }
 
 impl<T> From<T> for Value

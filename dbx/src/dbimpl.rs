@@ -258,7 +258,7 @@ impl DatabaseImpl {
     }
 
     pub fn load_meta(&mut self) {
-        info!("loading metadata");
+        trace!("loading metadata");
         self.collect_tables();
         if let Some(con) = &self.con {
             for t in self.tables.iter_mut() {
@@ -269,12 +269,12 @@ impl DatabaseImpl {
 
     // #[instrument(skip(self, model))]
     pub fn activate_structure(&mut self, model: DataModel) {
-        info!("activate structure");
+        trace!("activate structure");
         self.model = Some(Rc::new(model));
         if let Some(con) = &self.con {
             if let Some(m) = &self.model {
                 for t in m.tables() {
-                    info!("activate table {}", t.name());
+                    trace!("activate table {}", t.name());
                     let dbtab = self.table(t.name());
                     match dbtab {
                         Some(dbtable) => {
@@ -287,7 +287,7 @@ impl DatabaseImpl {
                         None => {
                             debug!("{} new table", t.name());
                             let src = build_create_table(t).unwrap();
-                            info!("{}", src);
+                            trace!("{}", src);
                             con.execute(src.as_str(), []).unwrap();
                         }
                     }
@@ -295,7 +295,7 @@ impl DatabaseImpl {
             }
         }
         self.load_meta();
-        info!("activation finished");
+        trace!("activation finished");
     }
 
     fn table(&self, table_name: &str) -> Option<&DBTable> {

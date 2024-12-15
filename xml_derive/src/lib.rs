@@ -24,7 +24,7 @@ fn impl_hello_macro(ast: &syn::DeriveInput) -> TokenStream {
 }
 
 #[proc_macro]
-pub fn xml3(input: TokenStream) -> TokenStream {
+pub fn xml3(_input: TokenStream) -> TokenStream {
     let gen = quote! {
         fn hello() {
             println!("Hello!");

@@ -36,13 +36,13 @@
 //                 for (field_name, v) in row_data {
 //                     match self.get_relation(row_type.as_str(), field_name.as_str()) {
 //                         Some(_r) => {
-//                             // info!("found relation {} {}", row_type, field_name);
+//                             // trace!("found relation {} {}", row_type, field_name);
 //                             // match &r.kind {
 //                             //     One => {
 //                             //         handle_one_relation(v, &mut rr, field_name, row_type, &mut result);
 //                             //         let sub_row = &result[0];
 //                             //         for (f_fld, t_fld) in r.fields.iter() {
-//                             //             info!("field map {} <- {}", f_fld, t_fld);
+//                             //             trace!("field map {} <- {}", f_fld, t_fld);
 //                             //             rr.insert(
 //                             //                 f_fld.clone(),
 //                             //                 sub_row.get(t_fld).unwrap().clone(),
@@ -53,7 +53,7 @@
 //                             //         handle_many_relation(v, &mut rr, field_name, row_type, &mut result);
 //                             //         for sub_row in result.iter_mut() {
 //                             //             for (f_fld, t_fld) in r.fields.iter() {
-//                             //                 info!("field map {} <- {}", t_fld, f_fld);
+//                             //                 trace!("field map {} <- {}", t_fld, f_fld);
 //                             //                 sub_row.insert(
 //                             //                     t_fld.clone(),
 //                             //                     rr.get(f_fld).unwrap().clone(),
@@ -62,7 +62,7 @@
 //                             //         }
 //                             //     }
 //                             //     ManyMany(rel_table) => {
-//                             //         info!("many to many relation {}", rel_table);
+//                             //         trace!("many to many relation {}", rel_table);
 //                             //         handle_many_many_relation(
 //                             //             v,
 //                             //             &mut rr,
@@ -137,14 +137,14 @@
 //         Value::PrimitiveValue(PrimitiveValue::Null)=> rr[k] = SqlValue(rusqlite::types::Value::Null),
 //         Value::PrimitiveValue(v) => rr.insert(k.clone(), v.clone()),
 //         SerElement::Sequence(v) => {
-//             info!("sub row sequence {}.{}", n, k);
+//             trace!("sub row sequence {}.{}", n, k);
 //             for x in v {
 //                 let mut sub_rows = x.as_rows(None);
 //                 result.append(&mut sub_rows);
 //             }
 //         }
 //         SerElement::Row(n, _) => {
-//             info!("sub row {}.{}", n, k);
+//             trace!("sub row {}.{}", n, k);
 //             let mut sub_rows = v.as_rows(None);
 //             result.append(&mut sub_rows);
 //         }
@@ -192,13 +192,13 @@
 //     _meta: &Meta,
 //     result: &mut Vec<DBRow>,
 // ) {
-//     info!("handle many relation {} {}", k, n);
+//     trace!("handle many relation {} {}", k, n);
 //     match v {
 //         SerElement::Empty => todo!("implement empty relationship"),
 //         SerElement::Value(_v) => panic!("relation cannot use atomic values"),
 //         SerElement::Sequence(v) => {
 //             for x in v {
-//                 info!("many: handle row {}", x);
+//                 trace!("many: handle row {}", x);
 //                 let mut rr = x.as_rows(None);
 //                 result.append(&mut rr);
 //             }
@@ -225,7 +225,7 @@
 //     meta: &Meta,
 //     result: &mut Vec<DBRow>,
 // ) {
-//     info!("handle many many relation {} {} {}", k, n, rel_table);
+//     trace!("handle many many relation {} {} {}", k, n, rel_table);
 //     match v {
 //         SerElement::Empty => todo!("implement empty relationship"),
 //         SerElement::Value(_v) => panic!("relation cannot use atomic values"),

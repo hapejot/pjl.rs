@@ -148,7 +148,7 @@ impl From<SqlValue> for u64 {
 //         if let (Some(tabname), Some(idx)) = (&self.table, k.find(".")) {
 //             let fld = &k[idx + 1..];
 //             let tab = &k[..idx];
-//             info!("find field {} {}", tab, fld);
+//             trace!("find field {} {}", tab, fld);
 //             if tab == tabname {
 //                 if let Some((_, val)) = self.values.iter().find(|(key, _)| key == fld) {
 //                     Some(val)
@@ -436,9 +436,9 @@ impl Database {
         } {
             debug!("serialize row");
             let x = ser::serialize_row(model, value)?;
-            info!("serialization generated {} rows. ***************", x.len());
+            trace!("serialization generated {} rows. ***************", x.len());
             for r in x.iter() {
-                info!("write row: {:?}", r);
+                trace!("write row: {:?}", r);
                 let v = edm::value::Value::StructureValue(r.clone());
                 self.modify_from(r.datatype(), &v);
             }
@@ -471,14 +471,14 @@ fn build_alter_table(t: &DBTable, t0: &Table) -> Result<Vec<String>, std::fmt::E
         } else {
             match &x.fieldtype {
                 Text(length) => {
-                    info!("create text field {}", x.name);
+                    trace!("create text field {}", x.name);
                     let mut sql = String::new();
                     write!(&mut sql, "ALTER TABLE {} ", t.name)?;
                     write!(&mut sql, "ADD COLUMN {} varchar({length})", x.name)?;
                     result.push(sql);
                 }
                 Number => {
-                    info!("create number field {}", x.name);
+                    trace!("create number field {}", x.name);
                     let mut sql = String::new();
                     write!(&mut sql, "ALTER TABLE {} ", t.name)?;
                     write!(&mut sql, "ADD COLUMN {} number", x.name)?;
@@ -488,7 +488,7 @@ fn build_alter_table(t: &DBTable, t0: &Table) -> Result<Vec<String>, std::fmt::E
                     table: _,
                     as_field: _,
                 } => {
-                    info!("create lookup field {}", x.name);
+                    trace!("create lookup field {}", x.name);
                     let mut sql = String::new();
                     write!(&mut sql, "ALTER TABLE {} ", t.name)?;
                     write!(&mut sql, "ADD COLUMN {} varchar", x.name)?;
@@ -499,7 +499,7 @@ fn build_alter_table(t: &DBTable, t0: &Table) -> Result<Vec<String>, std::fmt::E
             }
         }
     }
-    // info!("sql: {}", sql);
+    // trace!("sql: {}", sql);
     Ok(result)
 }
 
@@ -511,7 +511,7 @@ fn build_create_table(t: &Table) -> Result<String, std::fmt::Error> {
             Text(length) => write!(&mut sql, "{} varchar({length}),", x.name)?,
             Number => write!(&mut sql, "{} number,", x.name)?,
             Lookup { .. } => write!(&mut sql, "{} varchar,", x.name)?,
-            _ => info!("ignoring field {:?}", x.fieldtype),
+            _ => trace!("ignoring field {:?}", x.fieldtype),
         }
     }
     write!(&mut sql, "primary key (")?;
