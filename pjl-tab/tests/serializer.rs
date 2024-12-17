@@ -19,7 +19,7 @@ fn ser1() {
         },
     ];
 
-    let t = pjltab::ser::table_from(&p).unwrap();
+    let t = pjl_tab::ser::table_from(&p).unwrap();
     assert_eq!(2, t.lines());
     let r = t.row(1);
     assert_eq!("Jaeckel", r.get("name2").unwrap());

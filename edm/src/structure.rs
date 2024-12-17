@@ -40,7 +40,10 @@ impl ops::Index<&str> for StructureValue {
     type Output = Value;
 
     fn index(&self, index: &str) -> &Self::Output {
-        self.values.get(index).unwrap()
+        match self.values.get(index) {
+            Some(x) => x,
+            None => panic!("element {index} undefined in structure {:#?}", self),
+        }
     }
 }
 

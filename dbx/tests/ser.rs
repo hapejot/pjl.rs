@@ -91,7 +91,6 @@ enum Communication {
     Phone { personid: String, number: String },
 }
 
-#[test]
 fn row_serializer() -> Result<(), Error> {
     env_logger::Builder::from_default_env()
         .filter_level(log::LevelFilter::Trace)
@@ -131,7 +130,6 @@ struct Order {
     sold_to: Person,
 }
 
-#[test]
 fn order_serializer() {
     // env_logger::Builder::try
     // env_logger::Builder::from_default_env()

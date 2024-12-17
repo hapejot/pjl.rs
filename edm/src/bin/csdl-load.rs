@@ -36,16 +36,21 @@ macro_rules! xml2 {
         paste!{
             mod $doctype {
                 pub mod s {
-                    pub type PCDATA = String;
+                    #[allow(non_snake_case)]
+                    #[allow(dead_code)]
+                                        pub type PCDATA = String;
                 $(
                     pub struct $rule {
                     $(
-                        pub [<m_ $v>]  :Option<$v>,
+                        #[allow(non_snake_case)]
+                        #[allow(dead_code)]
+                                                pub [<m_ $v>]  :Option<$v>,
                     )*
                     }
                 )*
             }
-
+            #[allow(non_snake_case)]
+            #[allow(dead_code)]
             pub fn PCDATA() {}
 
 

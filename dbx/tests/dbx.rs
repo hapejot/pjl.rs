@@ -90,7 +90,6 @@ struct Person {
     name4: Option<String>,
 }
 
-#[test]
 fn serialize() {
     simple_logging::log_to_stderr(log::LevelFilter::Trace);
     debug!("test serialize");

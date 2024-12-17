@@ -1,5 +1,5 @@
 use memuse::DynamicUsage;
-use pjltab::*;
+use pjl_tab::*;
 #[test]
 fn create() {
     let t = Table::new();
