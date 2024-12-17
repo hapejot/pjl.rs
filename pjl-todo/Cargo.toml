@@ -1,10 +1,10 @@
 [package]
-name = "pjltodo"
+name = "pjl-todo"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
 crossterm = "0.28.1"
-pjltui = { version = "0.1.0", path = "../pjltui" }
+pjl-tui = { version = "0.1.0", path = "../pjl-tui" }
 tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["tracing"] }

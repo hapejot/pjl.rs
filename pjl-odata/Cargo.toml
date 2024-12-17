@@ -1,0 +1,9 @@
+[package]
+name = "pjl-odata"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+santiago = "1.3.1"
+serde = { version = "1.0.216", features = ["derive"] }
+tracing = "0.1.41"

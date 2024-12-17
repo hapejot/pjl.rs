@@ -1,6 +1,6 @@
 use std::fs::File;
 
-use pjltui::{
+use pjl_tui::{
     ui::glyph::{fgrid::FGrid, frame::Frame, label::Label},
     Application, Screen, TApplication,
 };
@@ -16,7 +16,7 @@ impl TApplication for App {
         "ToDo-Liste"
     }
 
-    fn screen(&self, id: usize) -> pjltui::Screen {
+    fn screen(&self, id: usize) -> pjl_tui::Screen {
         // let mut panel = Panel::new();
         let mut grid = FGrid::new();
         for (row, col, txt) in [

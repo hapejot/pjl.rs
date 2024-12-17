@@ -27,4 +27,9 @@ fn ser1() {
     let r = t.row(2);
     assert_eq!("Karin", r.get("name1").unwrap());
     assert_eq!("Lueg", r.get("name2").unwrap());
+    let mut out = String::new();
+    t.dump(&mut out);
+    eprintln!("{}", out);
 }
+
+
