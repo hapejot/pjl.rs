@@ -7,7 +7,6 @@ members = [
     "edm",
     "pjl-proto", 
     "simple-file-server", 
-    "linux-fuser-adapter",
     "simple-rest-server", 
     "compound-material", 
     "navi", 
