@@ -1,0 +1,12 @@
+[package]
+name = "processing-node-client"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+processing-node = { version = "0.1.0", path = "../processing-node", default-features = false }
+serde = { version = "1.0.217", features = ["derive"] }
+pjl-error = { version = "0.1.0", path = "../pjl-error" }
+serde-xdr = { git = "https://github.com/hapejot/serde-xdr.git", version = "0.6.0" }
+serde_yaml = { git = "https://github.com/hapejot/serde-yaml.git", version = "0.9.35" }
+tracing = "0.1.41"

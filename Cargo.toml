@@ -1,11 +1,9 @@
 [workspace]
 resolver = "2"
 members = [
-    "agent", 
     "dbx",
     "xdd",
     "edm",
-    "pjl-proto", 
     "simple-file-server", 
     "simple-rest-server", 
     "compound-material", 
@@ -17,5 +15,7 @@ members = [
     "pjl-todo", 
     "pjl-tab", 
     "pjl-pg", 
-    "pjl-odata"]
+    "pjl-odata", 
+    "pjl-error", 
+    "thumb-node", "processing-node-client", "pjl-static-strings"]
 

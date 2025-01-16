@@ -1,17 +1,8 @@
 use memuse::DynamicUsage;
-use serde::{
-    ser::{
-        SerializeMap, SerializeSeq, SerializeStruct, SerializeStructVariant, SerializeTuple,
-        SerializeTupleStruct, SerializeTupleVariant,
-    },
-    Deserialize, Serialize,
-};
-use std::{
-    collections::HashMap,
-    fmt::{Error, Write},
-    ops::{Index, IndexMut},
-    sync::Mutex,
-};
+use pjl_static_strings::StringTable;
+use serde::ser::{SerializeSeq, SerializeStruct};
+use std::{collections::HashMap, fmt::{Debug, Write}, sync::Mutex};
+use tracing::instrument;
 
 pub struct Row<'a> {
     table: &'a Table,
@@ -72,6 +63,7 @@ pub struct Table {
     d: Mutex<TableVar>,
 }
 
+#[allow(dead_code)]
 pub struct TableIterator<'a> {
     tab: &'a Table,
     idx: usize,
@@ -95,12 +87,36 @@ impl<'a> IntoIterator for &'a Table {
 }
 
 impl serde::Serialize for Table {
+    #[instrument(skip_all)]
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
     {
-        let seq = serializer.serialize_seq(Some(0))?;
+        let row_count = self.lines();
+        let mut seq = serializer.serialize_seq(Some(row_count))?;
+        for rownum in 1..row_count + 1 {
+            seq.serialize_element(&self.row(rownum))?;
+        }
         seq.end()
+    }
+}
+
+impl<'a> serde::Serialize for Row<'a> {
+    #[instrument(skip_all)]
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let mut sstruct = serializer.serialize_struct("row", self.columns().len())?;
+        let cols = self.columns();
+        for x in cols {
+            let key = StringTable::get(&x);
+            match self.get(&x) {
+                Some(v) => sstruct.serialize_field(key, &v)?,
+                None => sstruct.skip_field(key)?,
+            }
+        }
+        sstruct.end()
     }
 }
 
@@ -176,7 +192,7 @@ impl Table {
         }
     }
     pub fn row(&self, idx: usize) -> Row<'_> {
-        if let Ok(x) = self.d.try_lock() {
+        if let Ok(_x) = self.d.try_lock() {
             Row {
                 table: self,
                 id: idx,
@@ -302,8 +318,6 @@ impl Table {
     // }
 }
 pub mod ser {
-    use crate::Row;
-
     use super::Table;
     use serde::{
         ser::{
@@ -313,6 +327,8 @@ pub mod ser {
         Serialize,
     };
     use std::fmt::Error;
+    use tracing::{instrument, trace};
+
     pub fn table_from<T>(x: T) -> Result<Table, String>
     where
         T: serde::Serialize,
@@ -361,60 +377,61 @@ pub mod ser {
 
         type SerializeStructVariant = Self;
 
-        fn serialize_bool(self, v: bool) -> Result<Self::Ok, Self::Error> {
+        fn serialize_bool(self, _v: bool) -> Result<Self::Ok, Self::Error> {
             todo!()
         }
 
-        fn serialize_i8(self, v: i8) -> Result<Self::Ok, Self::Error> {
+        fn serialize_i8(self, _v: i8) -> Result<Self::Ok, Self::Error> {
             todo!()
         }
 
-        fn serialize_i16(self, v: i16) -> Result<Self::Ok, Self::Error> {
+        fn serialize_i16(self, _v: i16) -> Result<Self::Ok, Self::Error> {
             todo!()
         }
 
-        fn serialize_i32(self, v: i32) -> Result<Self::Ok, Self::Error> {
+        fn serialize_i32(self, _v: i32) -> Result<Self::Ok, Self::Error> {
             todo!()
         }
 
-        fn serialize_i64(self, v: i64) -> Result<Self::Ok, Self::Error> {
+        fn serialize_i64(self, _v: i64) -> Result<Self::Ok, Self::Error> {
             todo!()
         }
 
-        fn serialize_u8(self, v: u8) -> Result<Self::Ok, Self::Error> {
+        fn serialize_u8(self, _v: u8) -> Result<Self::Ok, Self::Error> {
             todo!()
         }
 
-        fn serialize_u16(self, v: u16) -> Result<Self::Ok, Self::Error> {
+        fn serialize_u16(self, _v: u16) -> Result<Self::Ok, Self::Error> {
             todo!()
         }
 
-        fn serialize_u32(self, v: u32) -> Result<Self::Ok, Self::Error> {
+        fn serialize_u32(self, _v: u32) -> Result<Self::Ok, Self::Error> {
             todo!()
         }
 
-        fn serialize_u64(self, v: u64) -> Result<Self::Ok, Self::Error> {
+        fn serialize_u64(self, _v: u64) -> Result<Self::Ok, Self::Error> {
             todo!()
         }
 
-        fn serialize_f32(self, v: f32) -> Result<Self::Ok, Self::Error> {
+        fn serialize_f32(self, _v: f32) -> Result<Self::Ok, Self::Error> {
             todo!()
         }
 
-        fn serialize_f64(self, v: f64) -> Result<Self::Ok, Self::Error> {
+        fn serialize_f64(self, _v: f64) -> Result<Self::Ok, Self::Error> {
             todo!()
         }
 
-        fn serialize_char(self, v: char) -> Result<Self::Ok, Self::Error> {
+        fn serialize_char(self, _v: char) -> Result<Self::Ok, Self::Error> {
             todo!()
         }
 
+        #[instrument(skip_all)]
         fn serialize_str(self, v: &str) -> Result<Self::Ok, Self::Error> {
             self.val = Some(v.into());
             Ok(())
         }
 
-        fn serialize_bytes(self, v: &[u8]) -> Result<Self::Ok, Self::Error> {
+        fn serialize_bytes(self, _v: &[u8]) -> Result<Self::Ok, Self::Error> {
             todo!()
         }
 
@@ -422,7 +439,7 @@ pub mod ser {
             todo!()
         }
 
-        fn serialize_some<T>(self, value: &T) -> Result<Self::Ok, Self::Error>
+        fn serialize_some<T>(self, _value: &T) -> Result<Self::Ok, Self::Error>
         where
             T: ?Sized + Serialize,
         {
@@ -433,15 +450,15 @@ pub mod ser {
             todo!()
         }
 
-        fn serialize_unit_struct(self, name: &'static str) -> Result<Self::Ok, Self::Error> {
+        fn serialize_unit_struct(self, _name: &'static str) -> Result<Self::Ok, Self::Error> {
             todo!()
         }
 
         fn serialize_unit_variant(
             self,
-            name: &'static str,
-            variant_index: u32,
-            variant: &'static str,
+            _name: &'static str,
+            _variant_index: u32,
+            _variant: &'static str,
         ) -> Result<Self::Ok, Self::Error> {
             todo!()
         }
@@ -454,6 +471,8 @@ pub mod ser {
         where
             T: ?Sized + Serialize,
         {
+            let _ = value;
+            let _ = name;
             todo!()
         }
 
@@ -467,25 +486,37 @@ pub mod ser {
         where
             T: ?Sized + Serialize,
         {
+            let _ = value;
+            let _ = variant;
+            let _ = name;
+            let _ = variant_index;
             todo!()
         }
 
+        #[instrument(skip_all)]
         fn serialize_seq(self, len: Option<usize>) -> Result<Self::SerializeSeq, Self::Error> {
+            let _ = len;
             Ok(self)
         }
 
+        #[instrument(skip_all)]
         fn serialize_tuple(self, len: usize) -> Result<Self::SerializeTuple, Self::Error> {
+            let _ = len;
             Ok(self)
         }
 
+        #[instrument(skip_all)]
         fn serialize_tuple_struct(
             self,
             name: &'static str,
             len: usize,
         ) -> Result<Self::SerializeTupleStruct, Self::Error> {
+            let _ = len;
+            let _ = name;
             Ok(self)
         }
 
+        #[instrument(skip_all)]
         fn serialize_tuple_variant(
             self,
             name: &'static str,
@@ -493,22 +524,32 @@ pub mod ser {
             variant: &'static str,
             len: usize,
         ) -> Result<Self::SerializeTupleVariant, Self::Error> {
+            let _ = len;
+            let _ = variant;
+            let _ = variant_index;
+            let _ = name;
             Ok(self)
         }
 
+        #[instrument(skip_all)]
         fn serialize_map(self, len: Option<usize>) -> Result<Self::SerializeMap, Self::Error> {
+            let _ = len;
             Ok(self)
         }
 
+        #[instrument(skip_all)]
         fn serialize_struct(
             self,
             name: &'static str,
             len: usize,
         ) -> Result<Self::SerializeStruct, Self::Error> {
+            let _ = name;
+            let _ = len;
             assert!(self.row.is_some());
             Ok(self)
         }
 
+        #[instrument(skip_all)]
         fn serialize_struct_variant(
             self,
             name: &'static str,
@@ -516,6 +557,10 @@ pub mod ser {
             variant: &'static str,
             len: usize,
         ) -> Result<Self::SerializeStructVariant, Self::Error> {
+            let _ = name;
+            let _ = variant_index;
+            let _ = variant;
+            let _ = len;
             Ok(self)
         }
     }
@@ -525,15 +570,18 @@ pub mod ser {
 
         type Error = std::fmt::Error;
 
+        #[instrument(skip_all)]
         fn serialize_element<T>(&mut self, value: &T) -> Result<(), Self::Error>
         where
             T: ?Sized + Serialize,
         {
+            trace!("serialize element");
             let r = self.t.new_row();
             self.row = Some(r.id);
             value.serialize(&mut **self)
         }
 
+        #[instrument(skip_all)]
         fn end(self) -> Result<Self::Ok, Self::Error> {
             Ok(())
         }
@@ -544,7 +592,7 @@ pub mod ser {
 
         type Error = std::fmt::Error;
 
-        fn serialize_element<T>(&mut self, value: &T) -> Result<(), Self::Error>
+        fn serialize_element<T>(&mut self, _value: &T) -> Result<(), Self::Error>
         where
             T: ?Sized + Serialize,
         {
@@ -561,13 +609,14 @@ pub mod ser {
 
         type Error = std::fmt::Error;
 
-        fn serialize_field<T>(&mut self, value: &T) -> Result<(), Self::Error>
+        fn serialize_field<T>(&mut self, _value: &T) -> Result<(), Self::Error>
         where
             T: ?Sized + Serialize,
         {
             todo!()
         }
 
+        #[instrument(skip_all)]
         fn end(self) -> Result<Self::Ok, Self::Error> {
             todo!()
         }
@@ -578,7 +627,7 @@ pub mod ser {
 
         type Error = Error;
 
-        fn serialize_field<T>(&mut self, value: &T) -> Result<(), Self::Error>
+        fn serialize_field<T>(&mut self, _value: &T) -> Result<(), Self::Error>
         where
             T: ?Sized + Serialize,
         {
@@ -595,20 +644,24 @@ pub mod ser {
 
         type Error = Error;
 
+        #[instrument(skip_all)]
         fn serialize_key<T>(&mut self, key: &T) -> Result<(), Self::Error>
         where
             T: ?Sized + Serialize,
         {
+            let _ = key;
             todo!()
         }
 
-        fn serialize_value<T>(&mut self, value: &T) -> Result<(), Self::Error>
+        #[instrument(skip_all)]
+        fn serialize_value<T>(&mut self, _value: &T) -> Result<(), Self::Error>
         where
             T: ?Sized + Serialize,
         {
             todo!()
         }
 
+        #[instrument(skip_all)]
         fn end(self) -> Result<Self::Ok, Self::Error> {
             todo!()
         }
@@ -619,10 +672,12 @@ pub mod ser {
 
         type Error = Error;
 
+        #[instrument(skip_all)]
         fn serialize_field<T>(&mut self, key: &'static str, value: &T) -> Result<(), Self::Error>
         where
             T: ?Sized + Serialize,
         {
+            trace!("serialize field");
             self.col = Some(key);
             match value.serialize(&mut **self) {
                 Ok(_) => {
@@ -634,6 +689,7 @@ pub mod ser {
             Ok(())
         }
 
+        #[instrument(skip_all)]
         fn end(self) -> Result<Self::Ok, Self::Error> {
             Ok(())
         }
@@ -644,13 +700,16 @@ pub mod ser {
 
         type Error = Error;
 
-        fn serialize_field<T>(&mut self, key: &'static str, value: &T) -> Result<(), Self::Error>
+        #[instrument(skip_all)]
+        fn serialize_field<T>(&mut self, key: &'static str, _value: &T) -> Result<(), Self::Error>
         where
             T: ?Sized + Serialize,
         {
+            let _ = key;
             todo!()
         }
 
+        #[instrument(skip_all)]
         fn end(self) -> Result<Self::Ok, Self::Error> {
             todo!()
         }

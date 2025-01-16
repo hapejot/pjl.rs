@@ -1,0 +1,17 @@
+[package]
+name = "thumb-node"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ffmpeg-next = "7.1.0"
+image = "0.25.5"
+pjl-error = { version = "0.1.0", path = "../pjl-error" }
+pjl-odata = { version = "0.1.0", path = "../pjl-odata" }
+pjl-pg = { version = "0.1.0", path = "../pjl-pg" }
+processing-node = { version = "0.1.0", path = "../processing-node", features = ["server"] }
+tokio = { version = "1.42.0", features = ["full"] }
+tracing = "0.1.41"
+
+[dev-dependencies]
+processing-node-client = { version = "0.1.0", path = "../processing-node-client" }

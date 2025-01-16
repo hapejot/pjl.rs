@@ -1,12 +1,12 @@
 use bytes::BytesMut;
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
+// use serde_derive::{Deserialize, Serialize};
 use serde_xdr::{from_bytes, to_bytes};
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt, BufWriter},
     net::TcpStream,
 };
-use tracing::{event, Level};
-use tracing_subscriber::prelude::__tracing_subscriber_SubscriberExt;
+// use tracing_subscriber::prelude::__tracing_subscriber_SubscriberExt;
 
 pub type Error = Box<dyn std::error::Error + Send + Sync>;
 
@@ -18,6 +18,8 @@ pub enum Command{
     ListElements(Option<String>),
     Set(String, Option<String>),
     Get(String),
+    Lookup(String), 
+    Send{selector: String, receiver: Value, parameters: Vec<Value>},
 }
 
 
@@ -36,6 +38,7 @@ pub enum Value {
     Void,
     String(String),
     List(Vec<Value>),
+    ObjectID(String),
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -45,14 +48,14 @@ pub struct ResponsePacket {
 
 
 pub fn trace_init() {
-    let stdout_log = tracing_subscriber::fmt::layer()
+    // let stdout_log = tracing_subscriber::fmt::layer()
         // .compact()
         //.without_time(); 
-            ;
+            // ;
     // Start logging
-    let subscriber = tracing_subscriber::Registry::default().with(stdout_log);
-    tracing::subscriber::set_global_default(subscriber).expect("not ok");
-    event!(Level::INFO, "Start");
+    // let subscriber = tracing_subscriber::Registry::default().with(stdout_log);
+    // tracing::subscriber::set_global_default(subscriber).expect("not ok");
+    // event!(Level::INFO, "Start");
 }
 
 #[derive(Debug)]
@@ -116,10 +119,3 @@ impl Connection {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    
-
-    #[test]
-    fn it_works() {}
-}

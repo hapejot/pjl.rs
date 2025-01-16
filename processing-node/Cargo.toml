@@ -3,14 +3,22 @@ name = "processing-node"
 version = "0.1.0"
 edition = "2021"
 
+[features]
+default = ["server"]
+server = ["dep:tokio"]
+browser = ["dep:crossterm"]
+script = []
+
 [dependencies]
 bytes = "1.7.2"
 serde = { version = "1.0.210", features = ["derive"] }
-tokio = { version = "1.40.0", features = ["full"] }
+tokio = { version = "1.40.0", features = ["full"], optional = true }
 tracing = "0.1.40"
 serde-xdr = { git = "https://github.com/hapejot/serde-xdr.git", version = "0.6.0" }
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 trace = "0.1.7"
 santiago = "1.3.1"
 clap = { version = "4.5.20", features = ["derive"] }
-crossterm = "0.28.1"
+crossterm = { version = "0.28.1", optional = true }
+serde_yaml = { git = "https://github.com/hapejot/serde-yaml.git", version = "0.9.35" }
+pjl-error = { version = "0.1.0", path = "../pjl-error" }

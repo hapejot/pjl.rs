@@ -29,15 +29,16 @@ impl PacketStream {
         let n = socket
             .read_exact(&mut hd)
             .await
-            .map_err(|x| x.to_string())?;
+            .map_err(|x| format!("reading packet length: {x:?}"))?;
         assert_eq!(n, self.header_length);
 
-        let hd = serde_xdr::from_bytes::<_, Packet>(&hd).map_err(|x| x.to_string())?;
+        let hd =
+            serde_xdr::from_bytes::<_, Packet>(&hd).map_err(|x| format!("deserialize: {x:?}"))?;
         let mut body = vec![0; hd.len];
         socket
             .read_exact(&mut body)
             .await
-            .map_err(|x| x.to_string())?;
+            .map_err(|x| format!("reading packet data: {x:?}"))?;
         let q = serde_xdr::from_bytes(&body);
         q.map_err(|x| x.to_string())
     }

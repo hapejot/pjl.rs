@@ -78,6 +78,18 @@ impl Application {
     pub fn run(&mut self) -> io::Result<()> {
         let mut w = io::stdout();
         execute!(w, terminal::EnterAlternateScreen)?;
+        self.internal_loop(&mut w)?;
+        execute!(
+            w,
+            style::ResetColor,
+            cursor::Show,
+            terminal::LeaveAlternateScreen
+        )?;
+
+        terminal::disable_raw_mode()
+    }
+
+    fn internal_loop(&mut self, w: &mut io::Stdout) -> Result<(), io::Error> {
         let (_cols, rows) = terminal::size()?;
         terminal::enable_raw_mode()?;
         let mut c1 = ListControl::new(
@@ -89,7 +101,7 @@ impl Application {
                 .collect(),
         );
         c1.set_position(0, 5);
-        while !self.state.done() {
+        Ok(while !self.state.done() {
             // let offset = 3;
             let mut lineno = 0;
             queue!(
@@ -103,20 +115,12 @@ impl Application {
             )?;
             let s = window_size().unwrap();
             queue!(w, cursor::MoveTo(1, 0), style::Print(format!("{:?}", s))).unwrap();
-            c1.display_on(&mut w);
-            io::Write::flush(&mut w)?;
+            c1.display_on(w);
+            io::Write::flush(w)?;
             if let Some(a) = self.next_action() {
                 a.perform(&mut self.state);
             }
-        }
-        execute!(
-            w,
-            style::ResetColor,
-            cursor::Show,
-            terminal::LeaveAlternateScreen
-        )?;
-
-        terminal::disable_raw_mode()
+        })
     }
 
     fn next_action(&self) -> Option<Box<dyn Action>> {

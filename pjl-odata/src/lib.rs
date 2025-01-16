@@ -1,11 +1,12 @@
-
 use std::collections::{BTreeMap, HashMap};
 
+use edm::value::Value;
 use serde::Serialize;
 mod parser {
     use santiago::grammar::Grammar;
     use santiago::lexer::LexerRules;
     use serde::Serialize;
+    use tracing::trace;
 
     use super::{Condition, ConditionBag};
 
@@ -99,7 +100,7 @@ mod parser {
                     },
                 ),
                 (t1, AST::Operator(op), t2) => {
-                    // eprintln!("gen: {:?} - {:?} - {:?}", t1, op, t2);
+                    trace!("gen: {:?} - {:?} - {:?}", t1, op, t2);
                     let c1 = translate(t1);
                     let c2 = translate(t2);
 
@@ -155,11 +156,30 @@ mod parser {
         }
     }
 }
+
+pub trait DbSpecifics {
+    fn start_field(&mut self, name: &str);
+    fn end_field(&mut self);
+    fn add_cond(&mut self, op: &str, value: &str);
+    fn where_clause(&self) -> String;
+    fn values(&self) -> Vec<Value>;
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub enum Operator {
     Equals,
     Var(String),
 }
+
+impl From<&str> for Operator {
+    fn from(value: &str) -> Self {
+        match value {
+            "eq" => Operator::Equals,
+            s => Operator::Var(s.to_string()),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct Condition {
     op: Operator,
@@ -247,6 +267,9 @@ impl ODataQuery {
             skip: None,
             orderby: None,
         };
+        for (field, v) in params {
+            r.add_condition(field, "eq", v);
+        }
         if let Some(x) = params.get("$filter") {
             r.conditions = match parser::parse_expression(x) {
                 Ok(expr) => expr,
@@ -274,7 +297,13 @@ impl ODataQuery {
         }
         r
     }
-
+    pub fn add_condition(&mut self, field: &str, operator: &str, value: &str) {
+        let cond = Condition {
+            op: operator.into(),
+            value: value.into(),
+        };
+        self.conditions.add(field, cond);
+    }
     pub fn get_fields_sql(&self) -> String {
         if self.conditions.field_count() > 0 {
             self.conditions.fields().join(",")
@@ -306,19 +335,40 @@ impl ODataQuery {
         }
         result.join(" and ")
     }
+    pub fn get_where_sql_specific<T: DbSpecifics>(&self, mut sqlspec: T) -> (String, Vec<Value>) {
+        for (fld, cond) in self.conditions.fields.iter() {
+            let mut field_result = vec![];
+            sqlspec.start_field(fld);
+            for c in cond {
+                let s = match &c.op {
+                    Operator::Equals => sqlspec.add_cond("=", &c.value),
+                    Operator::Var(v) => sqlspec.add_cond(&v, &c.value),
+                };
+                field_result.push(s);
+            }
+            sqlspec.end_field();
+            // if field_result.len() == 1 {
+            //     result.push(field_result.last().unwrap().clone());
+            // } else {
+            //     result.push(format!("({})", field_result.join(" or ")));
+            // }
+        }
+        // result.join(" and ")
+        (sqlspec.where_clause(), sqlspec.values())
+    }
     #[allow(unused)]
     pub fn conditions(&self) -> &ConditionBag {
         &self.conditions
     }
-    
+
     pub fn orderby(&self) -> Option<&String> {
         self.orderby.as_ref()
     }
-    
+
     pub fn skip(&self) -> Option<usize> {
         self.skip
     }
-    
+
     pub fn top(&self) -> Option<usize> {
         self.top
     }

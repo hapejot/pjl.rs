@@ -1,0 +1,4 @@
+#!/usr/bin/env -vS cargo run --example script-client --
+
+dir := Remote at: 'hello' get: #Directory.
+src := dir new: 'src'. 

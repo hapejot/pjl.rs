@@ -4,4 +4,12 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-postgres = "0.19.9"
+edm = { version = "0.1.0", path = "../edm" }
+pjl-odata = { version = "0.1.0", path = "../pjl-odata" }
+pjl-tab = { version = "0.1.0", path = "../pjl-tab" }
+tokio-postgres = "0.7.12"
+tokio = { version = "1.42.0", features = ["full"] }
+tracing = "0.1.41"
+serde_yaml = { git = "https://github.com/hapejot/serde-yaml.git", version = "0.9.35" }
+
+[dev-dependencies]

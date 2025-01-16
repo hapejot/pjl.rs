@@ -5,14 +5,15 @@ use std::{cell::RefCell, collections::HashMap, io::Read, rc::Rc};
 
 use crate::parser;
 use crate::parser::scanner::chunks::ChunkedLexer;
-use crate::{
-    parser::{
+use crate::parser::{
         rbparser::{Node as STNode, Parser},
         scanner::Scanner,
-    },
-    sync::PacketStream,
-    Message, MessageDispatch, Node, ObjectID, Value,
-};
+    };
+
+
+#[cfg(feature = "server")]
+use crate::Node;
+
 use clap::{Parser as ClapParser, ValueEnum};
 
 #[derive(ValueEnum, Clone, Debug)]
@@ -32,6 +33,8 @@ pub struct STClass {
     category: String,
     comment: String,
 }
+
+#[cfg(feature = "browser")]
 pub mod browser;
 
 impl STClass {
@@ -297,7 +300,7 @@ pub fn parse(
                         for x in lexemes.iter() {
                             println!("{:?}", x);
                         }
-                        let mut parser = super::parser::rbparser::Parser::new(lexemes);
+                        let parser = super::parser::rbparser::Parser::new(lexemes);
                     }
                 }
                 Err(err) => {

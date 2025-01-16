@@ -1,3 +1,4 @@
+use pjl_tab::Table;
 use serde::Serialize;
 
 #[derive(Serialize, Debug)]
@@ -32,4 +33,13 @@ fn ser1() {
     eprintln!("{}", out);
 }
 
+#[test]
+fn deser() {
+    let t = Table::new();
+    let r = t.new_row();
+    r.set("Spalte1", "A");
+    r.set("Spalte2", "B");
+    let s = serde_json::to_string(&t).unwrap();
 
+    assert_eq!("[{\"spalte1\":\"A\",\"spalte2\":\"B\"}]", s);
+}

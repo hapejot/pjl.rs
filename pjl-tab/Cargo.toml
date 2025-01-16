@@ -5,4 +5,7 @@ edition = "2021"
 
 [dependencies]
 memuse = "0.2.1"
+pjl-static-strings = { version = "0.1.0", path = "../pjl-static-strings" }
 serde = { version = "1.0.216", features = ["derive"] }
+serde_json = "1.0.134"
+tracing = "0.1.41"
