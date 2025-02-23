@@ -44,6 +44,22 @@ fn deserialize_test() {
 
 
 #[test]
+fn deserialize_test_single() {
+    let tab = Table::new();
+    let r = tab.new_row();
+    r.set("id", "17");
+    r.set("username", "Peter");
+    r.set("access_token", "Demo");
+
+    let v = pjl_tab::de::extract_from_table::<User>(&tab).unwrap();
+    let s = format!("{v:?}");
+    assert_eq!(
+        "User { id: 17, username: \"Peter\", access_token: \"Demo\" }",
+        s
+    );
+}
+
+#[test]
 fn deserialize_test_multiple() {
     let tab = Table::new();
     let r = tab.new_row();

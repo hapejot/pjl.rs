@@ -45,7 +45,7 @@ impl<'table> Temp<'table> {
         Self {
             table,
             col: 0,
-            rowidx: 0,
+            rowidx: 1, // first row starts with 1
             current_field: None,
             is_key: true,
         }
@@ -249,6 +249,7 @@ impl<'de> Deserializer<'de> for &mut Temp<'_> {
     where
         V: serde::de::Visitor<'de>,
     {
+        self.rowidx = 0; // reset to 0, as the visitor increases it again!
         visitor.visit_seq(self)
     }
 
