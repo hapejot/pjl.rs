@@ -1,15 +1,18 @@
 use memuse::DynamicUsage;
 use pjl_static_strings::StringTable;
-use serde::ser::{SerializeSeq, SerializeStruct};
+use serde::{
+    de::Visitor,
+    ser::{SerializeSeq, SerializeStruct},
+};
 use std::{
-    collections::HashMap,
+    collections::{BTreeMap, HashMap},
     fmt::{Debug, Write},
     sync::Mutex,
 };
 use tracing::instrument;
 
-pub mod ser;
 pub mod de;
+pub mod ser;
 
 pub struct Row<'a> {
     table: &'a Table,
@@ -90,6 +93,55 @@ impl<'a> IntoIterator for &'a Table {
 
     fn into_iter(self) -> Self::IntoIter {
         todo!()
+    }
+}
+
+struct DeSerVisitor {
+    row: usize,
+}
+
+impl<'de> serde::Deserialize<'de> for Table {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let visitor = DeSerVisitor { row: 1 };
+        deserializer.deserialize_seq(visitor)
+    }
+}
+
+impl<'de> Visitor<'de> for DeSerVisitor {
+    type Value = Table;
+
+    fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+        eprintln!("expecting...");
+        write!(formatter, "expecting...")
+    }
+
+    fn visit_seq<A>(self, mut seq: A) -> Result<Self::Value, A::Error>
+    where
+        A: serde::de::SeqAccess<'de>,
+    {
+        let return_table = Table::new();
+        while let Some(value) = seq
+            .next_element::<BTreeMap<String, serde_json::Value>>()
+            .unwrap()
+        {
+            let row = return_table.new_row();
+            for (name, value) in value.iter() {
+                let string_value = match value {
+                    serde_json::Value::Null => String::new(),
+                    serde_json::Value::Bool(x) => format!("{x}"),
+                    serde_json::Value::Number(number) => format!("{number}"),
+                    serde_json::Value::String(s) => s.clone(),
+                    serde_json::Value::Array(values) => todo!(),
+                    serde_json::Value::Object(map) => todo!(),
+                };
+
+                row.set(name, &string_value);
+            }
+        }
+        Ok(return_table)
     }
 }
 

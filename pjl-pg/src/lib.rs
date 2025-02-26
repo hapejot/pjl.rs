@@ -1,16 +1,27 @@
-use std::time::Duration;
-
-use edm::{number::Number, primitive::PrimitiveValue, value::Value};
+use edm::{csdl::Key, number::Number, primitive::PrimitiveValue, value::Value};
+use mini_moka::sync::Cache;
 use pjl_odata::DbSpecifics;
 use pjl_tab::Table;
+use serde::{Deserialize, Serialize};
+use std::time::Duration;
 use tokio::time::timeout;
 use tokio_postgres::{connect, types::ToSql, Client, NoTls};
 use tracing::*;
 
 pub struct Database {
     client: Client,
+    primary_keys: Cache<String, Vec<KeyPart>>,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct KeyPart {
+    field: String,
+}
+impl std::fmt::Display for KeyPart {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.field)
+    }
+}
 struct PostgresQuery {
     fld: Option<String>,
     params: Vec<Value>,
@@ -79,7 +90,10 @@ impl Database {
                         error!("connection error: {}", e);
                     }
                 });
-                Self { client: client }
+                Self {
+                    client: client,
+                    primary_keys: Cache::new(10),
+                }
             }
             Err(_) => todo!(),
         }
@@ -89,8 +103,41 @@ impl Database {
         true
     }
 
+    pub async fn read_primary_key(&mut self, tab_name: &str) -> Vec<KeyPart> {
+        let tab_name = tab_name.to_string();
+        if !self.primary_keys.contains_key(&tab_name) {
+            let client = &mut self.client;
+            let r = Table::new();
+
+            if let Ok(Ok(t)) = timeout(Duration::from_secs(2), client.transaction()).await {
+                let query = format!(
+                    r#" SELECT a.attname as field
+                    FROM   pg_index i
+                    JOIN   pg_attribute a ON a.attrelid = i.indrelid
+                                        AND a.attnum   = ANY(i.indkey)
+                    WHERE  i.indrelid = to_regclass($1)
+                    AND    i.indisprimary;"#
+                );
+                let stmt = t.prepare(&query).await.unwrap();
+                // let tab_name: Box<dyn ToSql + Sync> = ;
+                let rows = t
+                    .query(&stmt, &[&*Box::new(tab_name.clone())])
+                    .await
+                    .expect("query");
+                extract_result_to_table(&r, rows);
+                self.primary_keys.insert(
+                    tab_name.clone(),
+                    pjl_tab::de::extract_from_table(&r).unwrap(),
+                );
+            } else {
+                todo!()
+            }
+        }
+        self.primary_keys.get(&tab_name).unwrap()
+    }
+
     pub async fn select(&mut self, q: pjl_odata::ODataQuery) -> Table {
-        debug!("query: {:#?}",q);
+        debug!("query: {:#?}", q);
         let (where_clause, mut params) = q.get_where_sql_specific(PostgresQuery::new());
         let sql = if where_clause.len() > 0 {
             format!("SELECT * FROM {} WHERE {}", q.get_table(), where_clause)
@@ -131,38 +178,108 @@ impl Database {
                 .collect::<Vec<_>>();
 
             let rows = t.query(&statement, &final_sql_params).await.expect("query");
-            trace!("result rows {}", rows.len());
-            for row in rows {
-                let rrow = r.new_row();
-                for (idx, c) in row.columns().iter().enumerate() {
-                    let ty = c.type_();
-                    match ty.name() {
-                        "varchar" => {
-                            rrow.set(c.name(), row.get(idx));
-                        }
-                        "text" => {
-                            rrow.set(c.name(), row.get(idx));
-                        }
-                        "int4" => {
-                            let i = row.get::<'_, _, i32>(idx);
-                            rrow.set(c.name(), &i.to_string());
-                        }
-                        _ => todo!("implement conversion of type '{}'", ty.name()),
-                    }
-                    // let val: String = row.get(idx);
-                    // rrow.set(c.name(), &val);
-                }
-            }
+            extract_result_to_table(&r, rows);
         } else {
             panic!("timout or other error...");
         }
         r
     }
 
-    pub fn modify(&self, arg: &str, tab: Table) {
-        let _ = tab;
-        let _ = arg;
-        todo!()
+    pub async fn modify(&mut self, tab_name: &str, rows: Table) {
+        let pks = self.read_primary_key(tab_name).await;
+        let pk = pks.iter().nth(0).unwrap();
+
+        println!("pk: {pk}");
+        let v = rows
+            .columns()
+            .iter()
+            .enumerate()
+            .map(|(x, y)| (format!("{}", y), format!("${}", x + 1)))
+            .collect::<Vec<_>>();
+        let ins_fields = v
+            .iter()
+            .map(|(k, _)| k.clone())
+            .collect::<Vec<_>>()
+            .join(", ");
+        let ins_values = v
+            .iter()
+            .map(|(_, k)| k.clone())
+            .collect::<Vec<_>>()
+            .join(", ");
+
+        let upd = v
+            .iter()
+            .map(|(k, _)| format!("{k} = EXCLUDED.{k}"))
+            .collect::<Vec<_>>()
+            .join(", ");
+        // sample insert or update statement:
+        // INSERT INTO my_table (id, name, value)
+        // VALUES (1, 'example', '123')
+        // ON CONFLICT (id)
+        // DO UPDATE SET
+        //     name = EXCLUDED.name,
+        //     value = EXCLUDED.value
+        // WHERE my_table.value IS DISTINCT FROM EXCLUDED.value;
+
+        let query = format!(
+            "INSERT INTO {} ({})  VALUES ({}) ON CONFLICT ({pk}) DO UPDATE SET {upd}",
+            tab_name, ins_fields, ins_values
+        );
+        println!("{query}");
+        let client = &mut self.client;
+        let r = Table::new();
+        if let Ok(Ok(t)) = timeout(Duration::from_secs(2), client.transaction()).await {
+            // prepare statement for loop eventually..
+            let stmt = t.prepare(&query).await.unwrap();
+
+            // for all data in the table:
+            for idx in 1..=rows.lines() {
+                let mut sql_params: Vec<Box<dyn ToSql + Sync + Send>> = vec![];
+                let current_row = rows.row(idx);
+                for c in rows.columns().iter() {
+                    let value = match current_row.get(c) {
+                        Some(x) => x,
+                        None => String::new(),
+                    };
+                    sql_params.push(Box::new(value));
+                }
+                let final_sql_params = sql_params
+                    .iter()
+                    .map(|x| x.as_ref() as &(dyn ToSql + Sync))
+                    .collect::<Vec<_>>();
+                let r = t.execute(&stmt, &final_sql_params).await.expect("query");
+                println!("query: {} -> {}", query, r);
+            }
+            t.commit().await.unwrap();
+        } else {
+            panic!("no transaction found");
+        }
+    }
+}
+
+fn extract_result_to_table(r: &Table, rows: Vec<tokio_postgres::Row>) {
+    trace!("result rows {}", rows.len());
+    for row in rows {
+        let rrow = r.new_row();
+        for (idx, c) in row.columns().iter().enumerate() {
+            let ty = c.type_();
+            match ty.name() {
+                "varchar" => {
+                    rrow.set(c.name(), row.get(idx));
+                }
+                "text" => {
+                    rrow.set(c.name(), row.get(idx));
+                }
+                "int4" => {
+                    let i = row.get::<'_, _, i32>(idx);
+                    rrow.set(c.name(), &i.to_string());
+                }
+                "name" => {
+                    rrow.set(c.name(), row.get(idx));
+                }
+                _ => todo!("implement conversion of type '{}'", ty.name()),
+            }
+        }
     }
 }
 

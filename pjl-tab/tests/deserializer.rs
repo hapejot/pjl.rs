@@ -3,9 +3,6 @@ use std::default;
 use pjl_tab::Table;
 use serde::{de::MapAccess, Deserialize, Deserializer};
 
-
-
-
 #[derive(Debug, Deserialize)]
 struct User {
     id: i64,
@@ -42,7 +39,6 @@ fn deserialize_test() {
     );
 }
 
-
 #[test]
 fn deserialize_test_single() {
     let tab = Table::new();
@@ -78,4 +74,23 @@ fn deserialize_test_multiple() {
         "[User { id: 17, username: \"Peter\", access_token: \"Demo\" }, User { id: 42, username: \"Karin\", access_token: \"What?\" }]",
         s
     );
+}
+
+#[test]
+fn deser_really() {
+    let yaml = r#"[
+  {
+    "id": 42,
+    "name": "Peter Jaeckel"
+  },
+  {
+    "id": "17",
+    "name": "Karin Jaeckel"
+  }
+]"#;
+
+    let t = serde_json::from_str::<Table>(yaml).unwrap();
+    let mut out = String::new();
+    t.dump(&mut out);
+    eprintln!("{out}");
 }

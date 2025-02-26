@@ -34,6 +34,8 @@ fn ser1() {
     eprintln!("{}", out);
 }
 
+
+
 #[derive(Debug,Deserialize)]
 struct Test {
     spalte1: String,
