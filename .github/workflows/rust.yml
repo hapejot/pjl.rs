@@ -18,5 +18,7 @@ jobs:
     - uses: actions/checkout@v3
     - name: Build
       run: cargo build --verbose
+    - name: Install libav
+      run: sudo apt install -y libavutil-dev
     - name: Run tests
       run: cargo test --verbose -- --nocapture
