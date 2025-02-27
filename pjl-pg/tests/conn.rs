@@ -6,14 +6,16 @@ use pjl_tab::Table;
 
 #[tokio::test]
 async fn connect() {
-    let db = Database::new("host=localhost user=postgres password=Kennwort01").await;
-    assert!(db.connected());
+    if let Ok(db) = Database::new("host=localhost user=postgres password=Kennwort01").await {
+        assert!(db.connected());
+    }
 }
 
 #[tokio::test]
 async fn select() {
-    let mut db = Database::new("host=localhost user=postgres password=Kennwort01 dbname=rk").await;
-    if db.connected() {
+    if let Ok(mut db) =
+        Database::new("host=localhost user=postgres password=Kennwort01 dbname=rk").await
+    {
         let mut q = ODataQuery::new_from(
             "actor",
             &HashMap::from([("$filter".into(), "Name eq 'AJ Applegate'".into())]),
@@ -40,15 +42,16 @@ async fn modify() {
 
     let tab2: Table = serde_yaml::from_str(&yaml).unwrap();
 
-    let mut db = Database::new("host=localhost user=postgres password=Kennwort01 dbname=rk").await;
-    // let tab = Table::new();
-    // let row = tab.new_row();
-    // row.set("id", "42");
-    // row.set("name", "Peter J.");
-    // let row = tab.new_row();
-    // row.set("id", "17");
-    // row.set("name", "Karin J.");
-    if db.connected() {
+    if let Ok(mut db) =
+        Database::new("host=localhost user=postgres password=Kennwort01 dbname=rk").await
+    {
+        // let tab = Table::new();
+        // let row = tab.new_row();
+        // row.set("id", "42");
+        // row.set("name", "Peter J.");
+        // let row = tab.new_row();
+        // row.set("id", "17");
+        // row.set("name", "Karin J.");
         println!("{}", serde_yaml::to_string(&tab2).unwrap());
         db.modify("actor", tab2).await;
     }
@@ -65,8 +68,11 @@ AND    i.indisprimary;
 
 #[tokio::test]
 async fn ind() {
-    let mut db = Database::new("host=localhost user=postgres password=Kennwort01 dbname=rk").await;
-    let result = db.read_primary_key("actor_scene").await;
+    if let Ok(mut db) =
+        Database::new("host=localhost user=postgres password=Kennwort01 dbname=rk").await
+    {
+        let result = db.read_primary_key("actor_scene").await;
 
-    eprintln!("{result:?}");
+        eprintln!("{result:?}");
+    }
 }

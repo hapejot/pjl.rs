@@ -162,12 +162,14 @@ impl Thumbs {
         objs.push(Arc::new(LocalValue::None));
         objs.push(Arc::new(LocalValue::FileMeta)); // 1
         objs.push(Arc::new(LocalValue::DirMeta)); // 2
-        let db =
-            Database::new("host=localhost user=postgres password=Kennwort01 dbname=fdb-test").await;
+        if let Ok(db) =
+            Database::new("host=localhost user=postgres password=Kennwort01 dbname=fdb-test").await{
         Self {
             objs: RefCell::new(objs),
             db: Arc::new(Mutex::new(db)),
         }
+        }
+        else { todo!(); }
     }
 
     pub fn find_dir(&self, dir_id: &str) -> Option<usize> {

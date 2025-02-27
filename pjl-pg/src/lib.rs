@@ -80,7 +80,7 @@ impl DbSpecifics for PostgresQuery {
 }
 
 impl Database {
-    pub async fn new(connection: &str) -> Self {
+    pub async fn new(connection: &str) -> Result<Self, String> {
         match connect(connection, NoTls).await {
             Ok((client, conn)) => {
                 // The connection object performs the actual communication with the database,
@@ -90,12 +90,12 @@ impl Database {
                         error!("connection error: {}", e);
                     }
                 });
-                Self {
+                Ok(Self {
                     client: client,
                     primary_keys: Cache::new(10),
-                }
+                })
             }
-            Err(_) => todo!(),
+            Err(e) => Err(format!("{e}")),
         }
     }
 
