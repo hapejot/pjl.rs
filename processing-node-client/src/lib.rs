@@ -9,8 +9,4 @@ pub use processing_node::Value;
 mod tests {
     use super::*;
 
-    #[test]
-    fn it_works() {
-        assert!(false);
-    }
 }
