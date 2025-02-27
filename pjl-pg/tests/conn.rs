@@ -13,15 +13,17 @@ async fn connect() {
 #[tokio::test]
 async fn select() {
     let mut db = Database::new("host=localhost user=postgres password=Kennwort01 dbname=rk").await;
-    let mut q = ODataQuery::new_from(
-        "actor",
-        &HashMap::from([("$filter".into(), "Name eq 'AJ Applegate'".into())]),
-    );
-    q.add_condition("name", "eq", "Danny D");
-    let result = db.select(q).await;
-    let mut out = String::new();
-    result.dump(&mut out);
-    println!("{out}");
+    if db.connected() {
+        let mut q = ODataQuery::new_from(
+            "actor",
+            &HashMap::from([("$filter".into(), "Name eq 'AJ Applegate'".into())]),
+        );
+        q.add_condition("name", "eq", "Danny D");
+        let result = db.select(q).await;
+        let mut out = String::new();
+        result.dump(&mut out);
+        println!("{out}");
+    }
 }
 
 #[tokio::test]
@@ -36,7 +38,7 @@ async fn modify() {
   gender: F
   name: Karin J."#;
 
-  let tab2: Table = serde_yaml::from_str(&yaml).unwrap();
+    let tab2: Table = serde_yaml::from_str(&yaml).unwrap();
 
     let mut db = Database::new("host=localhost user=postgres password=Kennwort01 dbname=rk").await;
     // let tab = Table::new();
@@ -46,8 +48,10 @@ async fn modify() {
     // let row = tab.new_row();
     // row.set("id", "17");
     // row.set("name", "Karin J.");
-    println!("{}", serde_yaml::to_string(&tab2).unwrap());
-    db.modify("actor", tab2).await;
+    if db.connected() {
+        println!("{}", serde_yaml::to_string(&tab2).unwrap());
+        db.modify("actor", tab2).await;
+    }
 }
 
 /*
