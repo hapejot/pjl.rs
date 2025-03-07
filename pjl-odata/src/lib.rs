@@ -42,6 +42,7 @@ mod parser {
     pub fn grammar() -> Grammar<AST> {
         santiago::grammar!(
             "expr" => rules "name" "eq" "expr" => AST::Term;
+            "expr" => rules "name" "ne" "expr" => AST::Term;
             "expr" => rules "name" "ge" "expr" => AST::Term;
             "expr" => rules "expr" "and" "expr" => AST::Term;
             "expr" => rules "expr" "or" "expr" => AST::Term;
@@ -52,6 +53,7 @@ mod parser {
             "ge" => lexemes "GE" => |x| AST::Operator(x[0].raw.clone());
             "and" => lexemes "AND" => |x| AST::Operator(x[0].raw.clone());
             "or" => lexemes "OR" => |x| AST::Operator(x[0].raw.clone());
+            "ne" => lexemes "NE" => |x| AST::Operator(x[0].raw.clone());
         )
     }
     pub fn lexer_rules() -> LexerRules {
@@ -60,6 +62,7 @@ mod parser {
             "DEFAULT" | "INT" = pattern r"-?[0-9]+";
             "DEFAULT" | "STR" = pattern r"'[^']*'";
             "DEFAULT" | "EQ" = string "eq";
+            "DEFAULT" | "NE" = string "ne";
             "DEFAULT" | "GE" = string "ge";
             "DEFAULT" | "AND" = string "and";
             "DEFAULT" | "OR" = string "or";

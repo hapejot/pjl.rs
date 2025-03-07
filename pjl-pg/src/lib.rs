@@ -1,16 +1,42 @@
-use edm::{csdl::Key, number::Number, primitive::PrimitiveValue, value::Value};
+use edm::{csdl::Key, number::Number, primitive::PrimitiveValue, value::Value, Schema};
 use mini_moka::sync::Cache;
 use pjl_odata::DbSpecifics;
 use pjl_tab::Table;
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
 use tokio::time::timeout;
-use tokio_postgres::{connect, types::ToSql, Client, NoTls};
+use tokio_postgres::{
+    connect,
+    types::{Oid, ToSql},
+    Client, NoTls,
+};
 use tracing::*;
+
+const DATE_TIME_FORMAT: &str = "%Y-%m-%dT%H:%M:%S%Z";
+const DATE_TIME_FORMAT_OUT: &str = "%Y-%m-%dT%H:%M:%SZ";
+
+#[derive(Clone, Serialize, Deserialize, Debug)]
+struct Decl {
+    pkpos: Option<i32>,
+    attname: String,
+    atttypid: i32,
+    attnum: i32,
+    attnotnull: bool,
+    typname: String,
+    typlen: i32,
+    atttypmod: i32,
+    column_type: String,
+}
+
+#[derive(Clone, Debug)]
+struct TableMetadata {
+    colspecs: Vec<Decl>,
+}
 
 pub struct Database {
     client: Client,
     primary_keys: Cache<String, Vec<KeyPart>>,
+    table_meta: Cache<String, TableMetadata>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -66,6 +92,14 @@ impl DbSpecifics for PostgresQuery {
                     self.params.len()
                 ));
             }
+            "ne" => {
+                self.params.push(value.into());
+                self.arm.push(format!(
+                    "{} <> ${}",
+                    self.fld.as_ref().unwrap(),
+                    self.params.len()
+                ));
+            }
             _ => todo!("operator {op}"),
         }
     }
@@ -77,6 +111,13 @@ impl DbSpecifics for PostgresQuery {
     fn values(&self) -> Vec<Value> {
         self.params.clone()
     }
+}
+
+struct ColInfo {
+    pos: usize,
+    name: String,
+    varname: String,
+    coltype: String,
 }
 
 impl Database {
@@ -93,6 +134,7 @@ impl Database {
                 Ok(Self {
                     client: client,
                     primary_keys: Cache::new(10),
+                    table_meta: Cache::new(10),
                 })
             }
             Err(e) => Err(format!("{e}")),
@@ -101,6 +143,53 @@ impl Database {
 
     pub fn connected(&self) -> bool {
         true
+    }
+
+    async fn read_table_metadata(&mut self, tab_name: &str) {
+        let client = &mut self.client;
+        let r = Table::new();
+
+        if let Ok(Ok(t)) = timeout(Duration::from_secs(2), client.transaction()).await {
+            let query = format!(
+                r#"select array_position(i.indkey, a.attnum) as pkpos, 
+                            a.attname, 
+                            atttypid,
+                            attnum, 
+                            attnotnull, 
+                            t.typname, 
+                            t.typlen, 
+                            a.atttypmod,
+                            format_type(atttypid, atttypmod) AS column_type
+                            from pg_attribute as a
+                            join pg_type as t on a.atttypid = t.oid
+                            left outer join pg_index as i on i.indrelid = a.attrelid and a.attnum = any (i.indkey)
+                            where  a.attrelid = to_regclass($1)
+                              and a.attnum > 0"#
+            );
+            let stmt = t.prepare(&query).await.unwrap();
+            // let tab_name: Box<dyn ToSql + Sync> = ;
+            let rows = t
+                .query(&stmt, &[&*Box::new(tab_name.clone())])
+                .await
+                .expect("query");
+            let r = Table::new();
+            extract_result_to_table(&r, rows);
+            // let mut s = String::new();
+            // r.dump(&mut s);
+            // eprintln!("meta:\n{s}");
+            let colspecs: Vec<Decl> = pjl_tab::de::extract_from_table(&r).unwrap();
+            debug!("colspecs: {colspecs:#?}");
+            self.table_meta
+                .insert(tab_name.to_string(), TableMetadata { colspecs });
+        }
+    }
+
+    async fn get_table_metadata(&mut self, tab_name: &str) -> TableMetadata {
+        let tab_name = tab_name.to_string();
+        if !self.table_meta.contains_key(&tab_name) {
+            self.read_table_metadata(&tab_name).await;
+        }
+        self.table_meta.get(&tab_name).unwrap()
     }
 
     pub async fn read_primary_key(&mut self, tab_name: &str) -> Vec<KeyPart> {
@@ -185,31 +274,42 @@ impl Database {
         r
     }
 
-    pub async fn modify(&mut self, tab_name: &str, rows: Table) {
+    pub async fn modify(&mut self, tab_name: &str, tab: Table) {
+        let meta = self.get_table_metadata(tab_name).await;
+
         let pks = self.read_primary_key(tab_name).await;
         let pk = pks.iter().nth(0).unwrap();
 
-        println!("pk: {pk}");
-        let v = rows
-            .columns()
+        let mut colinfos = vec![];
+        // enrich the columns of the paramter table with data from the underlying metadata
+        for (pos, name) in tab.columns().iter().enumerate() {
+            let m = meta.colspecs.iter().find(|x| x.attname == *name);
+            colinfos.push(ColInfo {
+                pos,
+                name: name.clone(),
+                varname: format!("${}", pos + 1),
+                coltype: if let Some(d) = m {
+                    d.typname.clone()
+                } else {
+                    String::from("varchar")
+                },
+            });
+        }
+
+        let ins_fields = colinfos
             .iter()
-            .enumerate()
-            .map(|(x, y)| (format!("{}", y), format!("${}", x + 1)))
-            .collect::<Vec<_>>();
-        let ins_fields = v
-            .iter()
-            .map(|(k, _)| k.clone())
+            .map(|ci| ci.name.clone())
             .collect::<Vec<_>>()
             .join(", ");
-        let ins_values = v
+        let ins_values = colinfos
             .iter()
-            .map(|(_, k)| k.clone())
+            .map(|ci| ci.varname.clone())
             .collect::<Vec<_>>()
             .join(", ");
 
-        let upd = v
+        let upd = colinfos
             .iter()
-            .map(|(k, _)| format!("{k} = EXCLUDED.{k}"))
+            .map(|ci| format!("{} = EXCLUDED.{}", ci.name, ci.name))
             .collect::<Vec<_>>()
             .join(", ");
         // sample insert or update statement:
@@ -225,7 +325,7 @@ impl Database {
             "INSERT INTO {} ({})  VALUES ({}) ON CONFLICT ({pk}) DO UPDATE SET {upd}",
             tab_name, ins_fields, ins_values
         );
-        println!("{query}");
+        trace!("{query}");
         let client = &mut self.client;
         let r = Table::new();
         if let Ok(Ok(t)) = timeout(Duration::from_secs(2), client.transaction()).await {
@@ -233,26 +333,66 @@ impl Database {
             let stmt = t.prepare(&query).await.unwrap();
 
             // for all data in the table:
-            for idx in 1..=rows.lines() {
+            for idx in 1..=tab.lines() {
                 let mut sql_params: Vec<Box<dyn ToSql + Sync + Send>> = vec![];
-                let current_row = rows.row(idx);
-                for c in rows.columns().iter() {
-                    let value = match current_row.get(c) {
-                        Some(x) => x,
-                        None => String::new(),
+                let current_row = tab.row(idx);
+                for c in colinfos.iter() {
+                    match current_row.get(&c.name) {
+                        Some(x) => match c.coltype.as_str() {
+                            "int4" => sql_params.push(Box::new(x.parse::<i32>().unwrap())),
+                            "timestamp" => sql_params.push(Box::new(
+                                chrono::NaiveDateTime::parse_from_str(&x, DATE_TIME_FORMAT)
+                                    .unwrap(),
+                            )),
+                            _ => sql_params.push(Box::new(x)),
+                        },
+                        None => sql_params.push(Box::new(None::<String>)),
                     };
-                    sql_params.push(Box::new(value));
                 }
                 let final_sql_params = sql_params
                     .iter()
                     .map(|x| x.as_ref() as &(dyn ToSql + Sync))
                     .collect::<Vec<_>>();
-                let r = t.execute(&stmt, &final_sql_params).await.expect("query");
-                println!("query: {} -> {}", query, r);
+
+                let r = t
+                    .execute(&stmt, &final_sql_params)
+                    .await
+                    .expect(&format!("query {:?}", final_sql_params));
             }
             t.commit().await.unwrap();
         } else {
             panic!("no transaction found");
+        }
+    }
+
+    pub async fn activate(&mut self, s: Schema) {
+        for e in s.entity_types.iter() {
+            trace!("activate {}", e.name);
+            let m = self.get_table_metadata(&e.name).await;
+            if m.colspecs.len() == 0 {
+                // create table
+                let mut sql = vec![];
+                sql.push(format!("CREATE TABLE public.{} (", e.name));
+                if e.key.is_none() {
+                    sql.push(format!("id serial,"));
+                }
+                for f in e.properties.iter() {
+                    sql.push(format!("{} character varying(100),", f.name));
+                }
+                let key_part = match &e.key {
+                    Some(k) => format!("primary key ({:})", k.properties.join(",")),
+                    None => String::from("primary key (id)"),
+                };
+                sql.push(format!("constraint {}_pkey {key_part})", e.name));
+
+                let client = &mut self.client;
+                if let Ok(Ok(t)) = timeout(Duration::from_secs(2), client.transaction()).await {
+                    let stmt = sql.join(" ");
+                    debug!("statement: {stmt}");
+                    t.execute(&stmt, &[]).await.unwrap();
+                    t.commit().await.unwrap();
+                }
+            }
         }
     }
 }
@@ -265,17 +405,45 @@ fn extract_result_to_table(r: &Table, rows: Vec<tokio_postgres::Row>) {
             let ty = c.type_();
             match ty.name() {
                 "varchar" => {
-                    rrow.set(c.name(), row.get(idx));
+                    if let Ok(v) = row.try_get(idx) {
+                        rrow.set(c.name(), v);
+                    }
                 }
                 "text" => {
-                    rrow.set(c.name(), row.get(idx));
+                    if let Ok(v) = row.try_get(idx) {
+                        rrow.set(c.name(), v);
+                    }
                 }
                 "int4" => {
-                    let i = row.get::<'_, _, i32>(idx);
-                    rrow.set(c.name(), &i.to_string());
+                    if let Ok(v) = row.try_get::<'_, _, i32>(idx) {
+                        rrow.set(c.name(), &v.to_string());
+                    }
+                }
+                "int2" => {
+                    if let Ok(v) = row.try_get::<'_, _, i16>(idx) {
+                        rrow.set(c.name(), &v.to_string());
+                    }
+                }
+                "bool" => {
+                    if let Ok(v) = row.try_get::<'_, _, bool>(idx) {
+                        rrow.set(c.name(), &v.to_string());
+                    }
                 }
                 "name" => {
-                    rrow.set(c.name(), row.get(idx));
+                    if let Ok(v) = row.try_get(idx) {
+                        rrow.set(c.name(), v);
+                    }
+                }
+                "oid" => {
+                    if let Ok(v) = row.try_get::<'_, _, Oid>(idx) {
+                        rrow.set(c.name(), &v.to_string());
+                    }
+                }
+                "timestamp" => {
+                    if let Ok(v) = row.try_get::<'_, _, chrono::NaiveDateTime>(idx) {
+                        let s = v.format(DATE_TIME_FORMAT_OUT).to_string();
+                        rrow.set(c.name(), &s);
+                    }
                 }
                 _ => todo!("implement conversion of type '{}'", ty.name()),
             }

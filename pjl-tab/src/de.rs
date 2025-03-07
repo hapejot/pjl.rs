@@ -32,7 +32,7 @@ impl serde::de::Error for DeErr {
     }
 }
 
-struct Temp<'table> {
+struct TableDeserializer<'table> {
     table: &'table Table,
     current_field: Option<String>,
     col: usize,
@@ -40,7 +40,7 @@ struct Temp<'table> {
     is_key: bool,
 }
 
-impl<'table> Temp<'table> {
+impl<'table> TableDeserializer<'table> {
     fn new(table: &'table Table) -> Self {
         Self {
             table,
@@ -52,7 +52,7 @@ impl<'table> Temp<'table> {
     }
 }
 
-impl<'de> Deserializer<'de> for &mut Temp<'_> {
+impl<'de> Deserializer<'de> for &mut TableDeserializer<'_> {
     type Error = DeErr;
 
     fn deserialize_any<V>(self, visitor: V) -> Result<V::Value, Self::Error>
@@ -66,7 +66,20 @@ impl<'de> Deserializer<'de> for &mut Temp<'_> {
     where
         V: serde::de::Visitor<'de>,
     {
-        todo!()
+        if let Some(name) = self.current_field.as_ref() {
+            let row = self.table.row(self.rowidx);
+            if let Some(v) = row.get(&name) {
+                let v = v.parse::<bool>().unwrap();
+                visitor.visit_bool(v)
+            } else {
+                Err(DeErr::Message(format!(
+                    "column {} invalid for getting a value",
+                    name
+                )))
+            }
+        } else {
+            Err(DeErr::Message(format!("no current field")))
+        }
     }
 
     fn deserialize_i8<V>(self, visitor: V) -> Result<V::Value, Self::Error>
@@ -87,7 +100,20 @@ impl<'de> Deserializer<'de> for &mut Temp<'_> {
     where
         V: serde::de::Visitor<'de>,
     {
-        todo!()
+        if let Some(name) = self.current_field.as_ref() {
+            let row = self.table.row(self.rowidx);
+            if let Some(v) = row.get(&name) {
+                let v = v.parse::<i32>().unwrap();
+                visitor.visit_i32(v)
+            } else {
+                Err(DeErr::Message(format!(
+                    "column {} invalid for getting a value",
+                    name
+                )))
+            }
+        } else {
+            Err(DeErr::Message(format!("no current field")))
+        }
     }
 
     fn deserialize_i64<V>(self, visitor: V) -> Result<V::Value, Self::Error>
@@ -108,7 +134,7 @@ impl<'de> Deserializer<'de> for &mut Temp<'_> {
         } else {
             Err(DeErr::Message(format!("no current field")))
         }
-}
+    }
 
     fn deserialize_u8<V>(self, visitor: V) -> Result<V::Value, Self::Error>
     where
@@ -213,7 +239,20 @@ impl<'de> Deserializer<'de> for &mut Temp<'_> {
     where
         V: serde::de::Visitor<'de>,
     {
-        todo!()
+        if let Some(name) = self.current_field.as_ref() {
+            let row = self.table.row(self.rowidx);
+            if let Some(v) = row.get(&name) {
+                if v.len() == 0 {
+                    visitor.visit_none()
+                } else {
+                    visitor.visit_some(self)
+                }
+            } else {
+                visitor.visit_none()
+            }
+        } else {
+            Err(DeErr::Message(format!("no current field")))
+        }
     }
 
     fn deserialize_unit<V>(self, visitor: V) -> Result<V::Value, Self::Error>
@@ -329,7 +368,7 @@ impl<'de> Deserializer<'de> for &mut Temp<'_> {
     }
 }
 
-impl<'de> MapAccess<'de> for Temp<'_> {
+impl<'de> MapAccess<'de> for TableDeserializer<'_> {
     type Error = DeErr;
 
     fn next_key_seed<K>(&mut self, seed: K) -> Result<Option<K::Value>, Self::Error>
@@ -358,7 +397,7 @@ impl<'de> MapAccess<'de> for Temp<'_> {
     }
 }
 
-impl<'de> SeqAccess<'de> for Temp<'_> {
+impl<'de> SeqAccess<'de> for TableDeserializer<'_> {
     type Error = DeErr;
 
     fn next_element_seed<T>(&mut self, seed: T) -> Result<Option<T::Value>, Self::Error>
@@ -379,6 +418,6 @@ pub fn extract_from_table<D>(tab: &Table) -> Result<D, DeErr>
 where
     D: serde::Deserialize<'static>,
 {
-    let mut t = Temp::new(&tab);
+    let mut t = TableDeserializer::new(&tab);
     D::deserialize(&mut t)
 }

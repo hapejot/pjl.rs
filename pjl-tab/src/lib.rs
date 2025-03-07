@@ -130,15 +130,16 @@ impl<'de> Visitor<'de> for DeSerVisitor {
             let row = return_table.new_row();
             for (name, value) in value.iter() {
                 let string_value = match value {
-                    serde_json::Value::Null => String::new(),
-                    serde_json::Value::Bool(x) => format!("{x}"),
-                    serde_json::Value::Number(number) => format!("{number}"),
-                    serde_json::Value::String(s) => s.clone(),
+                    serde_json::Value::Null => None,
+                    serde_json::Value::Bool(x) => Some(format!("{x}")),
+                    serde_json::Value::Number(number) => Some(format!("{number}")),
+                    serde_json::Value::String(s) => Some(s.clone()),
                     serde_json::Value::Array(values) => todo!(),
                     serde_json::Value::Object(map) => todo!(),
                 };
-
-                row.set(name, &string_value);
+                if let Some(v) = string_value {
+                    row.set(name, &v);
+                }
             }
         }
         Ok(return_table)
