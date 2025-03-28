@@ -1,0 +1,15 @@
+- name: sc_user
+  fields:
+    country: VARCHAR(50)
+    downloadstatus: VARCHAR(20)
+    gender: VARCHAR(20)
+    id: VARCHAR(20)
+    privaterate: INTEGER
+    status: VARCHAR(20)
+    username: VARCHAR(50)
+    watchhistoryaddeddate: TIMESTAMP
+- name: pjl_user
+  fields:
+    id: VARCHAR(20)
+    name: VARCHAR(50)
+    status: VARCHAR(20)

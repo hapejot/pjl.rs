@@ -2009,6 +2009,7 @@ dependencies = [
  "pjl-odata",
  "pjl-tab",
  "postgres-types",
+ "regex",
  "serde",
  "serde_yaml",
  "tokio",

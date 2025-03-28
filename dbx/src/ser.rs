@@ -8,7 +8,7 @@ use edm::list::ListValue;
 use edm::primitive::PrimitiveValue;
 use edm::structure::StructureValue;
 use edm::value::Value;
-use log::{info, trace};
+use log::trace;
 use serde::ser::{Impossible, SerializeMap, SerializeSeq, SerializeStruct, SerializeStructVariant};
 use serde::{ser, Serialize};
 use std::collections::BTreeMap;

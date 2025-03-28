@@ -79,6 +79,7 @@ pub fn new_guid() -> String {
     uuid::Uuid::new_v4().to_string()
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Serialize)]
 #[serde(rename = "person")]
 struct Person {
@@ -90,6 +91,7 @@ struct Person {
     name4: Option<String>,
 }
 
+#[allow(dead_code)]
 fn serialize() {
     simple_logging::log_to_stderr(log::LevelFilter::Trace);
     debug!("test serialize");

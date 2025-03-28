@@ -12,6 +12,7 @@ use dbx::{
 
 use log::info;
 use serde_derive::Serialize;
+#[allow(dead_code)]
 fn make_person_model() -> DataModel {
     let mut model = DataModel::new("Person");
     let tab = Table::new("person")
@@ -74,6 +75,7 @@ enum Gender {
 
 #[derive(Serialize)]
 #[serde(rename = "person")]
+#[allow(dead_code)]
 struct Person {
     personid: String,
     name: String,
@@ -84,6 +86,7 @@ struct Person {
 }
 
 #[derive(Serialize)]
+#[allow(dead_code)]
 enum Communication {
     #[serde(rename = "email")]
     EMail { personid: String, address: String },
@@ -91,6 +94,7 @@ enum Communication {
     Phone { personid: String, number: String },
 }
 
+#[allow(dead_code)]
 fn row_serializer() -> Result<(), Error> {
     env_logger::Builder::from_default_env()
         .filter_level(log::LevelFilter::Trace)
@@ -125,11 +129,13 @@ fn row_serializer() -> Result<(), Error> {
 
 #[derive(Serialize)]
 #[serde(rename = "order")]
+#[allow(dead_code)]
 struct Order {
     number: String,
     sold_to: Person,
 }
 
+#[allow(dead_code)]
 fn order_serializer() {
     // env_logger::Builder::try
     // env_logger::Builder::from_default_env()

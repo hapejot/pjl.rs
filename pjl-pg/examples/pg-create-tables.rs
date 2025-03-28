@@ -1,8 +1,5 @@
 use edm::*;
-use pjl_odata::ODataQuery;
 use pjl_pg::Database;
-use pjl_tab::Table;
-use std::collections::HashMap;
 
 #[tokio::main]
 async fn main() {
@@ -18,6 +15,6 @@ async fn main() {
         // s.new_key("todo", &["id"]);
         println!("{s:#?}");
 
-        let result = db.activate(s).await;
+        let _result = db.activate(s).await;
     }
 }

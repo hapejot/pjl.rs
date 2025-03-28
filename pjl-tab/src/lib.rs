@@ -13,7 +13,7 @@ use tracing::instrument;
 
 pub mod de;
 pub mod ser;
-
+pub mod map; 
 pub struct Row<'a> {
     table: &'a Table,
     id: usize,
@@ -309,7 +309,7 @@ impl Table {
 
     pub fn dump(&self, out: &mut impl Write) {
         if let Ok(x) = self.d.try_lock() {
-            let mut w = vec![0; x.columns.len()];
+            let mut w = x.columns.iter().map(|x| x.len()).collect::<Vec<_>>();
             // calculate widths...
             for ((_, col), val) in x.data.iter() {
                 let n = val.chars().count();

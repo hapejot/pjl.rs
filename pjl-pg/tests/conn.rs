@@ -20,7 +20,7 @@ async fn select() {
             "actor",
             &HashMap::from([("$filter".into(), "Name eq 'AJ Applegate'".into())]),
         );
-        q.add_condition("name", "eq", "Danny D");
+        q.add_condition("name", "eq", &"Danny D".into());
         let result = db.select(q).await;
         let mut out = String::new();
         result.dump(&mut out);

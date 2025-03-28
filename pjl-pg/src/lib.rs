@@ -1,9 +1,10 @@
-use edm::{csdl::Key, number::Number, primitive::PrimitiveValue, value::Value, Schema};
+use edm::{primitive::PrimitiveValue, value::Value, Schema};
 use mini_moka::sync::Cache;
-use pjl_odata::DbSpecifics;
+use pjl_odata::{ConditionValue, DbSpecifics};
 use pjl_tab::Table;
+use regex::Regex;
 use serde::{Deserialize, Serialize};
-use std::time::Duration;
+use std::{collections::BTreeMap, time::Duration};
 use tokio::time::timeout;
 use tokio_postgres::{
     connect,
@@ -11,6 +12,9 @@ use tokio_postgres::{
     Client, NoTls,
 };
 use tracing::*;
+use types::SqlType;
+
+pub mod types;
 
 const DATE_TIME_FORMAT: &str = "%Y-%m-%dT%H:%M:%S%Z";
 const DATE_TIME_FORMAT_OUT: &str = "%Y-%m-%dT%H:%M:%SZ";
@@ -37,6 +41,7 @@ pub struct Database {
     client: Client,
     primary_keys: Cache<String, Vec<KeyPart>>,
     table_meta: Cache<String, TableMetadata>,
+    mapping: pjl_tab::map::ValueMapping<String, types::SqlType>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -66,6 +71,18 @@ impl PostgresQuery {
     }
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SqlTable {
+    name: String,
+    fields: BTreeMap<String, SqlType>,
+}
+
+impl SqlTable {
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+}
+
 impl DbSpecifics for PostgresQuery {
     fn start_field(&mut self, name: &str) {
         self.fld = Some(name.into());
@@ -82,10 +99,10 @@ impl DbSpecifics for PostgresQuery {
         }
     }
 
-    fn add_cond(&mut self, op: &str, value: &str) {
+    fn add_cond(&mut self, op: &str, value: &ConditionValue) {
         match op {
             "=" => {
-                self.params.push(value.into());
+                self.params.push(value.value());
                 self.arm.push(format!(
                     "{} = ${}",
                     self.fld.as_ref().unwrap(),
@@ -93,7 +110,7 @@ impl DbSpecifics for PostgresQuery {
                 ));
             }
             "ne" => {
-                self.params.push(value.into());
+                self.params.push(value.value());
                 self.arm.push(format!(
                     "{} <> ${}",
                     self.fld.as_ref().unwrap(),
@@ -113,6 +130,7 @@ impl DbSpecifics for PostgresQuery {
     }
 }
 
+#[allow(dead_code)]
 struct ColInfo {
     pos: usize,
     name: String,
@@ -135,6 +153,7 @@ impl Database {
                     client: client,
                     primary_keys: Cache::new(10),
                     table_meta: Cache::new(10),
+                    mapping: types::postgres_to_standard_sql_type_mapping(),
                 })
             }
             Err(e) => Err(format!("{e}")),
@@ -147,7 +166,7 @@ impl Database {
 
     async fn read_table_metadata(&mut self, tab_name: &str) {
         let client = &mut self.client;
-        let r = Table::new();
+        let _r = Table::new();
 
         if let Ok(Ok(t)) = timeout(Duration::from_secs(2), client.transaction()).await {
             let query = format!(
@@ -169,7 +188,7 @@ impl Database {
             let stmt = t.prepare(&query).await.unwrap();
             // let tab_name: Box<dyn ToSql + Sync> = ;
             let rows = t
-                .query(&stmt, &[&*Box::new(tab_name.clone())])
+                .query(&stmt, &[&*Box::new(tab_name)])
                 .await
                 .expect("query");
             let r = Table::new();
@@ -254,10 +273,10 @@ impl Database {
                             "int4" => sql_params.push(Box::new(v.parse::<i32>().unwrap())),
                             _ => sql_params.push(Box::new(v.clone())),
                         },
-                        PrimitiveValue::Custom { datatype, value } => todo!(),
+                        PrimitiveValue::Custom { .. } => todo!(),
                     },
-                    Value::StructureValue(structure_value) => todo!(),
-                    Value::ListValue(list_value) => todo!(),
+                    Value::StructureValue(_) => todo!(),
+                    Value::ListValue(_) => todo!(),
                 }
             }
             assert_eq!(params.len(), sql_params.len());
@@ -393,6 +412,85 @@ impl Database {
                     t.commit().await.unwrap();
                 }
             }
+        }
+    }
+
+    pub async fn describe(&mut self, tab_name: &str) -> SqlTable {
+        let meta = self.get_table_metadata(tab_name).await;
+        let mut r = SqlTable {
+            name: tab_name.to_string(),
+            fields: BTreeMap::new(),
+        };
+
+        let mut s = String::new();
+        s.push_str(&format!("- {}:\n", tab_name));
+        for c in meta.colspecs.iter() {
+            let type_str = c.column_type.trim();
+            let t = self.to_generic_sql_type(type_str);
+            // s.push_str(&format!("      {}: {},\n", c.attname, t));
+            r.fields.insert(c.attname.clone(), t);
+        }
+        r
+    }
+
+    pub async fn define(&mut self, def: &SqlTable) {
+        let m = self.get_table_metadata(&def.name).await;
+        if m.colspecs.len() == 0 {
+            // create table
+            let mut sql = vec![];
+            sql.push(format!("CREATE TABLE public.{} (", def.name));
+            sql.push(format!("id serial,"));
+            for (f, t) in def.fields.iter() {
+                if f != "id" {
+                    sql.push(format!("{} {},", f, self.to_pg_type(t)));
+                }
+            }
+            let key_part = String::from("primary key (id)");
+            sql.push(format!("constraint {}_pkey {key_part})", def.name));
+
+            let client = &mut self.client;
+            if let Ok(Ok(t)) = timeout(Duration::from_secs(2), client.transaction()).await {
+                let stmt = sql.join(" ");
+                debug!("statement: {stmt}");
+                t.execute(&stmt, &[]).await.unwrap();
+                t.commit().await.unwrap();
+            }
+        }
+    }
+
+    fn to_generic_sql_type(&mut self, type_str: &str) -> SqlType {
+        let re = Regex::new(r"^([a-zA-Z\s]+)\s*(?:\(\s*(\d+)\s*\))?$").unwrap();
+        let rs = if let Some(caps) = re.captures(type_str) {
+            let name_str = caps.get(1).unwrap().as_str().to_string();
+            if let Some(size) = caps.get(2).map(|m| m.as_str().parse::<usize>().unwrap()) {
+                format!(
+                    "{}({})",
+                    self.mapping.map(&name_str).unwrap().to_string(),
+                    size
+                )
+            } else {
+                let type_str = type_str.to_string();
+                self.mapping.map(&type_str).unwrap().to_string()
+            }
+        } else {
+            String::from("unknwon")
+        };
+        SqlType::parse(&rs)
+    }
+
+    fn to_pg_type(&mut self, t: &SqlType) -> String {
+        match t {
+            SqlType::Varchar(n) => format!(
+                "{}({})",
+                self.mapping.rmap(&SqlType::Varchar(None)).unwrap(),
+                n.unwrap()
+            ),
+            SqlType::Char(n) => format!(
+                "{}({})",
+                self.mapping.rmap(&SqlType::Char(None)).unwrap(),
+                n.unwrap()
+            ),
+            x => self.mapping.rmap(x).unwrap(),
         }
     }
 }

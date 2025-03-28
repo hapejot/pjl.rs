@@ -1,23 +1,21 @@
 use std::{
-    any::Any,
     cell::RefCell,
     collections::HashMap,
     fmt::Debug,
     fs::{metadata, read_dir},
-    path::Path,
     sync::Arc,
 };
 
-use ffmpeg_next::{ffi::NAME_MAX, format::Pixel};
+use ffmpeg_next::format::Pixel;
 use pjl_error::AppError;
 use pjl_odata::ODataQuery;
 use pjl_pg::Database;
 use processing_node::{MessageDispatch, ObjectID, Value};
 use tokio::{
-    runtime::{Handle, Runtime},
+    runtime::Runtime,
     sync::Mutex,
 };
-use tracing::{error, info, instrument, trace};
+use tracing::{error, info, instrument};
 
 const REALM: &str = "thumbs";
 
@@ -92,7 +90,7 @@ impl LocalValue {
                     let id = thumbs.new_object(LocalValue::Meta(p));
                     ObjectID::new_value(REALM, &id.to_string())
                 }
-                LocalValue::Meta(path) => todo!(),
+                LocalValue::Meta(_path) => todo!(),
                 _ => todo!(),
             },
             "at:" => match self {
@@ -106,7 +104,7 @@ impl LocalValue {
                             let x = std::thread::spawn(move || {
                                 new_pg_runtime_thread().block_on(async move {
                                     let mut q = ODataQuery::new_from("path", &HashMap::from([]));
-                                    q.add_condition("id", "eq", dir_id.as_str());
+                                    q.add_condition("id", "eq", &dir_id.into());
                                     let result = db.lock().await.select(q).await;
                                     result
                                 })

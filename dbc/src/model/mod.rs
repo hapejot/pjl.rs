@@ -116,7 +116,7 @@ pub fn diff_schema(s1: &Schema, s2: &Schema) -> Vec<SchemaDiff> {
             Some(t1) => {
                 for f2 in t2.fields() {
                     match t1.fields().iter().find(|f| f.name() == f2.name()) {
-                        Some(f1) => {
+                        Some(_f1) => {
                             // ignore for now, fields might have different types or settings....
                         }
                         None => r.push(SchemaDiff::NewField(t2.name().into(), f2.name().into())),

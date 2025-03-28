@@ -2,7 +2,7 @@ use std::{rc::Rc, slice::Iter};
 
 use edm::structure::StructureValue;
 use edm::{list::ListValue, primitive::PrimitiveValue};
-use log::{debug, error, info, trace};
+use log::{debug, error, trace};
 use rusqlite::{ffi::Error, types::ValueRef, ErrorCode};
 
 use rusqlite::types::Value as SQLiteValue;

@@ -55,3 +55,15 @@ fn query() {
         let w = q.get_where_sql();
         assert_eq!("alter >= 18 and (name = 'Hans' or name = 'Peter')", w);
     }
+
+
+    #[test]
+    fn boolean_expression() {
+        let params: HashMap<String, String> = HashMap::from([(
+            "$filter".into(),
+            "active eq true or active eq 1".into(),
+        )]);
+        let q = ODataQuery::new_from("person", &params);
+        let w = q.get_where_sql();
+        assert_eq!("active = true", w);
+    }

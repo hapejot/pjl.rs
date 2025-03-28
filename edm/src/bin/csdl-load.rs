@@ -1,10 +1,6 @@
 use edm::csdl::{ComplexType, EntityType, EnumType, Key, Member, Property, Schema};
-use serde::{Deserialize, Serialize};
-use xml_derive::HelloMacro;
-// use xml_derive::HelloMacro;
-use edm::HelloMacro;
 use paste::paste;
-use std::{fs::File, io::Read, ptr::null};
+use std::{fs::File, io::Read};
 use xml::{name::OwnedName, reader::XmlEvent, EventReader};
 
 macro_rules! xml1 {
@@ -38,13 +34,16 @@ macro_rules! xml2 {
                 pub mod s {
                     #[allow(non_snake_case)]
                     #[allow(dead_code)]
-                                        pub type PCDATA = String;
+                    pub type PCDATA = String;
                 $(
+                    #[allow(non_snake_case)]
+                    #[allow(non_camel_case_types)]
+                    #[allow(dead_code)]
                     pub struct $rule {
                     $(
                         #[allow(non_snake_case)]
                         #[allow(dead_code)]
-                                                pub [<m_ $v>]  :Option<$v>,
+                        pub [<m_ $v>]  :Option<$v>,
                     )*
                     }
                 )*
@@ -56,6 +55,8 @@ macro_rules! xml2 {
 
 
             $(
+                #[allow(path_statements)]
+                #[allow(dead_code)]
                 pub fn $rule() {
                 $(
                     $v;
@@ -269,9 +270,7 @@ impl<'a> App<'a> {
 
             match self.current.as_ref() {
                 Some(XmlEvent::StartElement {
-                    name,
-                    attributes,
-                    namespace,
+                    name, attributes, ..
                 }) => {
                     if name.local_name == MEMBER {
                         let mut name = String::new();

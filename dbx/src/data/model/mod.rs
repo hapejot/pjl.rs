@@ -1,4 +1,4 @@
-use log::{debug, error, info, trace};
+use log::{debug, error, trace};
 
 pub mod meta {
 
