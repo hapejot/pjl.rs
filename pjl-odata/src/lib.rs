@@ -194,6 +194,15 @@ impl From<&str> for Operator {
     }
 }
 
+impl Display for Operator {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Operator::Equals => write!(f, "="),
+            Operator::Var(x) => write!(f, "{x}"),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct ConditionValue {
     v: edm::value::Value,
@@ -210,7 +219,7 @@ impl Display for ConditionValue {
                 PrimitiveValue::Null => write!(f, "null"),
                 PrimitiveValue::Boolean(x) => write!(f, "{x}"),
                 PrimitiveValue::Decimal(x) => write!(f, "{x}"),
-                PrimitiveValue::String(x) => write!(f, "{x}"),
+                PrimitiveValue::String(x) => write!(f, "'{x}'"),
                 PrimitiveValue::Custom { .. } => todo!(),
             },
             Value::StructureValue(_structure_value) => todo!(),
@@ -255,9 +264,9 @@ impl From<Option<ConditionValue>> for ConditionValue {
     fn from(value: Option<ConditionValue>) -> Self {
         match value {
             Some(_) => todo!(),
-            None =>         ConditionValue {
+            None => ConditionValue {
                 v: Value::PrimitiveValue(PrimitiveValue::Null),
-            }    
+            },
         }
     }
 }
@@ -270,12 +279,16 @@ impl From<&bool> for ConditionValue {
     }
 }
 
-
-
 #[derive(Debug, Clone, Serialize)]
 pub struct Condition {
     op: Operator,
     value: ConditionValue,
+}
+
+impl Display for Condition {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "... {} {}", self.op, self.value)
+    }
 }
 
 pub type ConditionList = Vec<Condition>;

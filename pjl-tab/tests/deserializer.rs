@@ -1,7 +1,6 @@
-use std::default;
 
 use pjl_tab::Table;
-use serde::{de::MapAccess, Deserialize, Deserializer};
+use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 struct User {

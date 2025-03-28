@@ -1,4 +1,3 @@
-use pjl_tab::Table;
 use serde::Serialize;
 use serde::Deserialize;
 

@@ -3,7 +3,7 @@ use serde::{
     de::{MapAccess, SeqAccess},
     Deserialize, Deserializer,
 };
-use std::{default, error::Error, fmt::Display};
+use std::{error::Error, fmt::Display};
 
 fn de<'de, T>() -> Option<T>
 where

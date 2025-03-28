@@ -1,8 +1,8 @@
-use std::time::Duration;
 
-use tokio_postgres::{Client, NoTls};
+use tokio_postgres::NoTls;
 
 // #[tokio::test]
+#[allow(dead_code)]
 async fn connect() {
     let (client, _conn) =
         tokio_postgres::connect("host=localhost user=postgres password=Kennwort01", NoTls)
@@ -12,6 +12,7 @@ async fn connect() {
 }
 
 // #[tokio::test]
+#[allow(dead_code)]
 async fn simple_select() {
     let (client, _conn) =
         tokio_postgres::connect("host=localhost user=postgres password=Kennwort01", NoTls)

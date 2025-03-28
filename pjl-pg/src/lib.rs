@@ -264,7 +264,11 @@ impl Database {
                 match x {
                     Value::PrimitiveValue(primitive_value) => match primitive_value {
                         PrimitiveValue::Null => todo!(),
-                        PrimitiveValue::Boolean(_) => todo!(),
+                        PrimitiveValue::Boolean(b) => match typ.name() {
+                            "int4" => sql_params.push(Box::new(if *b { 1 } else { 0 })),
+                            "bool" => sql_params.push(Box::new(*b)),
+                            _ => sql_params.push(Box::new(b.to_string())),
+                        },
                         PrimitiveValue::Decimal(number) => match typ.name() {
                             "int4" => sql_params.push(Box::new(number.as_i64())),
                             _ => sql_params.push(Box::new(number.as_str().to_string())),
@@ -346,7 +350,7 @@ impl Database {
         );
         trace!("{query}");
         let client = &mut self.client;
-        let r = Table::new();
+        let _r = Table::new();
         if let Ok(Ok(t)) = timeout(Duration::from_secs(2), client.transaction()).await {
             // prepare statement for loop eventually..
             let stmt = t.prepare(&query).await.unwrap();
@@ -373,7 +377,7 @@ impl Database {
                     .map(|x| x.as_ref() as &(dyn ToSql + Sync))
                     .collect::<Vec<_>>();
 
-                let r = t
+                let _r = t
                     .execute(&stmt, &final_sql_params)
                     .await
                     .expect(&format!("query {:?}", final_sql_params));
@@ -549,6 +553,8 @@ fn extract_result_to_table(r: &Table, rows: Vec<tokio_postgres::Row>) {
     }
 }
 
+
+#[allow(dead_code)]
 fn params_from_edm<'a>(params: &'a Vec<Value>) -> Vec<&'a (dyn ToSql + Sync)> {
     let mut result: Vec<&'a (dyn ToSql + Sync)> = vec![];
     for x in params.iter() {
