@@ -301,6 +301,9 @@ impl Database {
         let meta = self.get_table_metadata(tab_name).await;
 
         let pks = self.read_primary_key(tab_name).await;
+        if pks.len() == 0 {
+            error!("table {} has no primary key", tab_name);
+        }
         let pk = pks.iter().nth(0).unwrap();
 
         let mut colinfos = vec![];
@@ -552,7 +555,6 @@ fn extract_result_to_table(r: &Table, rows: Vec<tokio_postgres::Row>) {
         }
     }
 }
-
 
 #[allow(dead_code)]
 fn params_from_edm<'a>(params: &'a Vec<Value>) -> Vec<&'a (dyn ToSql + Sync)> {
