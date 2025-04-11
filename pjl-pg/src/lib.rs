@@ -305,7 +305,7 @@ impl Database {
             error!("table {} has no primary key", tab_name);
         }
         let pk = pks.iter().nth(0).unwrap();
-
+        trace!("table {} has primary key {:?}", tab_name, pk);
         let mut colinfos = vec![];
         // enrich the columns of the paramter table with data from the underlying metadata
         for (pos, name) in tab.columns().iter().enumerate() {
