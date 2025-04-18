@@ -7,7 +7,7 @@ use serde::{
     Serialize,
 };
 use std::fmt::Error;
-use tracing::{instrument, trace};
+use tracing::{info, instrument, trace};
 
 pub fn table_from<T>(x: T) -> Result<Table, String>
 where
@@ -20,7 +20,13 @@ where
     }
 }
 
+enum SerState {
+    Default,
+    MapKey,
+    MapValue,
+}
 struct TableSer {
+    state: SerState,
     t: Table,
     row: Option<usize>,
     col: Option<&'static str>,
@@ -30,6 +36,7 @@ struct TableSer {
 impl<'a> TableSer {
     fn new() -> Self {
         Self {
+            state: SerState::Default,
             t: Table::new(),
             row: None,
             col: None,
@@ -107,7 +114,19 @@ impl<'a> serde::ser::Serializer for &'a mut TableSer {
 
     #[instrument(skip_all)]
     fn serialize_str(self, v: &str) -> Result<Self::Ok, Self::Error> {
-        self.val = Some(v.into());
+        match self.state {
+            SerState::Default => {
+                self.val = Some(v.into());
+            }
+            SerState::MapKey => {
+                self.col = Some(pjl_static_strings::StringTable::get(v));
+            }
+            SerState::MapValue => {
+                let r = self.t.row(self.row.unwrap());
+                r.set(self.col.unwrap(), v);
+                self.col = None;
+            }
+        }
         Ok(())
     }
 
@@ -329,8 +348,9 @@ impl<'a> SerializeMap for &mut TableSer {
     where
         T: ?Sized + Serialize,
     {
-        let _ = key;
-        todo!()
+        info!("serialize key");
+        self.state = SerState::MapKey;
+        key.serialize(&mut **self)
     }
 
     #[instrument(skip_all)]
@@ -338,12 +358,16 @@ impl<'a> SerializeMap for &mut TableSer {
     where
         T: ?Sized + Serialize,
     {
-        todo!()
+        info!("serialize value");
+        self.state = SerState::MapValue;
+        _value.serialize(&mut **self)
     }
 
     #[instrument(skip_all)]
     fn end(self) -> Result<Self::Ok, Self::Error> {
-        todo!()
+        info!("end");
+        self.state = SerState::Default;
+        Ok(())
     }
 }
 

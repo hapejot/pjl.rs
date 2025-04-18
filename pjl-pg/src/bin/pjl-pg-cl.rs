@@ -1,10 +1,11 @@
 use std::{collections::HashMap, io::Read};
-
+use tracing::{trace,error};
 use clap::{Parser, Subcommand};
 use pjl_odata::ODataQuery;
 use pjl_pg::{Database, SqlTable};
 use pjl_tab::Table;
-use tracing::{error, level_filters::LevelFilter};
+use tracing::level_filters::LevelFilter;
+use tracing_subscriber::filter::EnvFilter;
 
 #[derive(Debug, Parser)]
 struct Params {
@@ -39,8 +40,13 @@ async fn main() {
         "host=localhost user=postgres password=Kennwort01 dbname={}",
         args.database
     );
-    let level: LevelFilter = args.trace_level.parse().unwrap();
-    tracing_subscriber::fmt().with_max_level(level).init();
+    //let level: LevelFilter = args.trace_level.parse().unwrap();
+    let filter = EnvFilter::builder().parse_lossy(args.trace_level);
+    tracing_subscriber::fmt()
+		.with_env_filter(filter)
+    		// .with_max_level(level)
+		.init();
+    trace!("starting subcommand {:?}", args.cmd);
     match args.cmd {
         Commands::Modify => {
             let mut buf = String::new();
@@ -68,9 +74,9 @@ async fn main() {
                     println!("{out}");
                 }
             }
-            else {
-                error!("connection failed: {connection_string}");
-            }
+	    else {
+	    	error!("connection failed: {}", connection_string);
+	    }
         }
         Commands::Describe => {
             if let Ok(mut db) = Database::new(&connection_string).await {
