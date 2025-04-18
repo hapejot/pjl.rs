@@ -4,7 +4,7 @@ use clap::{Parser, Subcommand};
 use pjl_odata::ODataQuery;
 use pjl_pg::{Database, SqlTable};
 use pjl_tab::Table;
-use tracing::level_filters::LevelFilter;
+use tracing::{error, level_filters::LevelFilter};
 
 #[derive(Debug, Parser)]
 struct Params {
@@ -67,6 +67,9 @@ async fn main() {
                     result.dump(&mut out);
                     println!("{out}");
                 }
+            }
+            else {
+                error!("connection failed: {connection_string}");
             }
         }
         Commands::Describe => {

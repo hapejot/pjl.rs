@@ -363,6 +363,7 @@ impl Database {
                     match current_row.get(&c.name) {
                         Some(x) => match c.coltype.as_str() {
                             "int4" => sql_params.push(Box::new(x.parse::<i32>().unwrap())),
+                            "bool" => sql_params.push(Box::new(x.parse::<bool>().unwrap())),                            
                             "timestamp" => sql_params.push(Box::new(
                                 chrono::NaiveDateTime::parse_from_str(&x, DATE_TIME_FORMAT)
                                     .unwrap(),
