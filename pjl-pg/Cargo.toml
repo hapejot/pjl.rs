@@ -16,7 +16,7 @@ mini-moka = "0.10.3"
 clap = { version = "4.5.31", features = ["derive"] }
 chrono = "0.4.40"
 postgres-types = { version = "0.2.9", features = ["with-chrono-0_4"] }
-tracing-subscriber = "0.3.19"
+tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 regex = "1.11.1"
 
 [dev-dependencies]

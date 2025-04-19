@@ -18,5 +18,5 @@ members = [
     "pjl-odata", 
     "pjl-error", 
     "thumb-node",
-    "processing-node-client", "pjl-static-strings", "pjl-file-server"]
+    "processing-node-client", "pjl-static-strings", "pjl-file-server", "pjl-cache"]
 

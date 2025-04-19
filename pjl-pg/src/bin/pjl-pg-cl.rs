@@ -1,10 +1,10 @@
-use std::{collections::HashMap, io::Read};
-use tracing::{trace,error};
 use clap::{Parser, Subcommand};
 use pjl_odata::ODataQuery;
 use pjl_pg::{Database, SqlTable};
 use pjl_tab::Table;
+use std::{collections::HashMap, io::Read};
 use tracing::level_filters::LevelFilter;
+use tracing::{error, trace};
 use tracing_subscriber::filter::EnvFilter;
 
 #[derive(Debug, Parser)]
@@ -43,9 +43,9 @@ async fn main() {
     //let level: LevelFilter = args.trace_level.parse().unwrap();
     let filter = EnvFilter::builder().parse_lossy(args.trace_level);
     tracing_subscriber::fmt()
-		.with_env_filter(filter)
-    		// .with_max_level(level)
-		.init();
+        .with_env_filter(filter)
+        // .with_max_level(level)
+        .init();
     trace!("starting subcommand {:?}", args.cmd);
     match args.cmd {
         Commands::Modify => {
@@ -73,10 +73,9 @@ async fn main() {
                     result.dump(&mut out);
                     println!("{out}");
                 }
+            } else {
+                error!("connection failed: {}", connection_string);
             }
-	    else {
-	    	error!("connection failed: {}", connection_string);
-	    }
         }
         Commands::Describe => {
             if let Ok(mut db) = Database::new(&connection_string).await {
@@ -91,7 +90,7 @@ async fn main() {
                 let f = std::io::stdin();
                 let x = serde_yaml::from_reader::<_, Vec<SqlTable>>(f).unwrap();
                 let x = x.iter().find(|x| x.name() == args.table_name).unwrap();
-                
+
                 let _desc = db.define(x).await;
             }
         }
