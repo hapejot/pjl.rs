@@ -1,10 +1,14 @@
 use edm::{primitive::PrimitiveValue, value::Value, Schema};
+use indexmap::IndexMap;
 use mini_moka::sync::Cache;
 use pjl_odata::{ConditionValue, DbSpecifics};
 use pjl_tab::Table;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-use std::{collections::BTreeMap, time::Duration};
+use std::{
+    collections::{BTreeMap, HashMap},
+    time::Duration,
+};
 use tokio::time::timeout;
 use tokio_postgres::{
     connect,
@@ -35,6 +39,7 @@ struct Decl {
 #[derive(Clone, Debug)]
 struct TableMetadata {
     colspecs: Vec<Decl>,
+    keys: HashMap<String, Vec<String>>,
 }
 
 pub struct Database {
@@ -74,7 +79,8 @@ impl PostgresQuery {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SqlTable {
     name: String,
-    fields: BTreeMap<String, SqlType>,
+    fields: IndexMap<String, SqlType>,
+    keys: HashMap<String, Vec<String>>,
 }
 
 impl SqlTable {
@@ -170,8 +176,7 @@ impl Database {
 
         if let Ok(Ok(t)) = timeout(Duration::from_secs(2), client.transaction()).await {
             let query = format!(
-                r#"select array_position(i.indkey, a.attnum) as pkpos, 
-                            a.attname, 
+                r#"select   a.attname, 
                             atttypid,
                             attnum, 
                             attnotnull, 
@@ -180,10 +185,9 @@ impl Database {
                             a.atttypmod,
                             format_type(atttypid, atttypmod) AS column_type
                             from pg_attribute as a
-                            join pg_type as t on a.atttypid = t.oid
-                            left outer join pg_index as i on i.indrelid = a.attrelid and a.attnum = any (i.indkey)
+                            join pg_type as t on a.atttypid = t.oid                            
                             where  a.attrelid = to_regclass($1)
-                              and a.attnum > 0"#
+                              and a.attnum > 0 order by attnum"#
             );
             let stmt = t.prepare(&query).await.unwrap();
             // let tab_name: Box<dyn ToSql + Sync> = ;
@@ -198,8 +202,40 @@ impl Database {
             // eprintln!("meta:\n{s}");
             let colspecs: Vec<Decl> = pjl_tab::de::extract_from_table(&r).unwrap();
             debug!("colspecs: {colspecs:#?}");
-            self.table_meta
-                .insert(tab_name.to_string(), TableMetadata { colspecs });
+
+            let query = format!(
+                r#"select indexrelid::regclass::text, indkey from pg_index as i 
+                        where  i.indrelid = to_regclass($1)"#
+            );
+            let stmt = t.prepare(&query).await.unwrap();
+            let mut r_keys = HashMap::new();
+            let rows = t
+                .query(&stmt, &[&*Box::new(tab_name)])
+                .await
+                .expect("query");
+            let mut out = String::new();
+            r.dump(&mut out);
+            info!("{out}");
+            for x in rows {
+                let index_name = x.get::<'_, _, String>(0);
+                let index_fields = x.get::<'_, _, Vec<i16>>(1);
+                let mut index_field_names = vec![];
+
+                for i in index_fields {
+                    let attr = r.row(i as usize);
+                    let n = attr.get("attname").unwrap();
+                    index_field_names.push(n);
+                }
+                r_keys.insert(index_name, index_field_names);
+            }
+
+            self.table_meta.insert(
+                tab_name.to_string(),
+                TableMetadata {
+                    colspecs,
+                    keys: r_keys,
+                },
+            );
         }
     }
 
@@ -366,7 +402,7 @@ impl Database {
                     match current_row.get(&c.name) {
                         Some(x) => match c.coltype.as_str() {
                             "int4" => sql_params.push(Box::new(x.parse::<i32>().unwrap())),
-                            "bool" => sql_params.push(Box::new(x.parse::<bool>().unwrap())),                            
+                            "bool" => sql_params.push(Box::new(x.parse::<bool>().unwrap())),
                             "timestamp" => sql_params.push(Box::new(
                                 chrono::NaiveDateTime::parse_from_str(&x, DATE_TIME_FORMAT)
                                     .unwrap(),
@@ -427,16 +463,20 @@ impl Database {
         let meta = self.get_table_metadata(tab_name).await;
         let mut r = SqlTable {
             name: tab_name.to_string(),
-            fields: BTreeMap::new(),
+            fields: IndexMap::new(),
+            keys: HashMap::new(),
         };
 
-        let mut s = String::new();
-        s.push_str(&format!("- {}:\n", tab_name));
         for c in meta.colspecs.iter() {
             let type_str = c.column_type.trim();
             let t = self.to_generic_sql_type(type_str);
             // s.push_str(&format!("      {}: {},\n", c.attname, t));
             r.fields.insert(c.attname.clone(), t);
+        }
+
+
+        for (name, fields) in meta.keys {
+            r.keys.insert(name, fields);
         }
         r
     }
