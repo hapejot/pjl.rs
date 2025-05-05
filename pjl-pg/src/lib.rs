@@ -5,10 +5,8 @@ use pjl_odata::{ConditionValue, DbSpecifics};
 use pjl_tab::Table;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-use std::{
-    collections::{BTreeMap, HashMap},
-    time::Duration,
-};
+use std::collections::HashSet;
+use std::{collections::HashMap, time::Duration};
 use tokio::time::timeout;
 use tokio_postgres::{
     connect,
@@ -306,7 +304,7 @@ impl Database {
                             _ => sql_params.push(Box::new(b.to_string())),
                         },
                         PrimitiveValue::Decimal(number) => match typ.name() {
-                            "int4" => sql_params.push(Box::new(number.as_i64())),
+                            "int4" => sql_params.push(Box::new((number.as_i64()) as i32)),
                             _ => sql_params.push(Box::new(number.as_str().to_string())),
                         },
                         PrimitiveValue::String(v) => match typ.name() {
@@ -320,6 +318,7 @@ impl Database {
                 }
             }
             assert_eq!(params.len(), sql_params.len());
+            trace!("sql_params: {sql_params:?}");
             let final_sql_params = sql_params
                 .iter()
                 .map(|x| x.as_ref() as &(dyn ToSql + Sync))
@@ -336,12 +335,6 @@ impl Database {
     pub async fn modify(&mut self, tab_name: &str, tab: Table) {
         let meta = self.get_table_metadata(tab_name).await;
 
-        let pks = self.read_primary_key(tab_name).await;
-        if pks.len() == 0 {
-            error!("table {} has no primary key", tab_name);
-        }
-        let pk = pks.iter().nth(0).unwrap();
-        trace!("table {} has primary key {:?}", tab_name, pk);
         let mut colinfos = vec![];
         // enrich the columns of the paramter table with data from the underlying metadata
         for (pos, name) in tab.columns().iter().enumerate() {
@@ -358,11 +351,11 @@ impl Database {
             });
         }
 
-        let ins_fields = colinfos
+        let ins_field_names = colinfos
             .iter()
             .map(|ci| ci.name.clone())
-            .collect::<Vec<_>>()
-            .join(", ");
+            .collect::<Vec<_>>();
+        let ins_fields = &ins_field_names.join(", ");
         let ins_values = colinfos
             .iter()
             .map(|ci| ci.varname.clone())
@@ -382,6 +375,16 @@ impl Database {
         //     name = EXCLUDED.name,
         //     value = EXCLUDED.value
         // WHERE my_table.value IS DISTINCT FROM EXCLUDED.value;
+        let mut pk = String::new();
+        trace!("ins_field_names: {:?}", ins_field_names);
+        for (_, x) in meta.keys.iter() {
+            trace!("checking key {:?}", x);
+            if is_subset(x, &ins_field_names) {
+                pk = x.join(",");
+                trace!("found key");
+                break;
+            }
+        }
 
         let query = format!(
             "INSERT INTO {} ({})  VALUES ({}) ON CONFLICT ({pk}) DO UPDATE SET {upd}",
@@ -473,7 +476,6 @@ impl Database {
             // s.push_str(&format!("      {}: {},\n", c.attname, t));
             r.fields.insert(c.attname.clone(), t);
         }
-
 
         for (name, fields) in meta.keys {
             r.keys.insert(name, fields);
@@ -617,4 +619,9 @@ fn params_from_edm<'a>(params: &'a Vec<Value>) -> Vec<&'a (dyn ToSql + Sync)> {
         }
     }
     result
+}
+
+fn is_subset(vec1: &[String], vec2: &[String]) -> bool {
+    let set2: HashSet<_> = vec2.iter().cloned().collect();
+    vec1.iter().all(|item| set2.contains(item))
 }

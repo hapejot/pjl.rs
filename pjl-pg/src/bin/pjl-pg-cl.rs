@@ -3,7 +3,6 @@ use pjl_odata::ODataQuery;
 use pjl_pg::{Database, SqlTable};
 use pjl_tab::Table;
 use std::{collections::HashMap, io::Read};
-use tracing::level_filters::LevelFilter;
 use tracing::{error, trace};
 use tracing_subscriber::filter::EnvFilter;
 
