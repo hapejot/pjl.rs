@@ -29,6 +29,8 @@ enum Commands {
 
         #[arg(long)]
         yaml: bool,
+
+        orderby: Option<String>,
     },
 }
 
@@ -57,12 +59,19 @@ async fn main() {
                 db.modify(&args.table_name, tab2).await;
             }
         }
-        Commands::Select { query, yaml } => {
+        Commands::Select {
+            query,
+            yaml,
+            orderby,
+        } => {
             if let Ok(mut db) = Database::new(&connection_string).await {
-                let q = ODataQuery::new_from(
+                let mut q = ODataQuery::new_from(
                     &args.table_name,
                     &HashMap::from([("$filter".into(), query)]),
                 );
+                if let Some(orderby) = orderby {
+                    q.set_orderby(&orderby);
+                }
                 let result = db.select(q).await;
                 if yaml {
                     let out = serde_yaml::to_string(&result).unwrap();

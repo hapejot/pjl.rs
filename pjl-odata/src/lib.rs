@@ -402,6 +402,9 @@ impl ODataQuery {
         }
         r
     }
+    pub fn set_orderby(&mut self, orderby: &str) {
+        self.orderby = Some(orderby.into());
+    }
     pub fn add_condition(&mut self, field: &str, operator: &str, value: &ConditionValue) {
         let cond = Condition {
             op: operator.into(),

@@ -213,7 +213,7 @@ impl Database {
                 .expect("query");
             let mut out = String::new();
             r.dump(&mut out);
-            info!("{out}");
+            debug!("{out}");
             for x in rows {
                 let index_name = x.get::<'_, _, String>(0);
                 let index_fields = x.get::<'_, _, Vec<i16>>(1);
@@ -281,11 +281,15 @@ impl Database {
     pub async fn select(&mut self, q: pjl_odata::ODataQuery) -> Table {
         debug!("query: {:#?}", q);
         let (where_clause, mut params) = q.get_where_sql_specific(PostgresQuery::new());
-        let sql = if where_clause.len() > 0 {
-            format!("SELECT * FROM {} WHERE {}", q.get_table(), where_clause)
-        } else {
-            format!("SELECT * FROM {}", q.get_table())
-        };
+        let mut sql_parts = vec![];
+        sql_parts.push(format!("SELECT * FROM {}", q.get_table()));
+        if where_clause.len() > 0 {
+            sql_parts.push(format!("WHERE {}", where_clause));
+        }
+        if let Some(orderby) = q.orderby() {
+            sql_parts.push(format!("ORDER BY {}", orderby));
+        }
+        let sql = sql_parts.join(" ");
         trace!("SQL: {sql}");
         let client = &mut self.client;
         let r = Table::new();
