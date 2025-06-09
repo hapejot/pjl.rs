@@ -1,28 +1,5 @@
 {{! filepath: /media/nfs/work/pjl.rs/data-issue-tracker/templates/list.hbs }}
+<link rel="stylesheet" href="/static/style.css">
 <h1>Entities</h1>
 <ul id="entity-list"></ul>
-<script>
-// Fallback: get entity list from the server-rendered context if available
-const fallbackEntities = window.__entities || [];
-
-// Try to fetch entity list from the API, fallback to old context if needed
-fetch('/api/entities')
-  .then(r => r.ok ? r.json() : Promise.reject())
-  .then(entities => {
-    renderEntityList(entities);
-  })
-  .catch(() => {
-    renderEntityList(fallbackEntities);
-  });
-
-function renderEntityList(entities) {
-  const ul = document.getElementById('entity-list');
-  if (!Array.isArray(entities) || entities.length === 0) {
-    ul.innerHTML = '<li>No entities found.</li>';
-    return;
-  }
-  ul.innerHTML = entities.map(entity =>
-    `<li><a href="/edit/${entity}">Add new ${entity}</a> | <a href="/records/${entity}">Show records</a></li>`
-  ).join('');
-}
-</script>
+<script src="/static/list.js"></script>

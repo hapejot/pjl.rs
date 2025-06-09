@@ -1,0 +1,117 @@
+/* style.css - Modern, clean, and responsive for data-issue-tracker */
+
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #f7f9fb;
+  color: #222;
+  margin: 0;
+  padding: 0;
+}
+
+h1, h2 {
+  color: #2a4d69;
+  margin-top: 1.5em;
+}
+
+a {
+  color: #2176ae;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+a:hover {
+  color: #14375a;
+  text-decoration: underline;
+}
+
+button, input[type="submit"] {
+  background: #2176ae;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5em 1.2em;
+  font-size: 1em;
+  cursor: pointer;
+  margin-top: 1em;
+  transition: background 0.2s;
+}
+button:hover, input[type="submit"]:hover {
+  background: #14375a;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  background: #fff;
+  margin: 1.5em 0;
+  box-shadow: 0 2px 8px rgba(34, 52, 70, 0.07);
+}
+th, td {
+  padding: 0.75em 1em;
+  border-bottom: 1px solid #e3e8ee;
+  text-align: left;
+}
+th {
+  background: #e3e8ee;
+  color: #2a4d69;
+  font-weight: 600;
+}
+tr:nth-child(even) td {
+  background: #f4f7fa;
+}
+tr:hover td {
+  background: #eaf1fb;
+}
+
+label {
+  font-weight: 500;
+  color: #2a4d69;
+}
+
+input[type="text"], input[type="datetime-local"], select {
+  padding: 0.4em 0.7em;
+  border: 1px solid #bfc9d1;
+  border-radius: 3px;
+  font-size: 1em;
+  background: #f9fbfd;
+  transition: border 0.2s;
+}
+input[type="text"]:focus, input[type="datetime-local"]:focus, select:focus {
+  border: 1.5px solid #2176ae;
+  outline: none;
+}
+
+@media (max-width: 700px) {
+  table, thead, tbody, th, td, tr {
+    display: block;
+  }
+  th, td {
+    padding: 0.7em 0.5em;
+  }
+  th {
+    background: #e3e8ee;
+    position: sticky;
+    top: 0;
+  }
+  tr {
+    margin-bottom: 1em;
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(34, 52, 70, 0.07);
+  }
+}
+
+ul, ol {
+  padding-left: 1.5em;
+}
+
+ul li {
+  margin-bottom: 0.5em;
+}
+
+form {
+  background: #fff;
+  padding: 1.5em 2em;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(34, 52, 70, 0.07);
+  margin-bottom: 2em;
+  max-width: 700px;
+}

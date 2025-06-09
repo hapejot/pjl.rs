@@ -12,6 +12,9 @@ use std::fs::create_dir_all;
 use std::{collections::HashMap, fs, sync::Arc};
 use tracing::{info, instrument};
 use uuid::Uuid;
+use axum::response::Json as AxumJson;
+use tower_http::services::ServeDir;
+use std::path::PathBuf;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Attribute {
@@ -172,39 +175,6 @@ async fn list_entities(state: Arc<AppState>) -> impl IntoResponse {
     Html(body)
 }
 
-fn build_relation_options(
-    model: &EntityModel,
-    entities: &HashMap<String, EntityModel>,
-) -> serde_json::Map<String, serde_json::Value> {
-    let mut relation_options = serde_json::Map::new();
-    if let Some(relations) = &model.relations {
-        for rel in relations {
-            let rel_dir = format!("data/{}", rel.type_name);
-            let type_detail = entities.get(&rel.type_name).unwrap();
-            let mut options = Vec::new();
-            if let Ok(entries) = fs::read_dir(&rel_dir) {
-                for entry in entries.flatten() {
-                    let path = entry.path();
-                    if path.extension().and_then(|s| s.to_str()) == Some("yaml") {
-                        if let Ok(content) = fs::read_to_string(&path) {
-                            if let Ok(record) = serde_yaml::from_str::<serde_yaml::Value>(&content)
-                            {
-                                let id = record.get("id").and_then(|v| v.as_str()).unwrap_or("");
-                                let label = record
-                                    .get(&type_detail.title_attribute)
-                                    .and_then(|v| v.as_str())
-                                    .unwrap_or(id);
-                                options.push(json!({"id": id, "label": label}));
-                            }
-                        }
-                    }
-                }
-            }
-            relation_options.insert(rel.name.clone(), json!(options));
-        }
-    }
-    relation_options
-}
 
 #[instrument(skip(state))]
 async fn new_entity(Path(entity): Path<String>, state: Arc<AppState>) -> impl IntoResponse {
@@ -329,6 +299,17 @@ async fn api_get_record(Path((entity, id)): Path<(String, String)>, state: Arc<A
     }
 }
 
+#[instrument(skip(state))]
+async fn api_get_entity_model(Path(entity): Path<String>, state: Arc<AppState>) -> impl IntoResponse {
+    if let Some(model) = state.get_entity_model(&entity) {
+        return AxumJson(model).into_response();
+    }
+    (
+        axum::http::StatusCode::NOT_FOUND,
+        AxumJson(json!({"error": "Entity model not found"}))
+    ).into_response()
+}
+
 #[instrument]
 fn load_entities() -> HashMap<String, EntityModel> {
     info!("Loading entity models");
@@ -432,6 +413,60 @@ async fn api_list_entities(state: Arc<AppState>) -> impl IntoResponse {
     (axum::http::StatusCode::OK, Json(entities))
 }
 
+#[instrument]
+async fn api_get_view_definition(Path(entity): Path<String>) -> impl IntoResponse {
+    let view_path = format!("view/{}.yaml", entity);
+    let path = PathBuf::from(&view_path);
+    if !path.exists() {
+        return (
+            axum::http::StatusCode::NOT_FOUND,
+            AxumJson(json!({"error": "View definition not found"}))
+        );
+    }
+    match std::fs::read_to_string(&path) {
+        Ok(yaml) => {
+            match serde_yaml::from_str::<serde_json::Value>(&yaml) {
+                Ok(json_val) => (axum::http::StatusCode::OK, AxumJson(json_val)),
+                Err(e) => (
+                    axum::http::StatusCode::INTERNAL_SERVER_ERROR,
+                    AxumJson(json!({"error": format!("YAML parse error: {}", e)}))
+                ),
+            }
+        }
+        Err(e) => (
+            axum::http::StatusCode::INTERNAL_SERVER_ERROR,
+            AxumJson(json!({"error": format!("File read error: {}", e)}))
+        ),
+    }
+}
+
+#[instrument]
+async fn api_get_form_definition(Path(entity): Path<String>) -> impl IntoResponse {
+    let form_path = format!("forms/{}.yaml", entity);
+    let path = PathBuf::from(&form_path);
+    if !path.exists() {
+        return (
+            axum::http::StatusCode::NOT_FOUND,
+            AxumJson(json!({"error": "Form definition not found"}))
+        );
+    }
+    match std::fs::read_to_string(&path) {
+        Ok(yaml) => {
+            match serde_yaml::from_str::<serde_json::Value>(&yaml) {
+                Ok(json_val) => (axum::http::StatusCode::OK, AxumJson(json_val)),
+                Err(e) => (
+                    axum::http::StatusCode::INTERNAL_SERVER_ERROR,
+                    AxumJson(json!({"error": format!("YAML parse error: {}", e)}))
+                ),
+            }
+        }
+        Err(e) => (
+            axum::http::StatusCode::INTERNAL_SERVER_ERROR,
+            AxumJson(json!({"error": format!("File read error: {}", e)}))
+        ),
+    }
+}
+
 #[tokio::main]
 async fn main() {
     tracing_subscriber::fmt::init();
@@ -482,6 +517,13 @@ async fn main() {
             }),
         )
         .route(
+            "/api/entity-model/{entity}",
+            get({
+                let state = state.clone();
+                move |path| api_get_entity_model(path, state)
+            }),
+        )
+        .route(
             "/api/{entity}",
             get({
                 let state = state.clone();
@@ -508,6 +550,19 @@ async fn main() {
                 let state = state.clone();
                 move || api_list_entities(state)
             }),
+        )
+        .route(
+            "/api/view/{entity}",
+            get(api_get_view_definition),
+        )
+        .route(
+            "/api/form/{entity}",
+            get(api_get_form_definition),
+        )
+        // Serve static files from the "web" directory
+        .nest_service(
+            "/static",
+            ServeDir::new("web")
         );
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     axum::serve(listener, app).await.unwrap();

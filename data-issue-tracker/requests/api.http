@@ -28,3 +28,8 @@ Content-Type: application/json
     "tracker": "",
     "updated_at": "heute"
 }
+
+
+###
+
+http://nuc:3000/static/.keep
