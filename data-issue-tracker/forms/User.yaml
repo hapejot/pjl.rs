@@ -7,4 +7,12 @@ fields:
     label: Name
   - name: email
     label: Email
-relations: []
+  - name: username
+    label: Username
+  - name: display_name
+    label: Name
+relations: 
+  - name: reported_issues
+    label: Reported Issues
+  - name: assigned_issues
+    label: Assigned Issues

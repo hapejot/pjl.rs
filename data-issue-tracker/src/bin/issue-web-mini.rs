@@ -1,20 +1,20 @@
+use axum::response::Json as AxumJson;
 use axum::{
     extract::Path,
     response::{Html, IntoResponse, Redirect},
     routing::{get, post},
-    Form, Router, Json,
+    Form, Json, Router,
 };
 use handlebars::Handlebars;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use serde_yaml;
 use std::fs::create_dir_all;
+use std::path::PathBuf;
 use std::{collections::HashMap, fs, sync::Arc};
+use tower_http::services::ServeDir;
 use tracing::{info, instrument};
 use uuid::Uuid;
-use axum::response::Json as AxumJson;
-use tower_http::services::ServeDir;
-use std::path::PathBuf;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Attribute {
@@ -175,7 +175,6 @@ async fn list_entities(state: Arc<AppState>) -> impl IntoResponse {
     Html(body)
 }
 
-
 #[instrument(skip(state))]
 async fn new_entity(Path(entity): Path<String>, state: Arc<AppState>) -> impl IntoResponse {
     info!(entity = %entity, "Editing entity");
@@ -222,39 +221,39 @@ async fn save_entity(
 
 #[instrument(skip(state))]
 async fn list_records(Path(entity): Path<String>, state: Arc<AppState>) -> impl IntoResponse {
-    info!(entity = %entity, "Listing records");
-    let model = if let Some(m) = state.get_entity_model(&entity) {
-        m
-    } else {
-        return Html("Entity not found".to_string());
-    };
-    let data_dir = format!("data/{}", entity);
-    let mut records = Vec::new();
-    if let Ok(entries) = fs::read_dir(&data_dir) {
-        for entry in entries.flatten() {
-            let path = entry.path();
-            if path.extension().and_then(|s| s.to_str()) == Some("yaml") {
-                if let Ok(content) = fs::read_to_string(&path) {
-                    if let Ok(record) = serde_yaml::from_str::<serde_yaml::Value>(&content) {
-                        records.push(record);
-                    }
-                }
-            }
-        }
-    }
-    info!("Found {} records for entity {}", records.len(), entity);
-    let mut ctx = serde_json::Map::new();
-    ctx.insert(
-        "entity".to_string(),
-        serde_json::Value::String(entity.clone()),
-    );
-    ctx.insert(
-        "attributes".to_string(),
-        serde_json::to_value(&model.attributes).unwrap_or_default(),
-    );
-    let records = serde_json::to_value(records).unwrap_or_default();
-    info!("records: {:?}", records);
-    ctx.insert("records".to_string(), records);
+    // info!(entity = %entity, "Listing records");
+    // let model = if let Some(m) = state.get_entity_model(&entity) {
+    //     m
+    // } else {
+    //     return Html("Entity not found".to_string());
+    // };
+    // let data_dir = format!("data/{}", entity);
+    // let mut records = Vec::new();
+    // if let Ok(entries) = fs::read_dir(&data_dir) {
+    //     for entry in entries.flatten() {
+    //         let path = entry.path();
+    //         if path.extension().and_then(|s| s.to_str()) == Some("yaml") {
+    //             if let Ok(content) = fs::read_to_string(&path) {
+    //                 if let Ok(record) = serde_yaml::from_str::<serde_yaml::Value>(&content) {
+    //                     records.push(record);
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
+    // info!("Found {} records for entity {}", records.len(), entity);
+    let ctx = serde_json::Map::new();
+    // ctx.insert(
+    //     "entity".to_string(),
+    //     serde_json::Value::String(entity.clone()),
+    // );
+    // ctx.insert(
+    //     "attributes".to_string(),
+    //     serde_json::to_value(&model.attributes).unwrap_or_default(),
+    // );
+    // let records = serde_json::to_value(records).unwrap_or_default();
+    // info!("records: {:?}", records);
+    // ctx.insert("records".to_string(), records);
     let body = state.handlebars().render("records", &ctx).unwrap();
     Html(body)
 }
@@ -267,7 +266,10 @@ async fn api_list_records(Path(entity): Path<String>, state: Arc<AppState>) -> i
     let model = if let Some(m) = state.get_entity_model(&entity) {
         m
     } else {
-        return (axum::http::StatusCode::NOT_FOUND, Json(json!({"error": "Entity not found"})));
+        return (
+            axum::http::StatusCode::NOT_FOUND,
+            Json(json!({"error": "Entity not found"})),
+        );
     };
     let data_dir = format!("data/{}", entity);
     let mut records = Vec::new();
@@ -289,25 +291,35 @@ async fn api_list_records(Path(entity): Path<String>, state: Arc<AppState>) -> i
 }
 
 #[instrument(skip(state))]
-async fn api_get_record(Path((entity, id)): Path<(String, String)>, state: Arc<AppState>) -> impl IntoResponse {
+async fn api_get_record(
+    Path((entity, id)): Path<(String, String)>,
+    state: Arc<AppState>,
+) -> impl IntoResponse {
     info!(entity = %entity, id = %id, "API: Get record");
     let record = state.get_record(&entity, &id);
     if record.is_null() {
-        (axum::http::StatusCode::NOT_FOUND, Json(json!({"error": "Record not found"})))
+        (
+            axum::http::StatusCode::NOT_FOUND,
+            Json(json!({"error": "Record not found"})),
+        )
     } else {
         (axum::http::StatusCode::OK, Json(record))
     }
 }
 
 #[instrument(skip(state))]
-async fn api_get_entity_model(Path(entity): Path<String>, state: Arc<AppState>) -> impl IntoResponse {
+async fn api_get_entity_model(
+    Path(entity): Path<String>,
+    state: Arc<AppState>,
+) -> impl IntoResponse {
     if let Some(model) = state.get_entity_model(&entity) {
         return AxumJson(model).into_response();
     }
     (
         axum::http::StatusCode::NOT_FOUND,
-        AxumJson(json!({"error": "Entity model not found"}))
-    ).into_response()
+        AxumJson(json!({"error": "Entity model not found"})),
+    )
+        .into_response()
 }
 
 #[instrument]
@@ -344,7 +356,7 @@ async fn change_entity(
 
         let mut ctx = serde_json::to_value(model).unwrap();
         let r_opts = serde_json::to_value(relation_options).unwrap();
-        info!(relation_options = ?r_opts, "Relation options for entity");
+        // info!(relation_options = ?r_opts, "Relation options for entity");
         ctx["relation_options"] = r_opts;
         ctx["record"] = record;
         let body = state.handlebars().render("edit", &ctx).unwrap();
@@ -387,22 +399,34 @@ async fn api_upsert_record(
 ) -> impl IntoResponse {
     info!(entity = %entity, payload = ?payload, "API: Upsert record");
     // Extract or generate ID
-    let id = payload.get("id")
+    let id = payload
+        .get("id")
         .and_then(|v| v.as_str())
         .map(|s| s.to_string())
         .unwrap_or_else(|| Uuid::new_v4().to_string());
     // Write to YAML file
     let yaml = match serde_yaml::to_string(&payload) {
         Ok(y) => y,
-        Err(e) => return (axum::http::StatusCode::BAD_REQUEST, Json(json!({"error": format!("YAML serialization error: {}", e)}))),
+        Err(e) => {
+            return (
+                axum::http::StatusCode::BAD_REQUEST,
+                Json(json!({"error": format!("YAML serialization error: {}", e)})),
+            )
+        }
     };
     let data_dir = format!("data/{}", entity);
     if let Err(e) = create_dir_all(&data_dir) {
-        return (axum::http::StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error": format!("Failed to create data dir: {}", e)})));
+        return (
+            axum::http::StatusCode::INTERNAL_SERVER_ERROR,
+            Json(json!({"error": format!("Failed to create data dir: {}", e)})),
+        );
     }
     let file_path = format!("{}/{}-{}.yaml", data_dir, entity, id);
     if let Err(e) = std::fs::write(&file_path, yaml) {
-        return (axum::http::StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error": format!("Failed to write file: {}", e)})));
+        return (
+            axum::http::StatusCode::INTERNAL_SERVER_ERROR,
+            Json(json!({"error": format!("Failed to write file: {}", e)})),
+        );
     }
     (axum::http::StatusCode::OK, Json(json!({"id": id})))
 }
@@ -420,22 +444,20 @@ async fn api_get_view_definition(Path(entity): Path<String>) -> impl IntoRespons
     if !path.exists() {
         return (
             axum::http::StatusCode::NOT_FOUND,
-            AxumJson(json!({"error": "View definition not found"}))
+            AxumJson(json!({"error": "View definition not found"})),
         );
     }
     match std::fs::read_to_string(&path) {
-        Ok(yaml) => {
-            match serde_yaml::from_str::<serde_json::Value>(&yaml) {
-                Ok(json_val) => (axum::http::StatusCode::OK, AxumJson(json_val)),
-                Err(e) => (
-                    axum::http::StatusCode::INTERNAL_SERVER_ERROR,
-                    AxumJson(json!({"error": format!("YAML parse error: {}", e)}))
-                ),
-            }
-        }
+        Ok(yaml) => match serde_yaml::from_str::<serde_json::Value>(&yaml) {
+            Ok(json_val) => (axum::http::StatusCode::OK, AxumJson(json_val)),
+            Err(e) => (
+                axum::http::StatusCode::INTERNAL_SERVER_ERROR,
+                AxumJson(json!({"error": format!("YAML parse error: {}", e)})),
+            ),
+        },
         Err(e) => (
             axum::http::StatusCode::INTERNAL_SERVER_ERROR,
-            AxumJson(json!({"error": format!("File read error: {}", e)}))
+            AxumJson(json!({"error": format!("File read error: {}", e)})),
         ),
     }
 }
@@ -447,22 +469,20 @@ async fn api_get_form_definition(Path(entity): Path<String>) -> impl IntoRespons
     if !path.exists() {
         return (
             axum::http::StatusCode::NOT_FOUND,
-            AxumJson(json!({"error": "Form definition not found"}))
+            AxumJson(json!({"error": "Form definition not found"})),
         );
     }
     match std::fs::read_to_string(&path) {
-        Ok(yaml) => {
-            match serde_yaml::from_str::<serde_json::Value>(&yaml) {
-                Ok(json_val) => (axum::http::StatusCode::OK, AxumJson(json_val)),
-                Err(e) => (
-                    axum::http::StatusCode::INTERNAL_SERVER_ERROR,
-                    AxumJson(json!({"error": format!("YAML parse error: {}", e)}))
-                ),
-            }
-        }
+        Ok(yaml) => match serde_yaml::from_str::<serde_json::Value>(&yaml) {
+            Ok(json_val) => (axum::http::StatusCode::OK, AxumJson(json_val)),
+            Err(e) => (
+                axum::http::StatusCode::INTERNAL_SERVER_ERROR,
+                AxumJson(json!({"error": format!("YAML parse error: {}", e)})),
+            ),
+        },
         Err(e) => (
             axum::http::StatusCode::INTERNAL_SERVER_ERROR,
-            AxumJson(json!({"error": format!("File read error: {}", e)}))
+            AxumJson(json!({"error": format!("File read error: {}", e)})),
         ),
     }
 }
@@ -551,19 +571,10 @@ async fn main() {
                 move || api_list_entities(state)
             }),
         )
-        .route(
-            "/api/view/{entity}",
-            get(api_get_view_definition),
-        )
-        .route(
-            "/api/form/{entity}",
-            get(api_get_form_definition),
-        )
+        .route("/api/view/{entity}", get(api_get_view_definition))
+        .route("/api/form/{entity}", get(api_get_form_definition))
         // Serve static files from the "web" directory
-        .nest_service(
-            "/static",
-            ServeDir::new("web")
-        );
+        .nest_service("/static", ServeDir::new("web"));
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     axum::serve(listener, app).await.unwrap();
 }
