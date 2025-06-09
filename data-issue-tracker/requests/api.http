@@ -1,0 +1,30 @@
+http://nuc:3000/api/User
+
+###
+
+http://nuc:3000/api/Issue
+###
+
+
+POST http://nuc:3000/api/Issue
+Content-Type: application/json
+
+{
+    "assignee": "f66c32e7-7fc7-4e53-8a36-8eb40e311448",
+    "created_at": "",
+    "data_source": "",
+    "description": "Beschreibung der Aufgabe",
+    "due_date": "gestern",
+    "id": "1d6d989a-fb03-4187-82ea-660a8fc7fe3a",
+    "object_cluster": "",
+    "priority": "",
+    "reporter": "",
+    "resolution": "",
+    "resolution_date": "",
+    "severity": "",
+    "status": "",
+    "tags": "f89046b3-8c64-4c1a-9bd8-45f52ff405ec",
+    "title": "Noch mal neu - Weiter",
+    "tracker": "",
+    "updated_at": "heute"
+}

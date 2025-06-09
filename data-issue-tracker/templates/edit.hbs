@@ -1,0 +1,64 @@
+<!-- Version: 1.0 -->
+<h1 id="edit-title"></h1>
+<form id="edit-form">
+    <p><b>Purpose:</b> <span id="purpose"></span></p>
+    <h2>Attributes</h2>
+    <table id="attributes-table"></table>
+    <h2>Relations</h2>
+    <table id="relations-table"></table>
+    <button type="submit">Save</button>
+</form>
+<a href="/records/" id="back-link">Back to records</a>
+<script>
+const pathParts = window.location.pathname.split('/').filter(Boolean);
+const entity = pathParts[1];
+const id = pathParts[2] || null;
+document.getElementById('edit-title').textContent = id ? `Edit ${entity} (${id})` : `Add new ${entity}`;
+document.getElementById('back-link').href = `/records/${entity}`;
+
+// Fetch entity model and record in parallel
+Promise.all([
+  fetch(`/entity-model/${entity}.yaml`).then(r => r.text()),
+  id ? fetch(`/api/${entity}/${id}`).then(r => r.json()) : Promise.resolve({})
+]).then(([yamlText, data]) => {
+  // Parse attributes
+  const attrBlock = yamlText.match(/attributes:\s*([\s\S]*?)(\n\w|$)/);
+  let attributes = [];
+  if (attrBlock) {
+    attributes = Array.from(attrBlock[1].matchAll(/- name: (\w+)\n\s+type: (\w+)\n\s+description: ([^\n]*)/g)).map(m => ({name: m[1], type_name: m[2], description: m[3]}));
+  }
+  document.getElementById('attributes-table').innerHTML = attributes.map(attr =>
+    `<tr><td><label for="attr_${attr.name}">${attr.name}</label></td><td><input type="text" id="attr_${attr.name}" name="${attr.name}" value="${data[attr.name] !== undefined ? data[attr.name] : ''}" /></td><td>${attr.type_name}</td><td>${attr.description}</td></tr>`
+  ).join('');
+  // Parse relations
+  const relBlock = yamlText.match(/relations:\s*([\s\S]*?)(\n\w|$)/);
+  let relations = [];
+  if (relBlock) {
+    relations = Array.from(relBlock[1].matchAll(/- name: (\w+)\n\s+type: (\w+)\n\s+cardinality: (\w+-to-\w+)\n\s+description: ([^\n]*)/g)).map(m => ({name: m[1], type_name: m[2], cardinality: m[3], description: m[4]}));
+  }
+  document.getElementById('relations-table').innerHTML = relations.map(rel =>
+    `<tr><td><label for="rel_${rel.name}">${rel.name}</label></td><td><input type="text" id="rel_${rel.name}" name="${rel.name}" value="${data[rel.name] !== undefined ? data[rel.name] : ''}" /></td><td>${rel.type_name}</td><td>${rel.cardinality}</td><td>${rel.description}</td></tr>`
+  ).join('');
+  // Set purpose
+  const purposeMatch = yamlText.match(/purpose: ([^\n]*)/);
+  document.getElementById('purpose').textContent = purposeMatch ? purposeMatch[1] : '';
+});
+
+// Handle form submit
+const form = document.getElementById('edit-form');
+form.addEventListener('submit', function(e) {
+  e.preventDefault();
+  const formData = new FormData(form);
+  const obj = {};
+  for (const [k, v] of formData.entries()) obj[k] = v;
+  if (id) obj.id = id;
+  fetch(`/api/${entity}`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(obj)
+  }).then(r => r.json()).then(resp => {
+    if (resp.id) window.location.href = `/records/${entity}`;
+    else alert('Error saving record: ' + (resp.error || 'Unknown error'));
+  });
+});
+</script>

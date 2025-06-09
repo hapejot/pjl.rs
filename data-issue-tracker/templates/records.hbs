@@ -1,0 +1,47 @@
+{{! filepath: /media/nfs/work/pjl.rs/data-issue-tracker/templates/records.hbs }}
+<h1 id="entity-title"></h1>
+<a id="add-link" href="#">Add new record</a> | <a href="/">Back to list</a>
+<table border="0" id="records-table">
+  <thead>
+    <tr id="table-header"></tr>
+  </thead>
+  <tbody id="table-body">
+  </tbody>
+</table>
+<script>
+// Robust entity extraction for /records/{entity}
+const pathParts = window.location.pathname.split('/').filter(Boolean);
+const entity = pathParts[pathParts.length - 1];
+document.getElementById('entity-title').textContent = entity + 's';
+document.getElementById('add-link').href = `/edit/${entity}`;
+
+Promise.all([
+  fetch(`/entity-model/${entity}.yaml`).then(r => r.ok ? r.text() : ''),
+  fetch(`/api/${entity}`).then(r => r.ok ? r.json() : [])
+]).then(([yamlText, records]) => {
+  // Parse attribute names from YAML
+  let attributes = [];
+  if (yamlText) {
+    const attrBlock = yamlText.match(/attributes:\s*([\s\S]*?)(\n\w|$)/);
+    if (attrBlock) {
+      attributes = Array.from(attrBlock[1].matchAll(/- name: ([\w-]+)/g)).map(m => m[1]);
+    }
+  }
+  // Render header
+  const headerRow = document.getElementById('table-header');
+  headerRow.innerHTML = `<th>#</th>` + attributes.map(a => `<th>${a}</th>`).join('') + '<th>Actions</th>';
+  // Render body
+  const body = document.getElementById('table-body');
+  if (!Array.isArray(records) || records.length === 0) {
+    body.innerHTML = `<tr><td colspan="${attributes.length + 2}" style="color:gray">No records found.</td></tr>`;
+    return;
+  }
+  body.innerHTML = records.map((rec, idx) => {
+    return `<tr><td>${idx + 1}</td>` +
+      attributes.map(a => `<td>${rec[a] !== undefined ? rec[a] : ''}</td>`).join('') +
+      `<td>${rec.id ? `<a href="/edit/${entity}/${rec.id}">Edit</a>` : '<span style="color:gray">No ID</span>'}</td></tr>`;
+  }).join('');
+}).catch(err => {
+  document.getElementById('table-body').innerHTML = `<tr><td colspan="2" style="color:red">Error loading records: ${err}</td></tr>`;
+});
+</script>

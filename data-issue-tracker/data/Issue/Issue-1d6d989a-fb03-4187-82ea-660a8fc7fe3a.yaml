@@ -1,17 +1,17 @@
-severity: ''
-resolution: ''
-object_cluster: ''
-due_date: ''
-created_at: ''
-status: ''
-title: Noch mal neu
-updated_at: ''
-resolution_date: ''
-reporter: ''
-description: ''
-priority: ''
-id: 1d6d989a-fb03-4187-82ea-660a8fc7fe3a
-tags: f89046b3-8c64-4c1a-9bd8-45f52ff405ec
 assignee: f66c32e7-7fc7-4e53-8a36-8eb40e311448
+created_at: ''
 data_source: ''
+description: Beschreibung der Aufgabe
+due_date: gestern
+id: 1d6d989a-fb03-4187-82ea-660a8fc7fe3a
+object_cluster: ''
+priority: ''
+reporter: ''
+resolution: ''
+resolution_date: ''
+severity: ''
+status: ''
+tags: f89046b3-8c64-4c1a-9bd8-45f52ff405ec
+title: Noch mal neu - Weiter
 tracker: ''
+updated_at: heute

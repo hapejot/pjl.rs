@@ -2,7 +2,7 @@ use axum::{
     extract::Path,
     response::{Html, IntoResponse, Redirect},
     routing::{get, post},
-    Form, Router,
+    Form, Router, Json,
 };
 use handlebars::Handlebars;
 use serde::{Deserialize, Serialize};
@@ -289,6 +289,46 @@ async fn list_records(Path(entity): Path<String>, state: Arc<AppState>) -> impl 
     Html(body)
 }
 
+// --- REST API HANDLERS ---
+
+#[instrument(skip(state))]
+async fn api_list_records(Path(entity): Path<String>, state: Arc<AppState>) -> impl IntoResponse {
+    info!(entity = %entity, "API: Listing records");
+    let model = if let Some(m) = state.get_entity_model(&entity) {
+        m
+    } else {
+        return (axum::http::StatusCode::NOT_FOUND, Json(json!({"error": "Entity not found"})));
+    };
+    let data_dir = format!("data/{}", entity);
+    let mut records = Vec::new();
+    if let Ok(entries) = fs::read_dir(&data_dir) {
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if path.extension().and_then(|s| s.to_str()) == Some("yaml") {
+                if let Ok(content) = fs::read_to_string(&path) {
+                    if let Ok(record) = serde_yaml::from_str::<serde_yaml::Value>(&content) {
+                        // Convert YAML value to JSON value for API response
+                        let json_record = serde_json::to_value(record).unwrap_or_default();
+                        records.push(json_record);
+                    }
+                }
+            }
+        }
+    }
+    (axum::http::StatusCode::OK, Json(json!(records)))
+}
+
+#[instrument(skip(state))]
+async fn api_get_record(Path((entity, id)): Path<(String, String)>, state: Arc<AppState>) -> impl IntoResponse {
+    info!(entity = %entity, id = %id, "API: Get record");
+    let record = state.get_record(&entity, &id);
+    if record.is_null() {
+        (axum::http::StatusCode::NOT_FOUND, Json(json!({"error": "Record not found"})))
+    } else {
+        (axum::http::StatusCode::OK, Json(record))
+    }
+}
+
 #[instrument]
 fn load_entities() -> HashMap<String, EntityModel> {
     info!("Loading entity models");
@@ -358,6 +398,40 @@ fn update_relation_options(
     info!(relation_options = ?relation_options, "Updated relation options");
 }
 
+#[instrument(skip(state, payload))]
+async fn api_upsert_record(
+    Path(entity): Path<String>,
+    Json(payload): Json<serde_json::Value>,
+    state: Arc<AppState>,
+) -> impl IntoResponse {
+    info!(entity = %entity, payload = ?payload, "API: Upsert record");
+    // Extract or generate ID
+    let id = payload.get("id")
+        .and_then(|v| v.as_str())
+        .map(|s| s.to_string())
+        .unwrap_or_else(|| Uuid::new_v4().to_string());
+    // Write to YAML file
+    let yaml = match serde_yaml::to_string(&payload) {
+        Ok(y) => y,
+        Err(e) => return (axum::http::StatusCode::BAD_REQUEST, Json(json!({"error": format!("YAML serialization error: {}", e)}))),
+    };
+    let data_dir = format!("data/{}", entity);
+    if let Err(e) = create_dir_all(&data_dir) {
+        return (axum::http::StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error": format!("Failed to create data dir: {}", e)})));
+    }
+    let file_path = format!("{}/{}-{}.yaml", data_dir, entity, id);
+    if let Err(e) = std::fs::write(&file_path, yaml) {
+        return (axum::http::StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error": format!("Failed to write file: {}", e)})));
+    }
+    (axum::http::StatusCode::OK, Json(json!({"id": id})))
+}
+
+#[instrument(skip(state))]
+async fn api_list_entities(state: Arc<AppState>) -> impl IntoResponse {
+    let entities: Vec<String> = state.entities.keys().cloned().collect();
+    (axum::http::StatusCode::OK, Json(entities))
+}
+
 #[tokio::main]
 async fn main() {
     tracing_subscriber::fmt::init();
@@ -405,6 +479,34 @@ async fn main() {
             get({
                 let state = state.clone();
                 move |path| change_entity(path, state)
+            }),
+        )
+        .route(
+            "/api/{entity}",
+            get({
+                let state = state.clone();
+                move |path| api_list_records(path, state)
+            }),
+        )
+        .route(
+            "/api/{entity}/{id}",
+            get({
+                let state = state.clone();
+                move |path| api_get_record(path, state)
+            }),
+        )
+        .route(
+            "/api/{entity}",
+            post({
+                let state = state.clone();
+                move |path, payload| api_upsert_record(path, payload, state)
+            }),
+        )
+        .route(
+            "/api/entities",
+            get({
+                let state = state.clone();
+                move || api_list_entities(state)
             }),
         );
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
