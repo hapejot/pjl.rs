@@ -1,0 +1,9 @@
+[package]
+name = "pjl-terminal-tools"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+crossterm = "0.29.0"
+pjl-tab = { version = "0.1.0", path = "../pjl-tab" }
+serde_json = "1.0.140"

@@ -1,0 +1,22 @@
+entity: ObjectCluster
+purpose: Represents a logical grouping of related data objects that may be associated with one or more issues.
+title_attribute: name
+attributes:
+  - name: id
+    type: uuid
+    description: Unique identifier for the object cluster.
+  - name: name
+    type: String
+    description: Human-readable name for the object cluster.
+  - name: description
+    type: String
+    description: Description of the object cluster and its purpose.
+relations:
+  - name: objects
+    type: DataObject
+    cardinality: one-to-many
+    description: Data objects that belong to this cluster, representing the entities or items grouped together.
+  - name: issues
+    type: Issue
+    cardinality: one-to-many
+    description: Issues associated with this object cluster.

@@ -1,0 +1,15 @@
+entity: Tracker
+purpose: Manages a collection of Issue entities, providing methods to add, update, and retrieve issues.
+title_attribute: version
+attributes:
+  - name: id
+    type: uuid
+    description: Unique identifier for the tracker, even though its just one.
+  - name: version
+    type: String
+    description: Version of the tracker system.    
+relations:
+  - name: issues
+    type: Issue
+    cardinality: one-to-many
+    description: The tracker manages multiple issues.

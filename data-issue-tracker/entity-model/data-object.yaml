@@ -1,0 +1,22 @@
+entity: DataObject
+purpose: Represents an individual data entity or item that is part of an ObjectCluster.
+title_attribute: name
+attributes:
+  - name: id
+    type: uuid
+    description: Unique identifier for the data object.
+  - name: name
+    type: String
+    description: Name of the data object.
+  - name: type
+    type: String
+    description: Type or category of the data object.
+relations:
+  - name: object_cluster
+    type: ObjectCluster
+    cardinality: many-to-one
+    description: The object cluster to which this data object belongs.
+  - name: data_source
+    type: DataSource
+    cardinality: many-to-one
+    description: The data source from which this data object originates.

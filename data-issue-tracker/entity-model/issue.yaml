@@ -1,0 +1,71 @@
+entity: Issue
+purpose: Represents a single data issue or inconsistency tracked by the system.
+title_attribute: title
+attributes:
+  - name: id
+    type: uuid
+    description: Unique identifier for the issue.
+  - name: title
+    type: String
+    description: Short summary of the issue.
+  - name: description
+    type: String
+    description: Detailed explanation of the issue.
+  - name: status
+    type: String
+    description: Current status of the issue (e.g., open, closed, in progress).
+  - name: created_at
+    type: DateTime
+    description: Timestamp when the issue was created.
+  - name: updated_at
+    type: DateTime
+    description: Timestamp when the issue was last updated.
+  - name: due_date
+    type: DateTime
+    description: Deadline for resolving the issue.
+  - name: resolution
+    type: String
+    description: Description of how the issue was resolved, if applicable.
+  - name: resolution_date
+    type: DateTime
+    description: Timestamp when the issue was resolved, if applicable.
+  - name: severity
+    type: String
+    description: Severity level of the issue (e.g., critical, major, minor).
+relations: 
+  - name: tracker
+    type: Tracker
+    cardinality: many-to-one
+    description: The tracker that manages this issue.
+  - name: comments
+    type: Comment
+    cardinality: one-to-many
+    description: Comments associated with the issue for discussion and updates.
+  - name: assignee
+    type: User
+    cardinality: many-to-one
+    description: User assigned to resolve the issue.
+  - name: reporter
+    type: User
+    cardinality: many-to-one
+    description: User who reported the issue.
+  - name: tags
+    type: Tag
+    cardinality: many-to-many
+    description: Tags associated with the issue for categorization.
+  - name: attachments
+    type: Attachment
+    cardinality: one-to-many
+    description: Files or documents attached to the issue for reference.
+  - name: priority
+    type: Priority
+    cardinality: many-to-one
+    description: Priority level of the issue (e.g., low, medium, high).
+  - name: object_cluster
+    type: ObjectCluster
+    cardinality: many-to-one
+    description: The object cluster associated with the issue, if applicable.
+  - name: data_source
+    type: DataSource
+    cardinality: many-to-one
+    description: The data source related to the issue, if applicable.

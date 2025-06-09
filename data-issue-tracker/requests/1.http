@@ -1,0 +1,16 @@
+POST http://nuc:3000/edit/User
+Content-Type: application/x-www-form-urlencoded
+
+id=6821019e-4f3b-4b55-b74d-74a82edd0e82
+&username=gast
+&email=ab@c.de
+&display_name=Gast
+&created_at=
+&reported_issues=1d6d989a-fb03-4187-82ea-660a8fc7fe3a
+&reported_issues=43830ed1-1f51-48b7-ba09-58dafaa96c3d
+&reported_issues=5df589c7-c7b2-482e-951d-9d781497b9e5
+
+
+###
+
+http://nuc:3000/edit/User/6821019e-4f3b-4b55-b74d-74a82edd0e82

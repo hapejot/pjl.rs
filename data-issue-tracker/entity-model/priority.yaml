@@ -1,0 +1,18 @@
+entity: Priority
+purpose: Represents the priority level of an issue.
+title_attribute: level
+attributes:
+  - name: id
+    type: uuid
+    description: Unique identifier for the priority level.
+  - name: level
+    type: String
+    description: Priority level (e.g., low, medium, high).
+  - name: description
+    type: String
+    description: Description of the priority level.
+relations:
+  - name: issues
+    type: Issue
+    cardinality: one-to-many
+    description: Issues assigned this priority level.
