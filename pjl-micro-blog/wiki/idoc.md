@@ -1,0 +1,205 @@
+## Tabellen
+
+CMFK - Kopftabelle des Protokolls
+
+CMFP - Meldungstabelle des Protokolls
+
+EDPP1 - Partnervereinbarung
+
+## Tools
+
+FB WFMC_MESSAGE_SINGLE
+
+Class CL_IDOC_XML1
+
+Programm RCOD_DOWNLOAD_IDOC_AS_XML
+
+### Transaktionen
+
+-   BD87 - Status der Verarbeitung / Cockpit
+-   WE20 -
+-   WENOLINKS
+-   WLF_IDOC
+
+## Partner
+
+### Partnervereinbarung
+
+## Nachrichtentyp
+
+## Verbindung (GOS) {#verbindung_gos}
+
+```{=mediawiki}
+{{SAPHINWEIS|317864}}
+```
+## Workflow (\< 4.6) {#workflow_4.6}
+
+Bei der Verarbeitung von eingehenden IDocs werden im Standard sog.
+Workitems erzeugt. Dies sind Elemente des SAP Workflows, die man bei der
+Datenmigration i.a. nicht benötigt. Wie man --- und mit welchen Folgen
+--- die Erzeugung von Workitems unterdrücken kann, finden Sie im
+`{{SAPHINWEIS|149368}}`{=mediawiki} beschrieben.
+
+Nach wie vor scheint es aber wichtig zu sein, dass die
+Workflow-Container korrekt definiert sind, wenn sie denn definiert
+werden.
+
+## Nachrichtenfindung
+
+### Die Ausgangsverarbeitung unter Nachrichtensteuerung (NAST) {#die_ausgangsverarbeitung_unter_nachrichtensteuerung_nast}
+
+Im Vertrieb (SD) und in der Materialwirtschaft (MM) werden Nachrichten
+(beispielsweise eine Bestellung beim Lieferanten) üblicherweise über das
+Modul der Nachrichtensteuerung (NAST) gefunden und verarbeitet. Im Fall
+der IDoc-Verarbeitung heißt das, dass die Anwendungsdaten in IDocs
+geschrieben werden.
+
+**Voraussetzungen**
+
+Wie bei jeder IDoc-Verarbeitung müssen Sie Ihre Partner vereinbaren.
+Speziell müssen Sie in den Partnervereinbarungen die Anwendung und die
+NAST-Nachrichtenart eindeutig einem IDoc-Typ zuordnen. Dies tun Sie mit
+den zusätzlichen Parametern beim Ausgang unter NAST.
+
+**Aktivitäten**
+
+Die NAST findet eine oder mehrere Nachrichten, indem sie aus einer Menge
+an vordefinierten Nachrichten die zum jeweiligen Geschäftsprozess
+passende(n) heraussucht. Die Nachrichten sind in der Anwendung in
+sogenannten Konditionstabellen definiert. Die gefundenen Nachrichten
+werden von der NAST vorgeschlagen: Das können durchaus mehrere pro Beleg
+sein. In vielen Anwendungen können Sie die Nachrichten einsehen und
+verändern (bearbeiten), bevor Sie die Daten freigeben, den Beleg buchen
+und die Nachrichten als IDocs versenden.
+
+Im vorliegenden Fall (Nachrichtenverarbeitung durch IDoc-Versand) wird
+bei gefundenen Nachrichten zusätzlich geprüft, ob der Nachrichtenpartner
+als Partner in der IDoc-Schnittstelle verarbeitet wurde. Nur wenn das
+der Fall ist, wird die Nachricht vorgeschlagen und kann
+weiterverarbeitet werden. Viele Anwendungen stellen die Findungsanalyse
+bereit, anhand derer man die Nachrichtenfindung zurückverfolgen und
+eventuelle Fehler aufspüren kann.
+
+Die NAST kann die Nachrichten sofort (nach Verbuchung des
+Anwendungsbeleges) verarbeiten. Sie können die gefundenen Nachrichten
+aber auch manuell oder zu einem selbst gewählten Zeitpunkt im
+Hintergrund verarbeiten lassen. Da auch die IDoc-Schnittstelle die Wahl
+eines Zeitpunktes zur IDoc-Erzeugung ermöglicht, sollten diese beiden
+Zeitpunkte sinnvoll kombiniert werden. Im Unterabschnitt Vorgehen werden
+solche Kombinationen vorgestellt.
+
+**Beispiel**
+
+Im Einkauf soll eine Bestellung an den Lieferanten 1014 angelegt werden.
+Die Bestellung soll sofort nach Verbuchung als IDoc vom Typ ORDERS01
+über ein EDI-Subsystem versandt werden. Dazu wird in den
+Einkaufsstammdaten die Nachrichtenart NEU für 1014 vereinbart und der
+NAST-Versandzeitpunkt \"4\" (Ausgabe sofort mit Verbuchung) und das
+Sendemedium EDI festgelegt. In den Partnervereinbarungen der
+IDoc-Schnittstelle wird für 1014 der Ausgabemodus IDoc sofort übergeben
+und Subsystem sofort starten eingetragen und der Kombination Anwendung:
+Einkauf Bestellung, Nachrichtenart: NEU die logische Nachricht ORDERS
+zugeordnet. Dieser logischen Nachricht ist wiederum der IDoc-Typ
+ORDERS01 zugeordnet.
+
+### Ausgangsverarbeitung unter NAST: Technische Realisierung {#ausgangsverarbeitung_unter_nast_technische_realisierung}
+
+**Verwendung**
+
+Eine detaillierte Beschreibung der Nachrichtensteuerung finden Sie in
+der SAP Bibliothek unter übergreifende Komponenten
+fldinst\>/fldinst\>.IWB_EXTHLP\"\> Allgemeine Anwendungsfunktionen
+Nachrichtensteuerung\"\--\> Anfang des Navigationspfads . Ende des
+Navigationspfads
+
+Nachrichtenfindung: Die Bedingungen, unter denen eine Nachricht gefunden
+werden soll, sind in Konditionstabellen abgelegt. Diese Tabellen werden
+in einer Zugriffsfolge gelesen. In den Konditionstabellen finden sich
+auch die Schlüsselfelder der Anwendung, d.h. die Felder, mit denen die
+Anwendung auf die Konditionssätze zugreift (z.B. die Anwendungsfelder
+\"Einkaufsorganisation\" und \"Lieferant\" im Einkauf). Die
+Konditionstabellen werden einer Nachrichtenart zugeordnet (z.B. \"NEU\"
+für eine Bestellung aus dem Einkauf). Die Nachrichtenarten wiederum sind
+in Schemata zusammengefasst, die schließlich der Anwendung (Schlüssel
+z.B. \"EF\" für \"Einkauf Bestellung\") zugeordnet sind.
+
+Diese Organisationsstruktur ermöglicht, daß die Nachrichtenfindung
+strukturiert und unter komplexen Bedingungen verlaufen kann.
+Nachrichtenarten und -tabellen, Zugriffsfolgen und Schemata werden im
+Customizing der jeweiligen Anwendung vorab definiert.
+
+**Hinweis**
+
+Die Nachrichtenart wird manchmal auch als Konditionsart bezeichnet.
+
+Nachrichtenverarbeitung durch IDoc-Versand: Das zentrale
+Selektionsprogramm der Nachrichtensteuerung, RSNAST00, findet in der
+Tabelle TNAPR für die gewählte Nachrichtenart die Formroutine
+EDI_PROCESSING im Programm RSNASTED und stößt sie an. EDI_PROCESSING
+liest die Partnervereinbarungen und bestimmt über den Vorgangscode den
+Funktionsbaustein, der das IDoc erzeugen soll. Der Vorgangscode
+entscheidet außerdem über die Art der Weiterverarbeitung, beispielsweise
+ob die IDocs durch den ALE-Dienst bearbeitet werden sollen.
+
+Die Funktionsbausteine zur IDoc-Erzeugung heißen typischerweise
+IDOC_OUTPUT\_`<NT>`{=html}, wobei `<NT>`{=html} für den zugehörigen
+Nachrichtentyp steht. Die erzeugten IDocs werden abhängig vom
+Ausgabemodus entweder gesammelt oder sofort zum Versand weitergeleitet.
+Wenn die IDocs gesammelt werden, muss der Report RSEOUT00 eingeplant
+werden, der dann die Weiterleitung zum Versand übernimmt.
+
+### Dispatch time {#dispatch_time}
+
+**Use**
+
+You can process a message immediately by updating the application
+document or you can process it at a later time. For later processing you
+must use the report program RSNAST00 or a corresponding application
+function.
+
+Technical information
+
+The individual possibilites are:
+
+-   Time 1: The message is processed through report program RSNAST00.
+    This report program can be scheduled periodically or started
+    manually.
+-   Time 2: As in time 1, but the message contains an earliest
+    processing date and a requested processing time. The message is
+    ignored by report program RSNAST00 before the requested date.
+-   Time 3: The message is selected and processed by application
+    specific programs. Processing can take place online or in the
+    background.
+-   Time 4: The message is processed when the application document is
+    saved. No further processing of the message is necessary.
+
+### Notwendige Schritte zur Konfiguration {#notwendige_schritte_zur_konfiguration}
+
+1.  Sicherstellen, dass ein entsprechendes logisches System existiert
+    über die Transkation BD54.
+2.  Es muss auch ein entsprechender Port existieren. Diese wird mit der
+    Transaktion WE21 gepflegt.
+3.  Festlegen einer entsprechenden Partnervereinbarung mit der
+    Transaktion WE20. Hier muss der Nachrichtentyp LOISTD und der
+    Basistype LOISTD01 gewählt werden. Man hat hier auch noch die Wahl
+    zwischen
+    1.  IDoc sofort übergeben, was zur folge hat, dass ggf. sehr viele
+        einzelne IDocs übertragen werden müssen und daher der
+        Transaktions-Zähler zur CPI sehr schnell hochläuft
+    2.  IDocs sammeln ist die andere Alternative, hier werden IDocs bis
+        zu einer Menge, die in der Paketgröße angegeben sind gesammelt
+        und in einem Aufruf versandt. HIerzu muss das empfangende System
+        in der Lage sein, nicht nur die IDoc Struktur zu verstehen,
+        sondern auch noch die verschiedenen Segmente dem richtigen
+        Dokument zuzuordnen. Die so erzeugten IDocs werden nicht sofort
+        auf den Weg geschickt, sondern müssen über das Programm RSEOUT00
+        in den Transport gegeben werden. Dieses Programm kann
+        beispielsweise den Port als Filterkriterium erhalten und so
+        gezielt alle IDocs die zur CPI übertragen werden können in einem
+        Schwung zu übertragen.
+4.  Sicherstellen, dass die Kombination des
+    Senders/Empfängers/IDoc-Typen in einem Verteilungsmodell gepflegt
+    ist. Hierzu dient die Transaktion BD64. Es kann hier eine eigene
+    Modellsicht angelegt werden, wichtig ist nur, dass die o.g.
+    Kombination existiert. Ohne diese wird die Transaktion AMRP keine
+    IDocs generieren.

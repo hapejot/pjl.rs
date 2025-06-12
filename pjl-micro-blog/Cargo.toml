@@ -1,0 +1,19 @@
+[package]
+name = "pjl-micro-blog"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "*", features = ["full"] }
+axum = "*"
+uuid = { version = "*", features = ["v4"] }
+handlebars = { version = "6.3.0", features = ["dir_source"] }
+serde = { version = "1.0.217", features = ["derive"] }
+postgres = "0.19.10"
+tokio-postgres = "0.7.13"
+clap = { version = "4.5.28", features = ["derive"] }
+tracing-subscriber = "0.3.19"
+tracing = "0.1.41"
+tower-http = { version = "0.6.2", features = ["auth", "fs", "trace"] }
+axum-login = "0.17.0"
+async-trait = "0.1.86"
