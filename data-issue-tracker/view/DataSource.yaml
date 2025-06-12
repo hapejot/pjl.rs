@@ -1,0 +1,8 @@
+title: List of DataSource
+fields:
+- label: name
+  name: name
+- name: type
+  label: type
+- label: description
+  name: description

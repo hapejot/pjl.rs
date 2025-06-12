@@ -5,8 +5,9 @@ use axum::{
     routing::{get, post},
     Form, Json, Router,
 };
+use data_issue_tracker::{EntityModel, EntityMap, RelationOptions, SelectionEntry};
+use data_issue_tracker::load_entity_models;
 use handlebars::Handlebars;
-use serde::{Deserialize, Serialize};
 use serde_json::json;
 use serde_yaml;
 use std::fs::create_dir_all;
@@ -16,46 +17,10 @@ use tower_http::services::ServeDir;
 use tracing::{info, instrument};
 use uuid::Uuid;
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct Attribute {
-    pub name: String,
-    #[serde(rename = "type")]
-    pub type_name: String,
-    pub description: String,
-}
-
-#[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct Relation {
-    pub name: String,
-    #[serde(rename = "type")]
-    pub type_name: String,
-    pub cardinality: String,
-    pub description: String,
-}
-
-#[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct EntityModel {
-    pub entity: String,
-    pub purpose: String,
-    pub title_attribute: String,
-    pub attributes: Option<Vec<Attribute>>,
-    pub relations: Option<Vec<Relation>>,
-}
-
-type EntityMap = Arc<HashMap<String, EntityModel>>;
-type RelationOptions = HashMap<String, Vec<SelectionEntry>>;
-
 #[derive(Debug)]
 struct AppState {
     hb: Arc<Handlebars<'static>>,
     entities: EntityMap,
-}
-
-#[derive(Debug, Clone, Deserialize, Serialize)]
-struct SelectionEntry {
-    pub id: String,
-    pub label: String,
-    pub status: String,
 }
 
 impl AppState {
@@ -221,49 +186,17 @@ async fn save_entity(
 
 #[instrument(skip(state))]
 async fn list_records(Path(entity): Path<String>, state: Arc<AppState>) -> impl IntoResponse {
-    // info!(entity = %entity, "Listing records");
-    // let model = if let Some(m) = state.get_entity_model(&entity) {
-    //     m
-    // } else {
-    //     return Html("Entity not found".to_string());
-    // };
-    // let data_dir = format!("data/{}", entity);
-    // let mut records = Vec::new();
-    // if let Ok(entries) = fs::read_dir(&data_dir) {
-    //     for entry in entries.flatten() {
-    //         let path = entry.path();
-    //         if path.extension().and_then(|s| s.to_str()) == Some("yaml") {
-    //             if let Ok(content) = fs::read_to_string(&path) {
-    //                 if let Ok(record) = serde_yaml::from_str::<serde_yaml::Value>(&content) {
-    //                     records.push(record);
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
-    // info!("Found {} records for entity {}", records.len(), entity);
     let ctx = serde_json::Map::new();
-    // ctx.insert(
-    //     "entity".to_string(),
-    //     serde_json::Value::String(entity.clone()),
-    // );
-    // ctx.insert(
-    //     "attributes".to_string(),
-    //     serde_json::to_value(&model.attributes).unwrap_or_default(),
-    // );
-    // let records = serde_json::to_value(records).unwrap_or_default();
-    // info!("records: {:?}", records);
-    // ctx.insert("records".to_string(), records);
     let body = state.handlebars().render("records", &ctx).unwrap();
     Html(body)
 }
 
 // --- REST API HANDLERS ---
 
-#[instrument(skip(state))]
+#[instrument]
 async fn api_list_records(Path(entity): Path<String>, state: Arc<AppState>) -> impl IntoResponse {
     info!(entity = %entity, "API: Listing records");
-    let model = if let Some(m) = state.get_entity_model(&entity) {
+    let _model = if let Some(m) = state.get_entity_model(&entity) {
         m
     } else {
         return (
@@ -322,26 +255,6 @@ async fn api_get_entity_model(
         .into_response()
 }
 
-#[instrument]
-fn load_entities() -> HashMap<String, EntityModel> {
-    info!("Loading entity models");
-    let mut map = HashMap::new();
-    let dir = "entity-model";
-    if let Ok(entries) = fs::read_dir(dir) {
-        for entry in entries.flatten() {
-            let path = entry.path();
-            if path.extension().and_then(|s| s.to_str()) == Some("yaml") {
-                if let Ok(content) = fs::read_to_string(&path) {
-                    if let Ok(model) = serde_yaml::from_str::<EntityModel>(&content) {
-                        map.insert(model.entity.clone(), model);
-                    }
-                }
-            }
-        }
-    }
-    map
-}
-
 #[instrument(skip(state))]
 async fn change_entity(
     Path((entity, id)): Path<(String, String)>,
@@ -391,21 +304,28 @@ fn update_relation_options(
     info!(relation_options = ?relation_options, "Updated relation options");
 }
 
-#[instrument(skip(state, payload))]
-async fn api_upsert_record(
+#[instrument(skip(state, record))]
+async fn api_save_record(
     Path(entity): Path<String>,
-    Json(payload): Json<serde_json::Value>,
+    Json(mut record): Json<serde_json::Value>,
     state: Arc<AppState>,
 ) -> impl IntoResponse {
-    info!(entity = %entity, payload = ?payload, "API: Upsert record");
+    let _ = state;
+    info!(entity = %entity, payload = ?record, "API: Upsert record");
     // Extract or generate ID
-    let id = payload
+    let mut id = record
         .get("id")
         .and_then(|v| v.as_str())
         .map(|s| s.to_string())
         .unwrap_or_else(|| Uuid::new_v4().to_string());
+    if id.is_empty() {
+        id = Uuid::new_v4().to_string();
+    }
+
+    let r = record.as_object_mut().unwrap();
+    r.insert("id".to_string(), serde_json::Value::String(id.clone()));
     // Write to YAML file
-    let yaml = match serde_yaml::to_string(&payload) {
+    let yaml = match serde_yaml::to_string(&record) {
         Ok(y) => y,
         Err(e) => {
             return (
@@ -497,7 +417,7 @@ async fn main() {
         .expect("Failed to load edit.hbs");
     hb.register_template_file("records", std::path::Path::new("templates/records.hbs"))
         .expect("Failed to load records.hbs");
-    let entities = Arc::new(load_entities());
+    let entities = Arc::new(load_entity_models());
     let hb = Arc::new(hb);
     let state = Arc::new(AppState { hb, entities });
     let app = Router::new()
@@ -561,7 +481,7 @@ async fn main() {
             "/api/{entity}",
             post({
                 let state = state.clone();
-                move |path, payload| api_upsert_record(path, payload, state)
+                move |path, payload| api_save_record(path, payload, state)
             }),
         )
         .route(

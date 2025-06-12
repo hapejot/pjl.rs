@@ -1,0 +1,9 @@
+title: Edit DataSource
+fields:
+- label: id
+- name: name
+- name: type
+- name: description
+relations:
+- name: issues
+  

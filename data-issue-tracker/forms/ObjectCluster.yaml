@@ -1,0 +1,8 @@
+title: Edit ObjectCluster
+fields:
+- name: id
+- name: name
+- name: description
+relations:
+- name: objects
+- name: issues

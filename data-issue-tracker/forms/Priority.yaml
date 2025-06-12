@@ -1,0 +1,16 @@
+title: Edit Priority
+fields:
+- name: id
+  label: id
+  type: uuid
+- type: String
+  name: level
+  label: level
+- label: description
+  type: String
+  name: description
+relations:
+- type: Issue
+  cardinality: one-to-many
+  name: issues
+  label: issues

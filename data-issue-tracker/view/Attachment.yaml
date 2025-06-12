@@ -1,0 +1,10 @@
+title: List of Attachment
+fields:
+- name: id
+  label: id
+- name: filename
+  label: filename
+- name: url
+  label: url
+- name: uploaded_at
+  label: uploaded_at

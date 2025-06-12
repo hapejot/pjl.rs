@@ -3,8 +3,6 @@ id: issue-list
 entity: Issue
 title: Issue List
 fields:
-  - name: id
-    label: ID
   - name: title
     label: Title
   - name: status

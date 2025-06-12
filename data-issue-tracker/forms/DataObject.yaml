@@ -1,0 +1,9 @@
+title: Edit DataObject
+fields:
+- name: id
+- name: name
+- name: type
+  relations:
+- name: object_cluster
+- name: data_source
+  
