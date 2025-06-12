@@ -1,0 +1,19 @@
+title: Edit Attachment
+fields:
+- name: id
+  type: uuid
+  label: id
+- type: String
+  name: filename
+  label: filename
+- type: String
+  name: url
+  label: url
+- label: uploaded_at
+  name: uploaded_at
+  type: DateTime
+relations:
+- label: issue
+  name: issue
+  type: Issue
+  cardinality: many-to-one

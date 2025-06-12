@@ -1,0 +1,8 @@
+title: List of Comment
+fields:
+- name: id
+  label: id
+- name: content
+  label: content
+- name: created_at
+  label: created_at

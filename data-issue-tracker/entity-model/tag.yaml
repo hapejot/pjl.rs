@@ -1,0 +1,15 @@
+entity: Tag
+purpose: Represents a label or keyword used to categorize issues.
+title_attribute: name
+attributes:
+  - name: id
+    type: uuid
+    description: Unique identifier for the tag.
+  - name: name
+    type: String
+    description: Name of the tag.
+relations:
+  - name: issues
+    type: Issue
+    cardinality: many-to-many
+    description: Issues associated with this tag.

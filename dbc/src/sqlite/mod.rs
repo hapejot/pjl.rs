@@ -1,6 +1,6 @@
 use crate::model::*;
 use std::fmt::Write;
-use rusqlite::{params, Connection};
+use rusqlite::Connection;
 
 
 
@@ -72,14 +72,14 @@ pub fn sql_check<R>(r: Result<R, rusqlite::Error>) -> Result<R, String> {
     match r {
         Ok(x) => Ok(x),
         Err(e) => match e {
-            rusqlite::Error::SqliteFailure(error, _) => todo!(),
+            rusqlite::Error::SqliteFailure(_error, _) => todo!(),
             rusqlite::Error::SqliteSingleThreadedMode => todo!(),
-            rusqlite::Error::FromSqlConversionFailure(_, _, error) => todo!(),
+            rusqlite::Error::FromSqlConversionFailure(_, _, _error) => todo!(),
             rusqlite::Error::IntegralValueOutOfRange(_, _) => todo!(),
-            rusqlite::Error::Utf8Error(utf8_error) => todo!(),
-            rusqlite::Error::NulError(nul_error) => todo!(),
+            rusqlite::Error::Utf8Error(_utf8_error) => todo!(),
+            rusqlite::Error::NulError(_nul_error) => todo!(),
             rusqlite::Error::InvalidParameterName(_) => todo!(),
-            rusqlite::Error::InvalidPath(path_buf) => todo!(),
+            rusqlite::Error::InvalidPath(_path_buf) => todo!(),
             rusqlite::Error::ExecuteReturnedResults => todo!(),
             rusqlite::Error::QueryReturnedNoRows => todo!(),
             rusqlite::Error::InvalidColumnIndex(_) => todo!(),
@@ -88,8 +88,8 @@ pub fn sql_check<R>(r: Result<R, rusqlite::Error>) -> Result<R, String> {
             rusqlite::Error::StatementChangedRows(_) => todo!(),
             rusqlite::Error::InvalidFunctionParameterType(_, _) => todo!(),
             rusqlite::Error::InvalidFilterParameterType(_, _) => todo!(),
-            rusqlite::Error::UserFunctionError(error) => todo!(),
-            rusqlite::Error::ToSqlConversionFailure(error) => todo!(),
+            rusqlite::Error::UserFunctionError(_error) => todo!(),
+            rusqlite::Error::ToSqlConversionFailure(_error) => todo!(),
             rusqlite::Error::InvalidQuery => todo!(),
             rusqlite::Error::ModuleError(_) => todo!(),
             rusqlite::Error::UnwindingPanic => todo!(),

@@ -1,12 +1,17 @@
-use std::collections::{BTreeMap, HashMap};
+use std::{
+    collections::{BTreeMap, HashMap},
+    fmt::Display,
+};
 
-use edm::value::Value;
+use edm::{number::Number, primitive::PrimitiveValue, value::Value};
 use serde::Serialize;
 mod parser {
     use santiago::grammar::Grammar;
     use santiago::lexer::LexerRules;
     use serde::Serialize;
     use tracing::trace;
+
+    use crate::ConditionValue;
 
     use super::{Condition, ConditionBag};
 
@@ -16,18 +21,22 @@ mod parser {
         Eq,
         Str(String),
         Int(i64),
+        Bool(bool),
+        Null,
         Term(Vec<AST>),
         Operator(String),
     }
     impl AST {
-        pub(crate) fn to_string(&self) -> String {
+        pub(crate) fn to_string(&self) -> ConditionValue {
             match self {
-                AST::Name(n) => n.clone(),
-                AST::Eq => String::from("="),
-                AST::Str(x) => x.clone(),
-                AST::Int(x) => x.to_string(),
+                AST::Name(n) => n.into(),
+                AST::Eq => "=".into(),
+                AST::Str(x) => x.into(),
+                AST::Int(x) => x.into(),
                 AST::Term(_) => todo!(),
-                AST::Operator(op) => op.clone(),
+                AST::Operator(op) => op.into(),
+                AST::Bool(b) => b.into(),
+                AST::Null => None.into(),
             }
         }
     }
@@ -42,16 +51,21 @@ mod parser {
     pub fn grammar() -> Grammar<AST> {
         santiago::grammar!(
             "expr" => rules "name" "eq" "expr" => AST::Term;
+            "expr" => rules "name" "ne" "expr" => AST::Term;
             "expr" => rules "name" "ge" "expr" => AST::Term;
             "expr" => rules "expr" "and" "expr" => AST::Term;
             "expr" => rules "expr" "or" "expr" => AST::Term;
             "expr" => lexemes "INT" => |x| AST::Int(x[0].raw.parse::<i64>().unwrap());
+            "expr" => lexemes "TRUE" => |_| AST::Bool(true);
+            "expr" => lexemes "FALSE" => |_| AST::Bool(false);
+            "expr" => lexemes "NULL" => |_| AST::Null;
             "expr" => lexemes "STR" => |x| {let value= x[0].raw.clone(); AST::Str(strip_first_and_last(value.as_str()).to_string())};
             "name" => lexemes "NAME"  => |x| AST::Name(x[0].raw.clone());
             "eq" => lexemes "EQ" => |_| AST::Eq;
             "ge" => lexemes "GE" => |x| AST::Operator(x[0].raw.clone());
             "and" => lexemes "AND" => |x| AST::Operator(x[0].raw.clone());
             "or" => lexemes "OR" => |x| AST::Operator(x[0].raw.clone());
+            "ne" => lexemes "NE" => |x| AST::Operator(x[0].raw.clone());
         )
     }
     pub fn lexer_rules() -> LexerRules {
@@ -60,9 +74,14 @@ mod parser {
             "DEFAULT" | "INT" = pattern r"-?[0-9]+";
             "DEFAULT" | "STR" = pattern r"'[^']*'";
             "DEFAULT" | "EQ" = string "eq";
+            "DEFAULT" | "NE" = string "ne";
             "DEFAULT" | "GE" = string "ge";
             "DEFAULT" | "AND" = string "and";
             "DEFAULT" | "OR" = string "or";
+            "DEFAULT" | "TRUE" = string "true";
+            "DEFAULT" | "FALSE" = string "false";
+            "DEFAULT" | "NULL" = string "null";
+            "DEFAULT" | "NOT" = string "not";
             "DEFAULT" | "NAME" = pattern r"[a-zA-Z0-9_]+";
              // A literal "+" will be mapped to "PLUS"
             // Whitespace " " will be skipped
@@ -77,6 +96,8 @@ mod parser {
             AST::Eq => todo!(),
             AST::Str(_) => todo!(),
             AST::Int(_) => todo!(),
+            AST::Bool(_) => todo!(),
+            AST::Null => todo!(),
             AST::Term(v) => match (&v[0], &v[1], &v[2]) {
                 (AST::Name(n), AST::Eq, v) => r.add(
                     n.as_str(),
@@ -85,18 +106,11 @@ mod parser {
                         value: v.to_string(),
                     },
                 ),
-                (AST::Name(n), AST::Operator(op), AST::Str(x)) => r.add(
+                (AST::Name(n), AST::Operator(op), v) => r.add(
                     n.as_str(),
                     Condition {
                         op: super::Operator::Var(op.clone()),
-                        value: x.clone(),
-                    },
-                ),
-                (AST::Name(n), AST::Operator(op), AST::Int(x)) => r.add(
-                    n.as_str(),
-                    Condition {
-                        op: super::Operator::Var(op.clone()),
-                        value: format!("{x}"),
+                        value: v.to_string(),
                     },
                 ),
                 (t1, AST::Operator(op), t2) => {
@@ -160,7 +174,7 @@ mod parser {
 pub trait DbSpecifics {
     fn start_field(&mut self, name: &str);
     fn end_field(&mut self);
-    fn add_cond(&mut self, op: &str, value: &str);
+    fn add_cond(&mut self, op: &str, value: &ConditionValue);
     fn where_clause(&self) -> String;
     fn values(&self) -> Vec<Value>;
 }
@@ -180,10 +194,101 @@ impl From<&str> for Operator {
     }
 }
 
+impl Display for Operator {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Operator::Equals => write!(f, "="),
+            Operator::Var(x) => write!(f, "{x}"),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct ConditionValue {
+    v: edm::value::Value,
+}
+impl ConditionValue {
+    pub fn value(&self) -> Value {
+        self.v.clone()
+    }
+}
+impl Display for ConditionValue {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match &self.v {
+            Value::PrimitiveValue(primitive_value) => match primitive_value {
+                PrimitiveValue::Null => write!(f, "null"),
+                PrimitiveValue::Boolean(x) => write!(f, "{x}"),
+                PrimitiveValue::Decimal(x) => write!(f, "{x}"),
+                PrimitiveValue::String(x) => write!(f, "'{x}'"),
+                PrimitiveValue::Custom { .. } => todo!(),
+            },
+            Value::StructureValue(_structure_value) => todo!(),
+            Value::ListValue(_list_value) => todo!(),
+        }
+    }
+}
+
+impl From<String> for ConditionValue {
+    fn from(value: String) -> Self {
+        ConditionValue {
+            v: Value::PrimitiveValue(PrimitiveValue::String(value)),
+        }
+    }
+}
+
+impl From<&String> for ConditionValue {
+    fn from(value: &String) -> Self {
+        ConditionValue {
+            v: Value::PrimitiveValue(PrimitiveValue::String(value.to_string())),
+        }
+    }
+}
+
+impl From<&str> for ConditionValue {
+    fn from(value: &str) -> Self {
+        ConditionValue {
+            v: Value::PrimitiveValue(PrimitiveValue::String(value.to_string())),
+        }
+    }
+}
+
+impl From<&i64> for ConditionValue {
+    fn from(value: &i64) -> Self {
+        ConditionValue {
+            v: Value::PrimitiveValue(PrimitiveValue::Decimal(Number::from(*value))),
+        }
+    }
+}
+
+impl From<Option<ConditionValue>> for ConditionValue {
+    fn from(value: Option<ConditionValue>) -> Self {
+        match value {
+            Some(_) => todo!(),
+            None => ConditionValue {
+                v: Value::PrimitiveValue(PrimitiveValue::Null),
+            },
+        }
+    }
+}
+
+impl From<&bool> for ConditionValue {
+    fn from(value: &bool) -> Self {
+        ConditionValue {
+            v: Value::PrimitiveValue(PrimitiveValue::Boolean(*value)),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct Condition {
     op: Operator,
-    value: String,
+    value: ConditionValue,
+}
+
+impl Display for Condition {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "... {} {}", self.op, self.value)
+    }
 }
 
 pub type ConditionList = Vec<Condition>;
@@ -268,7 +373,7 @@ impl ODataQuery {
             orderby: None,
         };
         for (field, v) in params {
-            r.add_condition(field, "eq", v);
+            r.add_condition(field, "eq", &v.into());
         }
         if let Some(x) = params.get("$filter") {
             r.conditions = match parser::parse_expression(x) {
@@ -297,10 +402,13 @@ impl ODataQuery {
         }
         r
     }
-    pub fn add_condition(&mut self, field: &str, operator: &str, value: &str) {
+    pub fn set_orderby(&mut self, orderby: &str) {
+        self.orderby = Some(orderby.into());
+    }
+    pub fn add_condition(&mut self, field: &str, operator: &str, value: &ConditionValue) {
         let cond = Condition {
             op: operator.into(),
-            value: value.into(),
+            value: value.clone(),
         };
         self.conditions.add(field, cond);
     }
@@ -322,7 +430,7 @@ impl ODataQuery {
             let mut field_result = vec![];
             for c in cond {
                 let s = match &c.op {
-                    Operator::Equals => format!("{} = '{}'", fld, c.value),
+                    Operator::Equals => format!("{} = {}", fld, c.value),
                     Operator::Var(v) => format!("{} {} {}", fld, map_op_to_sql(&v), c.value),
                 };
                 field_result.push(s);

@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use dbc::model::*;
 use dbc::sqlite::*;
 use rusqlite::Connection;
@@ -8,6 +10,13 @@ struct Person {
     name: String,
     data: Option<Vec<u8>>,
 }
+
+impl Display for Person {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Person {} {}", self.id, self.name)
+    }
+}
+
 
 fn main() -> Result<(), String> {
     let conn = Connection::open("demo.sqlite").map_err(|x| x.to_string())?;

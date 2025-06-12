@@ -1,0 +1,21 @@
+entity: DataSource
+purpose: Represents the origin or source of data related to an issue.
+title_attribute: name
+attributes:
+  - name: id
+    type: uuid
+    description: Unique identifier for the data source.
+  - name: name
+    type: String
+    description: Name of the data source.
+  - name: type
+    type: String
+    description: Type of the data source (e.g., database, file, API).
+  - name: description
+    type: String
+    description: Description of the data source.
+relations:
+  - name: issues
+    type: Issue
+    cardinality: one-to-many
+    description: Issues related to this data source.

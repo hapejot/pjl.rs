@@ -1,0 +1,22 @@
+entity: Comment
+purpose: Represents a comment or note added to an issue for discussion, clarification, or updates.
+title_attribute: content
+attributes:
+  - name: id
+    type: uuid
+    description: Unique identifier for the comment.
+  - name: content
+    type: String
+    description: The text content of the comment.
+  - name: created_at
+    type: DateTime
+    description: Timestamp when the comment was created.
+relations:
+  - name: issue
+    type: Issue
+    cardinality: many-to-one
+    description: The issue to which this comment belongs.
+  - name: author
+    type: User
+    cardinality: many-to-one
+    description: The user who authored the comment.

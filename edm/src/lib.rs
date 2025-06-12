@@ -6,6 +6,8 @@ pub mod primitive;
 pub mod structure;
 pub mod value;
 
+pub use csdl::Schema;
+
 pub mod csdl {
     use serde::{Deserialize, Serialize};
 
@@ -20,6 +22,54 @@ pub mod csdl {
         pub functions: Vec<Function>,
         pub usings: Vec<Using>,
         pub value_terms: Vec<ValueTerm>,
+    }
+
+    impl Schema {
+        pub fn new() -> Self {
+            let annotations = vec![];
+            let associations = vec![];
+            let complex_types = vec![];
+            let entity_containers = vec![];
+            let entity_types = vec![];
+            let enum_types = vec![];
+            let functions = vec![];
+            let usings = vec![];
+            let value_terms = vec![];
+            Self {
+                annotations,
+                associations,
+                complex_types,
+                entity_containers,
+                entity_types,
+                enum_types,
+                functions,
+                usings,
+                value_terms,
+            }
+        }
+
+        pub fn new_entity(&mut self, name: &str) {
+            let e = EntityType::new(name);
+            self.entity_types.push(e);
+        }
+
+        pub fn new_property(&mut self, entity: &str, name: &str) {
+            if let Some(e) = self.entity_types.iter_mut().find(|x| x.name == entity) {
+                e.properties.push(Property::new(name));
+            }
+        }
+
+        pub fn new_key(&mut self, entity: &str, key: &[&str]) {
+            if let Some(e) = self.get_entity(entity) {
+                e.key = Some(Key {
+                    properties: key.iter().map(|x| x.to_string()).collect(),
+                });
+            }
+        }
+
+        fn get_entity(&mut self, entity: &str) -> Option<&mut EntityType> {
+            self.entity_types.iter_mut().find(|x| x.name == entity)
+        }
     }
     #[derive(Debug, Serialize, Deserialize)]
     pub struct Annotation {}
@@ -41,6 +91,18 @@ pub mod csdl {
         pub open: bool,
         pub key: Option<Key>,
         pub properties: Vec<Property>,
+    }
+
+    impl EntityType {
+        pub fn new(name: &str) -> Self {
+            Self {
+                name: name.to_string(),
+                base: None,
+                open: true,
+                key: None,
+                properties: vec![],
+            }
+        }
     }
 
     #[derive(Debug, Serialize, Deserialize)]
@@ -72,6 +134,16 @@ pub mod csdl {
         pub ptype: String,
         pub nullable: bool,
         pub navigation: bool,
+    }
+    impl Property {
+        fn new(name: &str) -> Self {
+            Self {
+                name: name.to_string(),
+                ptype: String::from("string"),
+                nullable: true,
+                navigation: false,
+            }
+        }
     }
 }
 

@@ -1,0 +1,21 @@
+entity: Attachment
+purpose: Represents a file or document attached to an issue for reference.
+title_attribute: filename
+attributes:
+  - name: id
+    type: uuid
+    description: Unique identifier for the attachment.
+  - name: filename
+    type: String
+    description: Name of the attached file.
+  - name: url
+    type: String
+    description: Location or URL of the attachment.
+  - name: uploaded_at
+    type: DateTime
+    description: Timestamp when the attachment was uploaded.
+relations:
+  - name: issue
+    type: Issue
+    cardinality: many-to-one
+    description: The issue this attachment is associated with.

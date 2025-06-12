@@ -1,0 +1,6 @@
+title: List of Priority
+fields:
+- name: level
+  label: level
+- label: description
+  name: description

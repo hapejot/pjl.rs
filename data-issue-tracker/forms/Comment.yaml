@@ -1,0 +1,8 @@
+title: Edit Comment
+fields:
+- name: id
+- label: content
+- name: created_at
+relations:
+- name: issue
+- name: author

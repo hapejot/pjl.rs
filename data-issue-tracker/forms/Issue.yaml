@@ -1,0 +1,13 @@
+# Form definition for Issue entity
+id: issue-edit
+entity: Issue
+title: Edit Issue
+fields:
+  - name: title
+  - name: description
+  - name: status
+  - name: assignee
+  - name: due_date
+relations:
+  - name: tags
+  - name: tracker

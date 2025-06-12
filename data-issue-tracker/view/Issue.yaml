@@ -1,0 +1,13 @@
+# View definition for Issue entity
+id: issue-list
+entity: Issue
+title: Issue List
+fields:
+  - name: title
+    label: Title
+  - name: status
+    label: Status
+  - name: assignee
+    label: Assignee
+  - name: due_date
+    label: Due Date

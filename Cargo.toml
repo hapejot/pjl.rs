@@ -11,11 +11,15 @@ members = [
     "xml_derive", 
     "dbc", 
     "processing-node", 
+    "data-issue-tracker",
     "pjl-tui", 
     "pjl-todo", 
     "pjl-tab", 
     "pjl-pg", 
     "pjl-odata", 
     "pjl-error", 
-    "thumb-node", "processing-node-client", "pjl-static-strings", "pjl-file-server", "pjl-micro-blog"]
-
+    "thumb-node",
+    "processing-node-client", 
+    "pjl-static-strings", 
+    "pjl-file-server", 
+    "pjl-cache", "pjl-terminal-tools"] 

@@ -1,0 +1,13 @@
+title: Edit Tracker
+fields:
+- label: id
+  name: id
+  type: uuid
+- type: String
+  name: version
+  label: version
+relations:
+- type: Issue
+  cardinality: one-to-many
+  label: issues
+  name: issues

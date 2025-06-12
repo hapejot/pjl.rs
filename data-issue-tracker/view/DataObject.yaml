@@ -1,0 +1,8 @@
+title: List of DataObject
+fields:
+- name: id
+  label: id
+- label: name
+  name: name
+- label: type
+  name: type

@@ -1,0 +1,32 @@
+entity: User
+purpose: Represents a user who can report issues, be assigned to issues, or author comments.
+title_attribute: username
+attributes:
+  - name: id
+    type: uuid
+    description: Unique identifier for the user.
+  - name: username
+    type: String
+    description: Unique username for the user.
+  - name: email
+    type: String
+    description: Email address of the user.
+  - name: display_name
+    type: String
+    description: Full name or display name of the user.
+  - name: created_at
+    type: DateTime
+    description: Timestamp when the user account was created.
+relations:
+  - name: reported_issues
+    type: Issue
+    cardinality: one-to-many
+    description: Issues reported by this user.
+  - name: assigned_issues
+    type: Issue
+    cardinality: one-to-many
+    description: Issues assigned to this user.
+  - name: comments
+    type: Comment
+    cardinality: one-to-many
+    description: Comments authored by this user.

@@ -11,6 +11,13 @@ tokio-postgres = "0.7.12"
 tokio = { version = "1.42.0", features = ["full"] }
 tracing = "0.1.41"
 serde_yaml = { git = "https://github.com/hapejot/serde-yaml.git", version = "0.9.35" }
-postgres = "0.19.10"
+serde = { version = "1.0.218", features = ["derive"] }
+mini-moka = "0.10.3"
+clap = { version = "4.5.31", features = ["derive"] }
+chrono = "0.4.40"
+postgres-types = { version = "0.2.9", features = ["with-chrono-0_4"] }
+tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
+regex = "1.11.1"
+indexmap = { version = "2.9.0", features = ["serde"] }
 
 [dev-dependencies]

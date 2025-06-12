@@ -1,0 +1,10 @@
+# View definition for User entity
+id: user-list
+entity: User
+fields:
+  - name: username
+    label: Username
+  - name: display_name
+    label: Name
+  - name: email
+    label: Email

@@ -1,0 +1,7 @@
+<table>
+    <tr><th style="width:200mm">Title</th><th>Content</th></tr> 
+{{ #each values as | a |}}
+    <tr id="{{a.id}}"><td>{{a.title}}</td><td><a href="/edit/{{a.id}}">Edit</a></td></tr>
+{{/each }}
+</table>
+<form action="/new"><button type="submit">New</button></form>

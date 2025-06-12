@@ -1,0 +1,6 @@
+title: List of ObjectCluster
+fields:
+- label: name
+  name: name
+- name: description
+  label: description

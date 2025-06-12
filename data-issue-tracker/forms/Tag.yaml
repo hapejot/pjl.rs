@@ -1,0 +1,13 @@
+title: Edit Tag
+fields:
+- label: id
+  type: uuid
+  name: id
+- label: name
+  type: String
+  name: name
+relations:
+- label: issues
+  type: Issue
+  name: issues
+  cardinality: many-to-many

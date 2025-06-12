@@ -1,0 +1,18 @@
+# Form definition for User entity
+id: user-edit
+entity: User
+title: Edit User
+fields:
+  - name: name
+    label: Name
+  - name: email
+    label: Email
+  - name: username
+    label: Username
+  - name: display_name
+    label: Name
+relations: 
+  - name: reported_issues
+    label: Reported Issues
+  - name: assigned_issues
+    label: Assigned Issues

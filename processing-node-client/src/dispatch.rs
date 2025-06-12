@@ -1,17 +1,16 @@
+use pjl_error::AppError;
+use processing_node::{config::Config, Message, ObjectID, Value};
 use std::{
     cell::RefCell,
     collections::HashMap,
-    fs::{read_to_string, File},
+    fs::read_to_string,
     net::TcpStream,
     path::PathBuf,
 };
-use tracing::*;
-use pjl_error::AppError;
-use processing_node::{config::Config, Message, ObjectID, Value};
-use serde::{Deserialize, Serialize};
 
 use crate::sync::PacketStream;
 
+#[allow(dead_code)]
 pub struct Dispatcher {
     server: HashMap<String, Connection>,
     config: Config,
@@ -87,7 +86,7 @@ impl Connection {
             ps,
         })
     }
-
+    #[allow(dead_code)]
     fn lookup(&self, name: &str) -> Value {
         todo!()
     }

@@ -1,0 +1,9 @@
+- id: 2
+  title: Konditionen
+  description: |-
+    Die Konditionstechnik in SAP ist sehr flexibel und basiert auf einer Reihe von Steuertabellen. 
+    Was muss erklärt werden:
+    - Wie wird auf eine Kondition zugegriffen?
+    - Wie wird die Zugriffsfolge ausgewertet? Gibt es eine API?
+    - Wie wird die Selektion flexibel ausgewertet?
+    

@@ -1,8 +1,9 @@
+use std::fmt::Write;
+
 use crate::model::*;
 use bytes::BytesMut;
 use edm::{structure::StructureValue, value::Value};
 use postgres::{types::ToSql, Client};
-use std::{fmt::Write, string};
 
 pub fn sql_check<X>(r: Result<X, postgres::Error>) -> Result<X, String> {
     match r {
@@ -87,6 +88,7 @@ impl ToSql for PGValue {
     where
         Self: Sized,
     {
+        let _ = (ty,out);
         todo!()
     }
 
@@ -94,6 +96,7 @@ impl ToSql for PGValue {
     where
         Self: Sized,
     {
+        let _ = ty;
         todo!()
     }
 
@@ -128,10 +131,10 @@ impl ToSql for PGValue {
                     }
                 }
                 edm::primitive::PrimitiveValue::String(v) => v.to_sql_checked(ty, out),
-                edm::primitive::PrimitiveValue::Custom { datatype, value } => todo!(),
+                edm::primitive::PrimitiveValue::Custom { .. } => todo!(),
             },
-            Value::StructureValue(structure_value) => todo!(),
-            Value::ListValue(list_value) => todo!(),
+            Value::StructureValue(_) => todo!(),
+            Value::ListValue(_) => todo!(),
         }
     }
 }
