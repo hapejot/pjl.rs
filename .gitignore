@@ -19,3 +19,5 @@ tmp
 yaml
 *.out
 *.trace
+data-issue-tracker/webapp/dist
+node_modules

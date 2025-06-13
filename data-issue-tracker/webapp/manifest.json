@@ -1,0 +1,11 @@
+{
+	"_version": "1.60.0",
+	"sap.app": {
+		"id": "data-issue-tracker",
+		"type": "application",
+		"title": "Data Issue Tracker",
+		"applicationVersion": {
+			"version": "1.0.0"
+		}
+	}
+}

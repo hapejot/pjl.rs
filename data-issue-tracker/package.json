@@ -1,0 +1,8 @@
+{
+  "name": "data-issue-tracker",
+  "version": "1.0.0",
+  
+  "devDependencies": {
+    "@ui5/cli": "^4.0.18"
+  }
+}
