@@ -20,4 +20,7 @@ yaml
 *.out
 *.trace
 data-issue-tracker/webapp/dist
+data-issue-tracker/dist
+data-issue-tracker/webapp/resources
+data-issue-tracker/inw-demo
 node_modules
