@@ -5,8 +5,80 @@ const pathParts = window.location.pathname.split('/').filter(Boolean);
 const entity = pathParts[1];
 const id = pathParts[2] || null;
 document.getElementById('back-link').href = `/records/${entity}`;
+
+function InputControl(name, value, label) {
+    var self = this;
+    self.name = name;
+    self.value = value;
+    self.label = label || name;
+    self.render = () => {
+        return `<tr><td><label for="attr_${self.name}">${self.label}</label></td><td><input type="text" id="attr_${self.name}" name="${self.name}" value="${self.value}" /></td></tr>`;
+    }
+}
+
+function OptionControl(name, value, label, form) {
+    var self = this;
+    self.name = name;
+    self.value = value;
+    self.label = label || name;
+    self.form = form; // Reference to FormModel for relation options
+    self.render = () => {
+        return `<tr><td><label for="attr_${self.name}">${self.label}</label></td><td><select id="attr_${self.name}" name="${self.name}">${self.form.create_select_options(self.name, self.value)}</select></td></tr>`;
+    }
+}
+
+function MultiControl(name, value, label, form) {
+    var self = this;
+    self.name = name;
+    self.value = value;
+    self.label = label || name;
+    self.form = form; // Reference to FormModel for relation options
+
+    self.create_select_options = (relName) => {
+        const rel_list = self.form.relation_values(relName);
+        if (!rel_list) return '<option value="">(none)</option>';
+        return rel_list.map(item => {
+            return `<option value="${item.id}"${item.selected ? ' selected' : ''}>${item.title || item.id}</option>`;
+        }).join('');
+    };
+
+    self.render = () => {
+        return `<tr><td><label for="attr_${self.name}">${self.label}</label></td><td><select  multiple id="attr_${self.name}" name="${self.name}">${self.create_select_options(self.name)}</select></td></tr>`;
+    }
+}
+
+
+function ListControl(name, value, label, form) {
+    var self = this;
+    self.name = name;
+    self.value = value;
+    self.label = label || name;
+    self.form = form; // Reference to FormModel for relation options
+
+    self.create_select_options = (relName) => {
+        const rel_list = self.form.relation_values(relName);
+        var html = [];
+        rel_list.forEach(item => {
+            if (item.selected) {
+                html.push(`<tr><td>${item.title}</td></tr>`);
+            }
+        });
+        return html.join('');
+    };
+
+    self.render = () => {
+        var html = ['<tr><td><label for="attr_${self.name}">${self.label}</label></td><td><table>'];
+        html.push(self.create_select_options(self.name));
+        html.push('</table>');
+        return html.join('');
+        return `<select  multiple id="attr_${self.name}" name="${self.name}">${self.create_select_options(self.name)}</select></td></tr>`;
+    }
+}
+
+
+
 function FormModel(entity, id) {
-    self = this;
+    var self = this;
     self.entity = entity;
     self.id = id;
     self.relation = {};
@@ -44,23 +116,31 @@ function FormModel(entity, id) {
         }).join('');
     };
 
+    self.relation_values = (relName) => {
+        const rel = self.relation[relName];
+        if (!rel || !rel.list) return [];
+        return rel.list;
+    };
+
     self.create_input_field = fld => {
         const name = fld.name;
         const label = fld.label;
         var value = self.data[name] !== undefined ? self.data[name] : '';
         if (fld.name in self.relation) {
-            return `<tr><td><label for="attr_${name}">${label}</label></td><td><select id="attr_${name}" name="${name}">${self.create_select_options(name, value)}</select></td></tr>`;
+            fld.control = new OptionControl(name, value, label, self);
         }
         else {
-            return `<tr><td><label for="attr_${name}">${label}</label></td><td><input type="text" id="attr_${name}" name="${name}" value="${value}" /></td></tr>`;
+            fld.control = new InputControl(name, value, label);
         }
+        return fld.control.render();
     };
 
-    self.create_relation_entry = rel => {
+    self.create_relation_entry = (rel) => {
         const name = rel.name;
         const label = rel.label;
         var value = self.data[name] !== undefined ? self.data[name] : '';
-        return `<tr><td><label for="attr_${name}">${label}</label></td><td><select id="attr_${name}" name="${name}">${self.create_select_options(name, value)}</select></td></tr>`;
+        rel.control = new ListControl(name, value, label, self);
+        return rel.control.render();
     }
 
     self.preloadRelationOptions = (rel) => {
@@ -81,19 +161,8 @@ function FormModel(entity, id) {
                 self.relation[rel.name] = rec;
 
             });
-        //     .then(list => fetch(`/api/entity-model/${rel.type || rel}`)
-        //         .then(metaRes => metaRes.ok ? metaRes.json() : {})
-        //         .then(meta => {
-        //             const titleAttr = meta.title_attribute || 'id';
-        //             return list.map(item => {
-        //                 const selected = Array.isArray(value) ? value.includes(item.id) : value === item.id;
-        //                 return `<option value="${item.id}"${selected ? ' selected' : ''}>${item[titleAttr] || item.id}</option>`;
-        //             }).join('');
-        //         })
-        //     );
     };
 
-    // Render fields
 
 }
 
@@ -161,19 +230,19 @@ document.model.init();
 // });
 
 // Handle form submit
-const form = document.getElementById('edit-form');
-form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    const formData = new FormData(form);
-    const obj = {};
-    for (const [k, v] of formData.entries()) obj[k] = v;
-    if (id) obj.id = id;
-    fetch(`/api/${entity}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(obj)
-    }).then(r => r.json()).then(resp => {
-        if (resp.id) window.location.href = `/records/${entity}`;
-        else alert('Error saving record: ' + (resp.error || 'Unknown error'));
-    });
-});
+// const form = document.getElementById('edit-form');
+// form.addEventListener('submit', function (e) {
+//     e.preventDefault();
+//     const formData = new FormData(form);
+//     const obj = {};
+//     for (const [k, v] of formData.entries()) obj[k] = v;
+//     if (id) obj.id = id;
+//     fetch(`/api/${entity}`, {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify(obj)
+//     }).then(r => r.json()).then(resp => {
+//         if (resp.id) window.location.href = `/records/${entity}`;
+//         else alert('Error saving record: ' + (resp.error || 'Unknown error'));
+//     });
+// });

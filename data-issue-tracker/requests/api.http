@@ -1,12 +1,12 @@
-http://nuc:3000/api/User
+http://localhost:3000/api/User
 
 ###
 
-http://nuc:3000/api/Issue
+http://localhost:3000/api/Issue
 ###
 
 
-POST http://nuc:3000/api/Issue
+POST http://localhost:3000/api/Issue
 Content-Type: application/json
 
 {
@@ -23,17 +23,21 @@ Content-Type: application/json
     "resolution_date": "",
     "severity": "",
     "status": "",
-    "tags": "f89046b3-8c64-4c1a-9bd8-45f52ff405ec",
+    "tags": ["f89046b3-8c64-4c1a-9bd8-45f52ff405ec"],
     "title": "Noch mal neu - Weiter",
     "tracker": "",
-    "updated_at": "heute"
+    "updated_at": "12.6.25 11:02"
 }
 
 
 ###
 
-http://nuc:3000/static/.keep
+http://localhost:3000/static/.keep
 
 
 ###
-http://nuc:3000/api/User
+http://localhost:3000/api/User
+
+
+###
+http://localhost:3000/api/form/User

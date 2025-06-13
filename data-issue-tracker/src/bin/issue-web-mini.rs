@@ -27,6 +27,7 @@ impl AppState {
     fn handlebars(&self) -> Arc<Handlebars<'static>> {
         self.hb.clone()
     }
+
     fn entities(&self) -> EntityMap {
         self.entities.clone()
     }
@@ -193,7 +194,7 @@ async fn list_records(Path(entity): Path<String>, state: Arc<AppState>) -> impl 
 
 // --- REST API HANDLERS ---
 
-#[instrument]
+#[instrument(skip(state))]
 async fn api_list_records(Path(entity): Path<String>, state: Arc<AppState>) -> impl IntoResponse {
     info!(entity = %entity, "API: Listing records");
     let _model = if let Some(m) = state.get_entity_model(&entity) {
@@ -410,6 +411,8 @@ async fn api_get_form_definition(Path(entity): Path<String>) -> impl IntoRespons
 #[tokio::main]
 async fn main() {
     tracing_subscriber::fmt::init();
+
+    info!("current working directory: {}", std::env::current_dir().unwrap().display());
     let mut hb = Handlebars::new();
     hb.register_template_file("list", std::path::Path::new("templates/list.hbs"))
         .expect("Failed to load list.hbs");

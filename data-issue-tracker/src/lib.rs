@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
 use std::sync::Arc;
+use tracing::{error, info};
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Attribute {
@@ -43,20 +44,27 @@ pub struct SelectionEntry {
 
 #[tracing::instrument]
 pub fn load_entity_models() -> HashMap<String, EntityModel> {
+    info!("Loading entity models from YAML files in 'entity-model' directory");
     let dir = "entity-model";
     let mut map = HashMap::new();
-    if let Ok(entries) = fs::read_dir(dir) {
-        for entry in entries.flatten() {
-            let path = entry.path();
-            if path.extension().and_then(|s| s.to_str()) == Some("yaml") {
-                if let Ok(content) = fs::read_to_string(&path) {
-                    if let Ok(model) = serde_yaml::from_str::<EntityModel>(&content) {
-                        map.insert(model.entity.clone(), model);
+    match fs::read_dir(dir) {
+        Ok(entries) => {
+            for entry in entries.flatten() {
+                let path = entry.path();
+                if path.extension().and_then(|s| s.to_str()) == Some("yaml") {
+                    if let Ok(content) = fs::read_to_string(&path) {
+                        info!("Processing file: {}", path.display());
+                        if let Ok(model) = serde_yaml::from_str::<EntityModel>(&content) {
+                            map.insert(model.entity.clone(), model);
+                        }
                     }
                 }
             }
         }
+        Err(e) => {
+            error!("Failed to read directory '{}': {}", dir, e);
+        }
     }
+
     map
 }
-
