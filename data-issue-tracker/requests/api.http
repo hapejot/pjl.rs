@@ -4,8 +4,6 @@ http://localhost:3000/api/User
 
 http://localhost:3000/api/Issue
 ###
-
-
 POST http://localhost:3000/api/Issue
 Content-Type: application/json
 
@@ -43,7 +41,17 @@ http://localhost:3000/api/User
 http://localhost:3000/api/form/User
 
 ###
-http://localhost:3000/$metadata
+http://localhost:3000/api/$metadata
 
 ###
-http://services.odata.org/Northwind/Northwind.svc/$metadata
+http://localhost:3000/api/Feature
+###
+POST http://localhost:3000/api/Feature
+Content-Type: application/json
+
+{
+    "id": "3f04ffbd-0b8b-4815-a0c6-fd47c7bffdf3",
+    "name": "Test!"
+}
+###
+http://localhost:3000/api/Feature/$count

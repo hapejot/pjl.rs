@@ -1,18 +1,19 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 	<meta charset="utf-8">
 	<title>Data Issue Tracker</title>
-	<script id="sap-ui-bootstrap"
-		src="resources/sap-ui-core.js"
-		data-sap-ui-libs="sap.m,sap.ui.layout,sap.tnt"
-		data-sap-ui-compat-version="edge"
-		data-sap-ui-async="true"
-		data-sap-ui-on-init="module:data-issue-tracker/index"
-		data-sap-ui-resource-roots='{
-			"data-issue-tracker": "./"
-		}'>
-	</script>
+	<script id="sap-ui-bootstrap" src="resources/sap-ui-core.js"
+		data-sap-ui-resource-roots='{"data-issue-tracker": "./"}'
+		ignore-data-sap-ui-on-init="module:data-issue-tracker/initMockServer" data-sap-ui-compat-version="edge"
+		data-sap-ui-async="true">
+		</script>
 </head>
-<body class="sapUiBody" id="content"></body>
+
+<body class="sapUiBody" id="content">
+	<div data-sap-ui-component data-name="data-issue-tracker" data-id="container" data-settings='{"id" : "odatav4"}'>
+	</div>
+</body>
+
 </html>

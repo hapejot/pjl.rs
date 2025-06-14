@@ -15,3 +15,5 @@ uuid = { version = "1.17.0", features = ["v4"] }
 tracing = "0.1"
 tracing-subscriber = "0.3"
 tower-http = { version = "0.6.6", features = ["fs"] }
+sha2 = "0.10.9"
+base64 = "0.22.1"

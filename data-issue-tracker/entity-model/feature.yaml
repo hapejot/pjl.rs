@@ -1,0 +1,10 @@
+entity: Feature
+purpose: Represents a feature
+title_attribute: name
+attributes:
+  - name: id
+    type: uuid
+    description: Unique identifier for the feature.
+  - name: name
+    type: String
+    description: Name of the feature.

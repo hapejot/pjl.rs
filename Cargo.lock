@@ -810,11 +810,13 @@ name = "data-issue-tracker"
 version = "0.1.0"
 dependencies = [
  "axum 0.8.4",
+ "base64 0.22.1",
  "handlebars",
  "hyper",
  "serde",
  "serde_json",
  "serde_yaml",
+ "sha2",
  "tokio",
  "tower-http 0.6.6",
  "tracing",

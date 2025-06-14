@@ -1,8 +1,9 @@
 sap.ui.define([
 	"sap/ui/core/mvc/Controller",
 	"sap/m/MessageToast",
-	"sap/ui/model/json/JSONModel"
-], (Controller, MessageToast, JSONModel) => {
+	"sap/ui/model/json/JSONModel" /*,
+	"sap/ui/model/odata/v2/ODataModel" */
+], (Controller, MessageToast, JSONModel /*, ODataModel */ ) => {
 	"use strict";
 
 	return Controller.extend("data-issue-tracker.App", {
@@ -12,7 +13,7 @@ sap.ui.define([
 		},
 
 		onInit() {
-			this.getView().setModel(new JSONModel({
+			var m1 = new JSONModel({
 					features: [
 						"Enterprise-Ready Web Toolkit",
 						"Powerful Development Concepts",
@@ -21,8 +22,9 @@ sap.ui.define([
 						"Free and Open Source",
 						"Responsive Across Browsers and Devices"
 					]
-				})
-			);
+				});
+			// var m2 = new ODataModel({serviceUrl: "/api/", useBatch: false});
+			this.getView().setModel(m1, "features");
 		},
 
 		onChange(oEvent) {

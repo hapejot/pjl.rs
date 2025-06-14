@@ -1,0 +1,7 @@
+http://services.odata.org/Northwind/Northwind.svc/$metadata
+###
+http://services.odata.org/Northwind/Northwind.svc/Customers/$count
+Accept: application/json
+###
+http://services.odata.org/Northwind/Northwind.svc/Customers
+Accept: application/json
