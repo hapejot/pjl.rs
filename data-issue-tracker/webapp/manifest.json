@@ -6,23 +6,21 @@
 		"title": "Data Issue Tracker",
 		"applicationVersion": {
 			"version": "1.0.0"
-		},
-		"dataSources": {
-			"mainService": {
-				"uri": "/api/",
-				"type": "OData",
-				"settings": {
-					"odataVersion": "2.0",
-					"localUri": "localService/metadata.xml"
-				}
-			}
+		}
+	},
+	"sap.ui": {
+		"technology": "UI5",
+		"deviceTypes": {
+			"desktop": true,
+			"tablet": true,
+			"phone": true
 		}
 	},
 	"sap.ui5": {
 		"rootView": {
-			"viewName": "dataissuetracker.view.App",
+			"viewName": "dit.view.App",
 			"type": "XML",
-			"id": "mainView"
+			"id": "app"
 		},
 		"dependencies": {
 			"minUI5Version": "1.60.0",
@@ -36,16 +34,87 @@
 			"i18n": {
 				"type": "sap.ui.model.resource.ResourceModel",
 				"settings": {
-					"bundleName": "dataissuetracker.i18n.i18n"
+					"bundleName": "dit.i18n.i18n",
+					"supportedLocales": ["de", "en"],
+					"fallbackLocale": "de"
 				}
 			},
-			"mainService": {
+			"svc": {
 				"type": "sap.ui.model.odata.v2.ODataModel",
+				"uri": "/api/",
 				"settings": {
-					"synchronizationMode": "None",
+					"odataVersion": "2.0",
+					"defaultBindingMode": "TwoWay",
 					"operationMode": "Server",
 					"autoExpandSelect": true,
-					"earlyRequests": true
+					"earlyRequests": false,
+					"useBatch": false,
+					"headers": { "X-PJL-Test": "true" },
+					"countMode": "Request"
+				}
+			}
+		},
+		"routing": {
+			"config": {
+				"routerClass": "sap.f.routing.Router",
+				"type": "View",
+				"viewType": "XML",
+				"path": "dit.view",
+				"controlId": "flexibleColumnLayout",
+				"transition": "slide",
+				"bypassed": {
+				},
+				"async": true
+			},
+			"routes": [
+				{
+					"pattern": "page2",
+					"name": "page2",
+					"target": "page2",
+					"layout": "EndColumnFullScreen"
+				},
+				{
+					"pattern": ":layout:",
+					"name": "master",
+					"target": [
+						"master",
+						"detail"
+					]
+				},
+				{
+					"pattern": "detail/{issue}/{layout}",
+					"name": "detail",
+					"target": [
+						"master",
+						"detail"
+					]
+				},
+				{
+					"pattern": "detail/{issue}/detailDetail/{supplier}/{layout}",
+					"name": "detailDetail",
+					"target": [
+						"master",
+						"detail",
+						"detailDetail"
+					]
+				}
+			],
+			"targets": {
+				"master": {
+					"name": "Master",
+					"controlAggregation": "beginColumnPages"
+				},
+				"detail": {
+					"name": "Detail",
+					"controlAggregation": "midColumnPages"
+				},
+				"detailDetail": {
+					"name": "DetailDetail",
+					"controlAggregation": "endColumnPages"
+				},
+				"page2": {
+					"name": "AboutPage",
+					"controlAggregation": "endColumnPages"
 				}
 			}
 		}

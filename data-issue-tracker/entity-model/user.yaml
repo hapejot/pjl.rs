@@ -20,6 +20,7 @@ attributes:
 relations:
   - name: reported_issues
     type: Issue
+    target: assignee
     cardinality: one-to-many
     description: Issues reported by this user.
   - name: assigned_issues

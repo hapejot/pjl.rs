@@ -5,7 +5,6 @@ edition = "2021"
 
 [dependencies]
 axum = "0.8.4"
-handlebars = "6.3.2"
 hyper = "1.6.0"
 serde = { version = "1.0.219", features = ["derive"] }
 serde_json = "1.0"
@@ -17,3 +16,5 @@ tracing-subscriber = "0.3"
 tower-http = { version = "0.6.6", features = ["fs"] }
 sha2 = "0.10.9"
 base64 = "0.22.1"
+futures = "0.3.31"
+http-body-util = "0.1.3"

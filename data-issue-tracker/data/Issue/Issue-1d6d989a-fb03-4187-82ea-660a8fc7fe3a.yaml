@@ -1,7 +1,7 @@
-assignee: f66c32e7-7fc7-4e53-8a36-8eb40e311448
+assignee: User('f66c32e7-7fc7-4e53-8a36-8eb40e311448')
 created_at: ''
 data_source: ''
-description: Beschreibung der Aufgabe
+description: Alternative Berschreibung
 due_date: gestern
 id: 1d6d989a-fb03-4187-82ea-660a8fc7fe3a
 object_cluster: ''
@@ -12,7 +12,7 @@ resolution_date: ''
 severity: ''
 status: ''
 tags:
-- f89046b3-8c64-4c1a-9bd8-45f52ff405ec
+- Tag('f89046b3-8c64-4c1a-9bd8-45f52ff405ec')
 title: Noch mal neu - Weiter
 tracker: ''
 updated_at: 12.6.25 11:02

@@ -1,19 +1,34 @@
 http://localhost:3000/api/User
-
 ###
-
+http://localhost:3000/api/User
+If-None-Match: "C26NN9+pcBAQ6+RIFZnoAT7g98ojID/p45TOW5qRPEo="
+###
 http://localhost:3000/api/Issue
+###
+POST http://localhost:3000/api/Wurst
+Content-Type: application/json
+
+{
+    "name": "Mettwurst"
+}
+###
+POST http://localhost:3000/api/Issue('1d6d989a-fb03-4187-82ea-660a8fc7fe3a')
+Content-Type: application/json
+
+{
+    "description": "Alternative Berschreibung"
+}
 ###
 POST http://localhost:3000/api/Issue
 Content-Type: application/json
 
 {
+    "id": "1d6d989a-fb03-4187-82ea-660a8fc7fe3a",
     "assignee": "f66c32e7-7fc7-4e53-8a36-8eb40e311448",
     "created_at": "",
     "data_source": "",
     "description": "Beschreibung der Aufgabe",
     "due_date": "gestern",
-    "id": "1d6d989a-fb03-4187-82ea-660a8fc7fe3a",
     "object_cluster": "",
     "priority": "",
     "reporter": "",
@@ -21,30 +36,26 @@ Content-Type: application/json
     "resolution_date": "",
     "severity": "",
     "status": "",
-    "tags": ["f89046b3-8c64-4c1a-9bd8-45f52ff405ec"],
+    "tags": ["Tag('f89046b3-8c64-4c1a-9bd8-45f52ff405ec')"],
     "title": "Noch mal neu - Weiter",
     "tracker": "",
     "updated_at": "12.6.25 11:02"
 }
-
-
 ###
-
-http://localhost:3000/static/.keep
-
-
+http://localhost:3000/api/Issue('1d6d989a-fb03-4187-82ea-660a8fc7fe3a')
 ###
-http://localhost:3000/api/User
-
-
+http://localhost:3000/api/Issue('1d6d989a-fb03-4187-82ea-660a8fc7fe3a')/tags
+###
+http://localhost:3000/static/index.html
 ###
 http://localhost:3000/api/form/User
-
 ###
 http://localhost:3000/api/$metadata
-
 ###
 http://localhost:3000/api/Feature
+###
+http://localhost:3000/api/Feature
+If-None-Match: "W1lORBTvsl8FaU1E6nkI7cgE5Jo3w/EtvsH1AgctYGU="
 ###
 POST http://localhost:3000/api/Feature
 Content-Type: application/json
@@ -55,3 +66,10 @@ Content-Type: application/json
 }
 ###
 http://localhost:3000/api/Feature/$count
+###
+POST http://localhost:3000/api/Feature
+Content-Type: application/json
+
+{
+    "name": "XML based view declaration"
+}

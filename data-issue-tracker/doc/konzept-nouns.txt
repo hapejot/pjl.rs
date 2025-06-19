@@ -1,0 +1,139 @@
+Option
+Fiori Functionality
+SAP BTP
+App
+Development
+Backend Service
+User
+System
+Workflow
+Table
+Data
+UI
+Developer
+User Identity
+Service
+OData Service
+Frontend
+Backend
+Fiori App
+User Mapping
+Identity
+Approval
+Process
+Transport
+Deployment
+Test
+Role
+Network
+Connection
+Scenario
+Complexity
+Business Application
+Visual Tools
+BTP Services
+SAP Mobile Services
+Workflow (service)
+Business Rules
+Entities
+Tabular Data
+ALV Tables
+Smart Controls
+Smart Templates
+Data Binding
+OData Services
+Data Sets
+Business Logic
+JS Widgets
+Approval Workflows
+Forms
+Filters
+Editable Lists
+Fiori Apps
+On-Premise System
+S/4HANA
+Launchpad Services
+Tiles
+Roles
+Identity Propagation
+User-Substitution Logic
+Network Availability
+Performance
+Latency
+JavaScript Frameworks
+UI5
+React
+HTML5 Application Repository
+Multi-Table Views
+Dynamic Filters
+Advanced Charts
+Development Lifecycle
+Coding
+Testing
+DevOps
+BTP Destinations
+Cloud Connector
+Principal Propagation
+Substitute Mechanism
+Operations
+Node.js
+Java
+OData V4 Services
+HANA Cloud
+CDS Annotations
+APIs
+Replication
+CDS
+CAP
+Cloud-Native Applications
+List Reports
+Object Pages
+Multitenancy
+Extension Capabilities
+Authorization
+S/4HANA System
+ECC System
+RFCs
+Purchase Requisitions
+Goods Receipts
+Manage Purchase Requisitions
+Approve Purchase Requisitions
+Post Goods Receipt for Purchase Order
+PR Scenarios
+User Authorization
+Effort
+Effort Breakdown
+Notes
+Person-Days
+Data Modeling
+Bindings
+UI Screens
+Testing and Deployment
+Manual Tabular Entry
+Smart Tables
+Approval UX
+Work Zone
+Existing Apps
+Configuration
+Identity Handling
+Security
+QA
+Packaging
+CAP Project
+CDS Design
+Connectivity
+Deployment
+List/Detail/Edit Functionality
+Barcode Scanning
+Mobile UIs
+IAS
+Identity Authentication Service
+Secure Destinations
+Time-to-Value
+Custom Logic
+Dynamic Destinations
+Tailored UI/UX
+Free-Form UX
+Standard Flow
+Mobile-Specific Extensions
+Value

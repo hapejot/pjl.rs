@@ -1,0 +1,150 @@
+<mvc:View
+	controllerName="dit.controller.Detail"
+	xmlns="sap.uxap"
+	xmlns:m="sap.m"
+	xmlns:f="sap.f"
+	xmlns:mdc="sap.ui.mdc"
+	xmlns:form="sap.ui.layout.form"
+	xmlns:mvc="sap.ui.core.mvc">
+	<ObjectPageLayout
+		id="objectPage"
+		showTitleInHeaderContent="true"
+		alwaysShowContentHeader="false"
+		preserveHeaderStateOnScroll="false"
+		headerContentPinnable="true"
+		isChildPage="true"
+		showFooter="{path: 'ctrl>/editing'}"
+		upperCaseAnchorBar="false">
+		<headerTitle>
+			<ObjectPageDynamicHeaderTitle>
+				<expandedHeading>
+					<m:Title text="{svc>title}" wrapping="true" class="sapUiSmallMarginEnd"/>
+				</expandedHeading>
+
+				<snappedHeading>
+					<m:FlexBox wrap="Wrap" fitContainer="true" alignItems="Center">
+						<m:FlexBox wrap="NoWrap" fitContainer="true" alignItems="Center" class="sapUiTinyMarginEnd">
+							<m:Title text="{svc>name}" wrapping="true"/>
+						</m:FlexBox>
+					</m:FlexBox>
+				</snappedHeading>
+
+				<navigationActions>
+					<m:OverflowToolbarButton
+						type="Transparent"
+						icon="sap-icon://full-screen"
+						press=".handleFullScreen"
+						tooltip="Enter Full Screen Mode"
+						visible="{= ${/actionButtonsInfo/midColumn/fullScreen} !== null }"/>
+					<m:OverflowToolbarButton
+						type="Transparent"
+						icon="sap-icon://exit-full-screen"
+						press=".handleExitFullScreen"
+						tooltip="Exit Full Screen Mode"
+						visible="{= ${/actionButtonsInfo/midColumn/exitFullScreen} !== null }"/>
+					<m:OverflowToolbarButton
+						type="Transparent"
+						icon="sap-icon://decline"
+						press=".handleClose"
+						tooltip="Close column"
+						visible="{= ${/actionButtonsInfo/midColumn/closeColumn} !== null }"/>
+				</navigationActions>
+
+				<actions>
+					<m:ToggleButton
+						text="Edit"
+						type="Emphasized"
+						press=".onEditToggleButtonPress"/>
+					<m:ToggleButton text="Edit now" type="Emphasized" pressed="{path: 'ctrl>/editing'}"/>
+					<m:Button
+						text="Delete"
+						type="Transparent"/>
+					<m:Button
+						text="Copy"
+						type="Transparent"/>
+					<m:Button
+						icon="sap-icon://action"
+						type="Transparent"/>
+				</actions>
+			</ObjectPageDynamicHeaderTitle>
+		</headerTitle>
+
+		<headerContent>
+			<m:FlexBox wrap="Wrap" fitContainer="true" alignItems="Stretch">
+				<m:VBox justifyContent="Center" class="sapUiSmallMarginEnd">
+					<m:Label text="Main Category"/>
+					<m:Text text="{svc>status}"/>
+				</m:VBox>
+				<m:VBox justifyContent="Center" class="sapUiSmallMarginEnd">
+					<m:Label text="Subcategory"/>
+					<m:Text text="{svc>data_source}"/>
+				</m:VBox>
+				<m:VBox justifyContent="Center" class="sapUiSmallMarginEnd">
+					<m:Label text="priority"/>
+					<m:Text text="{svc>priority}"/>
+				</m:VBox>
+			</m:FlexBox>
+		</headerContent>
+
+		<sections>
+			<ObjectPageSection title="General Information">
+				<subSections>
+					<ObjectPageSubSection>
+						<blocks>
+							<form:SimpleForm
+								maxContainerCols="2"
+								editable="false"
+								layout="ResponsiveGridLayout"
+								labelSpanL="12"
+								labelSpanM="12"
+								emptySpanL="0"
+								emptySpanM="0"
+								columnsL="1"
+								columnsM="1">
+								<form:content>
+									<m:Label text="Title"/>
+									<mdc:Field id="F-title" value="{path: 'svc>title', type: 'sap.ui.model.type.String'}" editMode="{= ${ctrl>/editing} ? 'Editable' : 'Display'}" showEmptyIndicator="true"/>
+									<m:Label text="Description"/>
+									<mdc:Field id="F-description" value="{path: 'svc>description', type: 'sap.ui.model.type.String'}" editMode="{= ${ctrl>/editing} ? 'Editable' : 'Display'}" showEmptyIndicator="true"/>
+									<m:Label text="Due Date"/>
+									<mdc:Field id="F-due_date" value="{path: 'svc>due_date', type: 'sap.ui.model.type.String'}" editMode="{= ${ctrl>/editing} ? 'Editable' : 'Display'}" showEmptyIndicator="true"/>
+								</form:content>
+							</form:SimpleForm>
+						</blocks>
+					</ObjectPageSubSection>
+				</subSections>
+			</ObjectPageSection>
+
+			<ObjectPageSection title="History">
+				<subSections>
+					<ObjectPageSubSection>
+						<blocks>
+							<m:Table
+								id="historyTable"
+								items="{path : 'svc>comments'}">
+								<m:columns>
+									<m:Column/>
+								</m:columns>
+								<m:items>
+									<m:ColumnListItem type="Navigation" press=".onCommentPress">
+										<m:cells>
+											<m:ObjectIdentifier text="{svc>text}"/>
+										</m:cells>
+									</m:ColumnListItem>
+								</m:items>
+							</m:Table>
+						</blocks>
+					</ObjectPageSubSection>
+				</subSections>
+			</ObjectPageSection>
+		</sections>
+
+		<footer>
+			<m:OverflowToolbar>
+				<m:ToolbarSpacer/>
+				<m:Button type="Accept" text="Save" press=".onSave"/>
+				<m:Button type="Reject" text="Cancel"/>
+			</m:OverflowToolbar>
+		</footer>
+	</ObjectPageLayout>
+</mvc:View>
