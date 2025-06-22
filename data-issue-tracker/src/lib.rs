@@ -11,7 +11,7 @@ use tracing::{debug, error, info};
 
 pub mod batch;
 pub mod odata;
-
+pub mod odatav4;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Attribute {
