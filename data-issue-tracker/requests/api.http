@@ -1,7 +1,9 @@
 http://localhost:3000/api/User
 ###
 http://localhost:3000/api/User
-If-None-Match: "C26NN9+pcBAQ6+RIFZnoAT7g98ojID/p45TOW5qRPEo="
+If-None-Match: 2025-06-12T06:28:11.220531400+00:00
+###
+http://localhost:3000/api/User('6821019e-4f3b-4b55-b74d-74a82edd0e82')
 ###
 http://localhost:3000/api/Issue
 ###
@@ -10,6 +12,13 @@ Content-Type: application/json
 
 {
     "name": "Mettwurst"
+}
+###
+POST http://localhost:3000/api/Comment
+Content-Type: application/json
+
+{
+    "content": "Dieses ist ein Kommentar"
 }
 ###
 POST http://localhost:3000/api/Issue('1d6d989a-fb03-4187-82ea-660a8fc7fe3a')
@@ -44,7 +53,13 @@ Content-Type: application/json
 ###
 http://localhost:3000/api/Issue('1d6d989a-fb03-4187-82ea-660a8fc7fe3a')
 ###
+http://localhost:3000/api/Issue('1d6d989a-fb03-4187-82ea-660a8fc7fe3a')/tags/$count
+###
 http://localhost:3000/api/Issue('1d6d989a-fb03-4187-82ea-660a8fc7fe3a')/tags
+###
+http://localhost:3000/api/Issue('1d6d989a-fb03-4187-82ea-660a8fc7fe3a')/comments/$count
+###
+http://localhost:3000/api/Issue('1d6d989a-fb03-4187-82ea-660a8fc7fe3a')/comments?$skip=0&$top=100
 ###
 http://localhost:3000/static/index.html
 ###

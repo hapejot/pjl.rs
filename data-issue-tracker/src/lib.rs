@@ -1,11 +1,17 @@
 // This file defines the public API of the "data issue tracker" library.
 
+use axum::Router;
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use serde_json::json;
 use std::fs;
-use std::sync::Arc;
-use tracing::{error, info};
-use tracing_subscriber::fmt::format;
+use std::sync::{Arc, Mutex};
+use std::{collections::HashMap, path::PathBuf};
+use tracing::{debug, error, info};
+
+pub mod batch;
+pub mod odata;
+
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Attribute {
@@ -47,6 +53,16 @@ pub struct SelectionEntry {
     pub id: String,
     pub label: String,
     pub status: String,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct EntityRef {
+    pub entity: String,
+    pub id: String,
+    #[serde(default)]
+    pub label: String,
+    #[serde(default)]
+    pub etag: String,
 }
 
 #[tracing::instrument]
@@ -135,11 +151,16 @@ impl EntityModel {
             vec![]
         }
     }
+
+    pub fn service_name(&self) -> &str {
+        &self.service_name
+    }
 }
 
 #[derive(Debug)]
 pub struct AppState {
     entities: EntityMap,
+    router: Mutex<Option<Arc<Router>>>,
 }
 
 impl AppState {
@@ -152,6 +173,30 @@ impl AppState {
             Some(model) => Ok(model),
             None => Err(format!("Entity model for '{}' not found", entity)),
         }
+    }
+
+    pub fn load_entity_refs(&self, entity: &str) -> Vec<EntityRef> {
+        let data_dir = format!("data/{}", entity);
+        let mut refs = Vec::new();
+        if let Ok(entries) = fs::read_dir(&data_dir) {
+            for entry in entries.flatten() {
+                let path = entry.path();
+                if path.extension().and_then(|s| s.to_str()) == Some("yaml") {
+                    let id = path.file_stem().and_then(|s| s.to_str()).unwrap();
+                    let start = id.find('-').unwrap_or(0);
+                    let etag = etag_from_path(&path);
+                    let er = EntityRef {
+                        entity: entity.to_string(),
+                        id: id[(start + 1)..].to_string(),
+                        label: String::new(),
+                        etag,
+                    };
+                    debug!("Loading entity ref: {:?}", er);
+                    refs.push(er);
+                }
+            }
+        }
+        refs
     }
 
     pub fn load_entity_values(&self, entity: &str) -> Vec<SelectionEntry> {
@@ -195,14 +240,49 @@ impl AppState {
         Ok(result)
     }
 
+    pub fn get_all_records(&self, ids: Vec<EntityRef>) -> Vec<serde_json::Value> {
+        let mut records = Vec::new();
+        for id in ids {
+            records.push(self.get_record(&id.entity, &id.id));
+        }
+        records
+    }
+
     pub fn get_record(&self, entity: &str, id: &str) -> serde_json::Value {
-        if let Ok(content) = fs::read_to_string(&format!("data/{}/{}-{}.yaml", entity, entity, id))
-        {
-            if let Ok(record) = serde_yaml::from_str::<serde_yaml::Value>(&content) {
-                serde_json::to_value(record).unwrap_or_default()
-            } else {
-                serde_json::Value::default()
-            }
+        let _model = self.get_entity_model(entity).unwrap();
+        let path = format!("data/{}/{}-{}.yaml", entity, entity, id);
+        if let Ok(content) = fs::read_to_string(&path) {
+            let meta = fs::metadata(&path).unwrap();
+            let mut json_src =
+                if let Ok(record) = serde_yaml::from_str::<serde_yaml::Value>(&content) {
+                    serde_json::to_value(record).unwrap_or_default()
+                } else {
+                    serde_json::Value::default()
+                };
+            let obj = json_src.as_object_mut().unwrap();
+            let uri = format!(
+                "/api/{}('{}')",
+                entity,
+                obj["id"].as_str().unwrap_or_default()
+            );
+            info!("uri: {}", uri);
+            obj.insert(
+                "last_modified".to_string(),
+                serde_json::Value::String(
+                    meta.modified()
+                        .map(|mtime| DateTime::<Utc>::from(mtime).to_rfc3339())
+                        .unwrap_or_else(|_| "".to_string()),
+                ),
+            );
+            obj.insert(
+                "__metadata".to_string(),
+                json!({
+                    "type": _model.service_name(),
+                    "uri": uri,
+                    "etag": etag_from_path(&PathBuf::from(&path)),
+                }),
+            );
+            json_src
         } else {
             serde_json::Value::default()
         }
@@ -254,14 +334,33 @@ impl AppState {
         let entities = load_entity_models();
         Arc::new(AppState {
             entities: Arc::new(entities),
+            router: Mutex::new(None),
         })
     }
+
+    pub fn router(&self) -> Arc<Router> {
+        self.router.lock().unwrap().as_ref().unwrap().clone()
+    }
+
+    pub fn set_router(&self, router: Router) {
+        let mut m = self.router.lock().unwrap();
+        *m = Some(Arc::new(router));
+    }
+}
+
+fn etag_from_path(path: &PathBuf) -> String {
+    let meta = path.metadata().unwrap();
+    let etag = meta
+        .modified()
+        .ok()
+        .and_then(|mtime| DateTime::<Utc>::from(mtime).to_rfc3339().into())
+        .unwrap_or_default();
+    etag
 }
 
 pub fn any_to_string<T: ToString>(value: T) -> String {
     value.to_string()
 }
-
 
 fn parse_odata_entity_path(path: &str) -> Option<(String, String)> {
     // Example: path = "User('abc-123')"

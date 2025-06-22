@@ -38,7 +38,7 @@ sap.ui.define([
 				var view = this.getView();
 				Log.info("Detail view bind to issue: " + this._issue);
 				view.bindElement({
-					path: "/"+this._issue,
+					path: "/" + this._issue,
 					model: "svc"
 				});
 			}
@@ -67,7 +67,7 @@ sap.ui.define([
 		},
 
 		onSave: function () {
-			console.log(this.getView().getModel("svc").getPendingChanges());		
+			console.log(this.getView().getModel("svc").getPendingChanges());
 			this.getView().getModel("svc").submitChanges({
 				success: function () {
 					Log.info("Changes submitted successfully.");
@@ -76,6 +76,19 @@ sap.ui.define([
 					Log.error("Error submitting changes: " + oError.message);
 				}
 			});
+		},
+		onNewComment: function () {
+			var tbl = this.getView().byId("historyTable");
+			var bdg = tbl.getBindingContext("svc");
+			var ctx = bdg.create({content: "comment..."});
+			// var oModel = this.getView().getModel("svc"),
+			// 	oContext = oModel.createEntry(path + "/comments", {
+			// 		properties: {
+			// 		}
+			// 	});
+
+			// this.getView().setBindingContext(oContext, "svc");
+			// this.getView().byId("commentTextArea").focus();
 		},
 		onExit: function () {
 			this.oRouter.getRoute("master").detachPatternMatched(this._onProductMatched, this);

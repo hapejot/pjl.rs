@@ -40,6 +40,14 @@
 				}
 			},
 			"svc": {
+				"type": "sap.ui.model.odata.v4.ODataModel",
+				"uri": "/api/",
+				"settings": {
+					"operationMode": "Server",
+					"odataVersion": "4.0"
+				}
+			},
+			"old": {
 				"type": "sap.ui.model.odata.v2.ODataModel",
 				"uri": "/api/",
 				"settings": {
@@ -48,8 +56,8 @@
 					"operationMode": "Server",
 					"autoExpandSelect": true,
 					"earlyRequests": false,
-					"useBatch": false,
 					"headers": { "X-PJL-Test": "true" },
+					"useBatch": false,
 					"countMode": "Request"
 				}
 			}
