@@ -1,0 +1,111 @@
+http://localhost:3000/apiv4/User
+###
+http://localhost:3000/apiv4/User
+If-None-Match: 2025-06-12T06:28:11.220531400+00:00
+###
+http://localhost:3000/apiv4/User('6821019e-4f3b-4b55-b74d-74a82edd0e82')
+###
+http://localhost:3000/apiv4/Issue
+###
+POST http://localhost:3000/apiv4/Wurst
+Content-Type: application/json
+
+{
+    "name": "Mettwurst"
+}
+###
+POST http://localhost:3000/apiv4/Comment
+Content-Type: application/json
+
+{
+    "content": "Dieses ist ein Kommentar"
+}
+###
+POST http://localhost:3000/apiv4/Issue('1d6d989a-fb03-4187-82ea-660a8fc7fe3a')
+Content-Type: application/json
+
+{
+    "description": "Alternative Berschreibung"
+}
+###
+POST http://localhost:3000/apiv4/Issue
+Content-Type: application/json
+
+{
+    "id": "1d6d989a-fb03-4187-82ea-660a8fc7fe3a",
+    "assignee": "f66c32e7-7fc7-4e53-8a36-8eb40e311448",
+    "created_at": "",
+    "data_source": "",
+    "description": "Beschreibung der Aufgabe",
+    "due_date": "gestern",
+    "object_cluster": "",
+    "priority": "",
+    "reporter": "",
+    "resolution": "",
+    "resolution_date": "",
+    "severity": "",
+    "status": "",
+    "tags": ["Tag('f89046b3-8c64-4c1a-9bd8-45f52ff405ec')"],
+    "title": "Noch mal neu - Weiter",
+    "tracker": "",
+    "updated_at": "12.6.25 11:02"
+}
+###
+http://localhost:3000/apiv4/Issue('1d6d989a-fb03-4187-82ea-660a8fc7fe3a')
+###
+http://localhost:3000/apiv4/Issue('1d6d989a-fb03-4187-82ea-660a8fc7fe3a')/tags/$count
+###
+http://localhost:3000/apiv4/Issue('1d6d989a-fb03-4187-82ea-660a8fc7fe3a')/tags
+###
+http://localhost:3000/apiv4/Issue('1d6d989a-fb03-4187-82ea-660a8fc7fe3a')/comments/$count
+###
+http://localhost:3000/apiv4/Issue('1d6d989a-fb03-4187-82ea-660a8fc7fe3a')/comments?$skip=0&$top=100
+###
+http://localhost:3000/static/index.html
+###
+http://localhost:3000/apiv4/form/User
+###
+http://localhost:3000/apiv4/$metadata
+###
+POST http://localhost:3000/apiv4/$batch
+accept: multipart/mixed
+accept-language: de
+content-type: multipart/mixed; boundary=batch_id-1750587175211-25
+mime-version: 1.0
+odata-maxversion: 4.0
+odata-version: 4.0
+
+--batch_id-1750587175211-25
+Content-Type:application/http
+Content-Transfer-Encoding:binary
+
+GET Issue?$orderby=title&$skip=0&$top=100 HTTP/1.1
+Accept:application/json;odata.metadata=minimal;IEEE754Compatible=true
+Accept-Language:de
+Content-Type:application/json;charset=UTF-8;IEEE754Compatible=true
+
+
+--batch_id-1750587175211-25--
+Group ID: $auto
+###
+http://localhost:3000/apiv4/Feature
+###
+http://localhost:3000/apiv4/Feature
+If-None-Match: "W1lORBTvsl8FaU1E6nkI7cgE5Jo3w/EtvsH1AgctYGU="
+###
+POST http://localhost:3000/apiv4/Feature
+Content-Type: application/json
+
+{
+    "id": "3f04ffbd-0b8b-4815-a0c6-fd47c7bffdf3",
+    "name": "Test!"
+}
+###
+http://localhost:3000/apiv4/Feature/$count
+###
+POST http://localhost:3000/apiv4/Feature
+Content-Type: application/json
+
+{
+    "name": "XML based view declaration"
+}

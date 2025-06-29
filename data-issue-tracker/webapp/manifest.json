@@ -41,7 +41,7 @@
 			},
 			"svc": {
 				"type": "sap.ui.model.odata.v4.ODataModel",
-				"uri": "/api/",
+				"uri": "/apiv4/",
 				"settings": {
 					"operationMode": "Server",
 					"odataVersion": "4.0"

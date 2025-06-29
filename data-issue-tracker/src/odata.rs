@@ -113,15 +113,13 @@ pub async fn metadata(extract::State(state): extract::State<Arc<AppState>>) -> i
         xml.push_str(&format!(r#"<EntityType Name="{}">"#, entity_name));
         // Assume "id" is the key
         xml.push_str(r#"<Key><PropertyRef Name="id"/></Key>"#);
-        if let Some(attrs) = &model.attributes {
-            for attr in attrs {
+            for attr in model.attributes() {
                 // All attributes as string for simplicity
                 xml.push_str(&format!(
                     r#"<Property Name="{}" Type="Edm.String" Nullable="true"/>"#,
                     attr.name
                 ));
             }
-        }
         xml.push_str(r#"</EntityType>"#);
     }
 

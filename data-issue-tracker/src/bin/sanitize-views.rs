@@ -21,83 +21,56 @@ fn main() {
 }
 
 fn generate_view_if_not_exists(model: &EntityModel, view_path: String) {
-    if !Path::new(&view_path).exists() {
-        let columns: Vec<_> = model
-            .attributes
-            .as_ref()
-            .map(|attrs| {
-                attrs
-                    .iter()
-                    .map(|a| {
-                        let mut m = HashMap::new();
-                        m.insert("name", a.name.clone());
-                        m.insert("label", a.name.clone());
-                        m
-                    })
-                    .collect()
-            })
-            .unwrap_or_default();
-        let mut view_def_map = serde_yaml::Mapping::new();
-        view_def_map.insert(
-            serde_yaml::to_value("title").unwrap(),
-            serde_yaml::to_value(format!("List of {}", model.entity)).unwrap(),
-        );
-        view_def_map.insert(
-            serde_yaml::to_value("columns").unwrap(),
-            serde_yaml::to_value(columns).unwrap(),
-        );
-        let view_def = serde_yaml::to_string(&view_def_map).unwrap();
-        fs::write(&view_path, view_def).unwrap();
-        println!("Created default view: {}", view_path);
-    }
+    // if !Path::new(&view_path).exists() {
+    //     let columns: Vec<_> = model
+    //         .attributes
+    //         .as_ref()
+    //         .map(|attrs| {
+    //             attrs
+    //                 .iter()
+    //                 .map(|a| {
+    //                     let mut m = HashMap::new();
+    //                     m.insert("name", a.name.clone());
+    //                     m.insert("label", a.name.clone());
+    //                     m
+    //                 })
+    //                 .collect()
+    //         })
+    //         .unwrap_or_default();
+    //     let mut view_def_map = serde_yaml::Mapping::new();
+    //     view_def_map.insert(
+    //         serde_yaml::to_value("title").unwrap(),
+    //         serde_yaml::to_value(format!("List of {}", model.entity)).unwrap(),
+    //     );
+    //     view_def_map.insert(
+    //         serde_yaml::to_value("columns").unwrap(),
+    //         serde_yaml::to_value(columns).unwrap(),
+    //     );
+    //     let view_def = serde_yaml::to_string(&view_def_map).unwrap();
+    //     fs::write(&view_path, view_def).unwrap();
+    //     println!("Created default view: {}", view_path);
+    // }
 }
 
 fn generate_form_if_not_exists(model: &EntityModel, form_path: String) {
     if !Path::new(&form_path).exists() {
-        let fields: Vec<_> = model
-            .attributes
-            .as_ref()
-            .map(|attrs| {
-                attrs
-                    .iter()
-                    .map(|a| {
-                        let mut m = HashMap::new();
-                        m.insert("name", a.name.clone());
-                        m.insert("label", a.name.clone());
-                        m
-                    })
-                    .collect()
-            })
-            .unwrap_or_default();
-        let relations: Vec<_> = model
-            .relations
-            .as_ref()
-            .map(|rels| {
-                rels.iter()
-                    .map(|r| {
-                        let mut m = HashMap::new();
-                        m.insert("name", r.name.clone());
-                        m.insert("label", r.name.clone());
-                        m
-                    })
-                    .collect()
-            })
-            .unwrap_or_default();
-        let mut form_def_map = serde_yaml::Mapping::new();
-        form_def_map.insert(
-            serde_yaml::to_value("title").unwrap(),
-            serde_yaml::to_value(format!("{}", model.entity)).unwrap(),
-        );
-        form_def_map.insert(
-            serde_yaml::to_value("fields").unwrap(),
-            serde_yaml::to_value(fields).unwrap(),
-        );
-        form_def_map.insert(
-            serde_yaml::to_value("relations").unwrap(),
-            serde_yaml::to_value(relations).unwrap(),
-        );
+        // let fields: HashMap<String,String> = HashMap::from(model.attributes().iter().map(|a| (String::from("name"), a.name.clone())).collect::<Vec<_>>());
+        // let relations = HashMap::from(model.relations().iter().map(|a| ("name", a.name.clone())).collect::<Vec<_>>());
+        // let mut form_def_map = serde_yaml::Mapping::new();
+        // form_def_map.insert(
+        //     serde_yaml::to_value("title").unwrap(),
+        //     serde_yaml::to_value(format!("{}", model.entity)).unwrap(),
+        // );
+        // form_def_map.insert(
+        //     serde_yaml::to_value("fields").unwrap(),
+        //     serde_yaml::to_value(fields).unwrap(),
+        // );
+        // form_def_map.insert(
+        //     serde_yaml::to_value("relations").unwrap(),
+        //     serde_yaml::to_value(relations).unwrap(),
+        // );
 
-        fs::write(&form_path, serde_yaml::to_string(&form_def_map).unwrap()).unwrap();
-        println!("Created default form: {}", form_path);
+        // fs::write(&form_path, serde_yaml::to_string(&form_def_map).unwrap()).unwrap();
+        // println!("Created default form: {}", form_path);
     }
 }

@@ -1,8 +1,1 @@
-https://services.odata.org/V2/Northwind/Northwind.svc/$metadata
-
-###
-https://services.odata.org/V2/Northwind/Northwind.svc/Customers/$count
-
-###
-https://services.odata.org/V2/Northwind/Northwind.svc/Customers
-Accept: application/json
+https://services.odata.org/TripPinRESTierService/$metadata

@@ -42,8 +42,10 @@ pub struct EntityModel {
     pub data_directory: String,
     #[serde(default)]
     pub service_name: String,
-    pub attributes: Option<Vec<Attribute>>,
-    pub relations: Option<Vec<Relation>>,
+    #[serde(default)]
+    pub attributes: Vec<Attribute>,
+    #[serde(default)]
+    pub relations: Vec<Relation>,
 }
 pub type EntityMap = Arc<HashMap<String, EntityModel>>;
 pub type RelationOptions = HashMap<String, Vec<SelectionEntry>>;
@@ -76,7 +78,6 @@ pub fn load_entity_models() -> HashMap<String, EntityModel> {
                 let path = entry.path();
                 if path.extension().and_then(|s| s.to_str()) == Some("yaml") {
                     if let Ok(content) = fs::read_to_string(&path) {
-                        info!("Processing file: {}", path.display());
                         match serde_yaml::from_str::<EntityModel>(&content) {
                             Ok(mut model) => {
                                 if model.data_directory.is_empty() {
@@ -85,6 +86,12 @@ pub fn load_entity_models() -> HashMap<String, EntityModel> {
                                 if model.service_name.is_empty() {
                                     model.service_name = format!("Service.{}", model.entity);
                                 }
+                                info!(
+                                    "Entity: {:20} Attributes: {:3}, Relations: {:3}",
+                                    &model.entity,
+                                    model.attributes().len(),
+                                    model.relations().len()
+                                );
                                 map.insert(model.entity.clone(), model);
                             }
                             Err(e) => {
@@ -111,7 +118,7 @@ pub fn load_entity_models() -> HashMap<String, EntityModel> {
 
 impl EntityModel {
     pub fn scan_relations(&self) {
-        for r in self.relations.as_ref().unwrap() {
+        for r in self.relations() {
             info!("Relation: {} ({} - {})", r.name, r.type_name, r.cardinality);
             match r.cardinality.as_str() {
                 "many-to-many" | "one-to-many" => {}
@@ -121,39 +128,32 @@ impl EntityModel {
     }
 
     pub fn multi_relations(&self) -> Vec<Relation> {
-        if let Some(relations) = &self.relations {
-            relations
+            self.relations
                 .iter()
                 .filter(|r| r.cardinality == "many-to-many" || r.cardinality == "one-to-many")
                 .cloned()
                 .collect()
-        } else {
-            vec![]
-        }
     }
 
     pub fn single_relations(&self) -> Vec<Relation> {
-        if let Some(relations) = &self.relations {
-            relations
+            self.relations
                 .iter()
                 .filter(|r| r.cardinality == "one-to-one" || r.cardinality == "many-to-one")
                 .cloned()
                 .collect()
-        } else {
-            vec![]
-        }
     }
 
-    pub fn relations(&self) -> Vec<Relation> {
-        if let Some(relations) = &self.relations {
-            relations.clone()
-        } else {
-            vec![]
-        }
-    }
 
     pub fn service_name(&self) -> &str {
         &self.service_name
+    }
+
+    pub fn attributes(&self) -> &Vec<Attribute> {
+        &self.attributes
+    }
+
+    pub fn relations(&self) -> &Vec<Relation> {
+        &self.relations
     }
 }
 
@@ -233,7 +233,7 @@ impl AppState {
     pub fn build_relation_options(&self, entity: &str) -> Result<RelationOptions, String> {
         let mut result = HashMap::new();
         let model = self.get_entity_model(entity)?;
-        for x in model.relations.as_ref().unwrap() {
+        for x in model.relations() {
             let values = self.load_entity_values(&x.type_name);
             result.insert(x.name.clone(), values);
         }
