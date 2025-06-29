@@ -5,7 +5,6 @@ use docx_rs::*;
 use reqwest::blocking::get;
 use scraper::{Html, Selector};
 use std::fs::File;
-use std::io::Write;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // 1. HTML der Seite laden

@@ -21,7 +21,7 @@ impl Grid {
     }
 }
 
-type Position = (i32,i32);
+pub type Position = (i32,i32);
 
 
 impl Render for Grid {

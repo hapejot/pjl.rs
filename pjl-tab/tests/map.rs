@@ -2,7 +2,7 @@ use pjl_tab::map::ValueMapping;
 
 #[test]
 fn setup() {
-    let m: ValueMapping<String, usize> = ValueMapping::new();
+    let _m: ValueMapping<String, usize> = ValueMapping::new();
 }
 
 #[test]

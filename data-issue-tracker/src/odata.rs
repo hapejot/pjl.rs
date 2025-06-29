@@ -8,7 +8,7 @@ use http_body_util::BodyExt;
 use serde_json::json;
 use std::fs;
 use std::sync::Arc;
-use tracing::{info, instrument};
+use tracing::*;
 
 
 enum ODataResult {
@@ -95,7 +95,7 @@ async fn json_from_body(req: Request<axum::body::Body>) -> Result<serde_json::Va
     }
 }
 
-#[instrument(skip(state))]
+// #[instrument(skip(state))]
 pub async fn metadata(extract::State(state): extract::State<Arc<AppState>>) -> impl IntoResponse {
     let mut xml = String::new();
     // OData EDMX header
@@ -142,14 +142,14 @@ pub async fn metadata(extract::State(state): extract::State<Arc<AppState>>) -> i
         .unwrap()
 }
 
-#[instrument(skip(state))]
+// #[instrument(skip(state))]
 pub async fn batch(extract::State(state): extract::State<Arc<AppState>>) -> impl IntoResponse {
     let _ = state;
     info!("batch handler");
     Response::builder().body(json!({}).to_string()).unwrap()
 }
 
-#[instrument(skip(state, req))]
+// #[instrument(skip(state, req))]
 pub async fn entity(
     extract::Path(path): extract::Path<String>,
     extract::State(state): extract::State<Arc<AppState>>,
@@ -202,7 +202,7 @@ pub async fn entity(
                     break;
                 }
             }
-            let x = api_list_records(part, state.clone()).await;
+            let _x = api_list_records(part, state.clone()).await;
         }
     }
 
@@ -268,15 +268,15 @@ pub async fn entity(
     }
 }
 
-#[instrument(skip(state))]
+// #[instrument(skip(state))]
 async fn api_list_records(
     entity: &str,
     state: Arc<AppState>,
     // req: Request<axum::body::Body>,
 ) -> ODataResult {
     match int_list_records(entity, state).await {
-        Ok((status, etag, json_str)) => ODataResult::Collection(vec![]),
-        Err(e) => ODataResult::Empty,
+        Ok((_, _, _)) => ODataResult::Collection(vec![]),
+        Err(e) => ODataResult::Error(e.to_string()),
     }
 }
 
@@ -297,7 +297,7 @@ async fn int_list_records(
             let mut json_record = serde_json::to_value(record).unwrap_or_default();
             let id = json_record.get("id").and_then(|v| v.as_str()).unwrap_or("");
             // Compute ETag for this record
-            let record_str = serde_json::to_string(&json_record).unwrap_or_default();
+            let _record_str = serde_json::to_string(&json_record).unwrap_or_default();
             let uri = format!("/api/{}('{}')", entity, id);
             if let Some(obj) = json_record.as_object_mut() {
                 obj.insert(
@@ -318,7 +318,7 @@ async fn int_list_records(
     Ok((StatusCode::OK, "etag".into(), json_str))
 }
 
-#[instrument(skip(state))]
+// #[instrument(skip(state))]
 async fn api_get_record(entity: &str, id: &str, state: Arc<AppState>) -> ODataResult {
     info!(entity = %entity, id = %id, "API: Get record");
     let record = state.get_record(&entity, &id);

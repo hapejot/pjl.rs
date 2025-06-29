@@ -67,7 +67,7 @@ pub struct EntityRef {
     pub etag: String,
 }
 
-#[tracing::instrument]
+// #[tracing::instrument]
 pub fn load_entity_models() -> HashMap<String, EntityModel> {
     info!("Loading entity models from YAML files in 'entity-model' directory");
     let dir = "entity-model";
@@ -362,7 +362,7 @@ pub fn any_to_string<T: ToString>(value: T) -> String {
     value.to_string()
 }
 
-fn parse_odata_entity_path(path: &str) -> Option<(String, String)> {
+fn _parse_odata_entity_path(path: &str) -> Option<(String, String)> {
     // Example: path = "User('abc-123')"
     if let Some(idx) = path.find('(') {
         let entity = &path[..idx];

@@ -45,7 +45,7 @@ impl<T> std::ops::IndexMut<u16> for Sparse<T> where T: Clone {
                 self.data.len() - 1
             }
         };
-        let (k, v) = self.data.get_mut(ndx).unwrap();
+        let (_k, v) = self.data.get_mut(ndx).unwrap();
         v
     }
 }

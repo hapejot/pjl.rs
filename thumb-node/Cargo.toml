@@ -3,6 +3,7 @@ name = "thumb-node"
 version = "0.1.0"
 edition = "2021"
 
+#[target.'cfg(target_os = "linux")'.dependencies]
 [dependencies]
 ffmpeg-next = "7.1.0"
 image = "0.25.5"

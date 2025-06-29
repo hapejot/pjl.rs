@@ -50,7 +50,7 @@ impl<M> HandleEvent for App<M> {
             event::Event::FocusGained => todo!(),
             event::Event::FocusLost => todo!(),
             event::Event::Key(key_event) => self.handle_key_event(key_event.code),
-            event::Event::Mouse(mouse_event) => todo!(),
+            event::Event::Mouse(_mouse_event) => todo!(),
             event::Event::Paste(_) => todo!(),
             event::Event::Resize(_, _) => todo!(),
         }
@@ -115,7 +115,7 @@ impl<M> App<M> {
         self.model.lock().unwrap()
     }
 
-    pub fn add_message(&self, msg: &str) {}
+    pub fn add_message(&self, _msg: &str) {}
 
     fn handle_key_event(&mut self, key: KeyCode) -> bool {
         match key {
@@ -160,5 +160,9 @@ impl<M> App<M> {
 
     pub fn add_view(&mut self, view: Box<dyn Render>) {
         self.views.push(view);
+    }
+    
+    pub fn controllers(&self) -> &[Box<dyn HandleEvent + 'static>] {
+        &self.controllers
     }
 }

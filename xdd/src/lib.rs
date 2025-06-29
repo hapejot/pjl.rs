@@ -140,18 +140,19 @@ pub fn grammar_rules() -> Grammar<AttributeModel> {
 fn parse(src: &str) -> Result<AttributeModel, Error> {
     let lexing_rules = lexer_rules();
     let grammar = grammar_rules();
-    let r = match santiago::lexer::lex(&lexing_rules, src) {
-        Ok(lexemes) => santiago::parser::parse(&grammar, &lexemes),
-        Err(err) => panic!("parse error: {err} in '{src}'"),
-    };
-    match r {
-        Ok(r) => Ok(r.iter().nth(0).unwrap().as_abstract_syntax_tree()),
-        Err(err) => Err(Error::ParseError {
-            entity: None,
-            field: None,
-            message: format!("parse error: {err} in '{src}'"),
-        }),
-    }
+    let lexemes = santiago::lexer::lex(&lexing_rules, src).map_err(|err| Error::ParseError {
+        entity: None,
+        field: None,
+        message: format!("Lexing error: {err} in '{src}'"),
+    })?;
+
+    let parsed = santiago::parser::parse(&grammar, &lexemes).map_err(|err| Error::ParseError {
+        entity: None,
+        field: None,
+        message: format!("Parsing error: {err} in '{src}'"),
+    })?;
+
+    Ok(parsed.iter().nth(0).unwrap().as_abstract_syntax_tree())
 }
 
 #[derive(Debug)]

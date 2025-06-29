@@ -97,7 +97,7 @@ impl<'a> IntoIterator for &'a Table {
 }
 
 struct DeSerVisitor {
-    row: usize,
+    // row: usize,
 }
 
 impl<'de> serde::Deserialize<'de> for Table {
@@ -105,7 +105,8 @@ impl<'de> serde::Deserialize<'de> for Table {
     where
         D: serde::Deserializer<'de>,
     {
-        let visitor = DeSerVisitor { row: 1 };
+        // let visitor = DeSerVisitor { row: 1 };
+        let visitor = DeSerVisitor {  };
         deserializer.deserialize_seq(visitor)
     }
 }
@@ -134,8 +135,8 @@ impl<'de> Visitor<'de> for DeSerVisitor {
                     serde_json::Value::Bool(x) => Some(format!("{x}")),
                     serde_json::Value::Number(number) => Some(format!("{number}")),
                     serde_json::Value::String(s) => Some(s.clone()),
-                    serde_json::Value::Array(values) => todo!(),
-                    serde_json::Value::Object(map) => todo!(),
+                    serde_json::Value::Array(_values) => todo!(),
+                    serde_json::Value::Object(_map) => todo!(),
                 };
                 if let Some(v) = string_value {
                     row.set(name, &v);

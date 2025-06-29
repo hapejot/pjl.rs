@@ -129,7 +129,7 @@ impl<'a> Application<'a> {
                 match e {
                     crossterm::event::Event::Key(key_event) => {
                         match screen.handle_term_event(translate(key_event)){
-                            Ok(x) => todo!(),
+                            Ok(_x) => todo!(),
                             Err(e) => error!("could not handle {:?} -> {:?}", key_event, e),
                         }
                     }

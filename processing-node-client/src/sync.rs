@@ -24,7 +24,7 @@ impl PacketStream {
         for<'a> R: Deserialize<'a>,
     {
         let mut hd = vec![0; self.header_length];
-        let n = socket
+        let _n = socket
             .read_exact(&mut hd)
             .map_err(|x| x.to_string())?;
 

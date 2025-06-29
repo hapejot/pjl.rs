@@ -1,9 +1,8 @@
-use std::{fs, io};
+use std::fs;
 
-use crossterm::{execute, style};
 use pjl_tab::Table;
 use pjl_terminal_tools::{
-    App, Render,
+    App, 
     grid::{Grid, GridModel},
     read_table_from_stream,
 };
@@ -28,7 +27,7 @@ impl GridModel for TableGrid {
         }
     }
 
-    fn set_value(&mut self, x: usize, y: usize, value: &str) {
+    fn set_value(&mut self, _x: usize, _y: usize, _value: &str) {
         todo!()
     }
 }

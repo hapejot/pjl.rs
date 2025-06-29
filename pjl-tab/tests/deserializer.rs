@@ -3,10 +3,24 @@ use pjl_tab::Table;
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
-struct User {
+pub struct User {
     id: i64,
     username: String,
     access_token: String,
+}
+
+impl User {
+    pub fn id(&self) -> i64 {
+        self.id
+    }
+    
+    pub fn username(&self) -> &str {
+        &self.username
+    }
+    
+    pub fn access_token(&self) -> &str {
+        &self.access_token
+    }
 }
 
 #[test]

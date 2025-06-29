@@ -55,6 +55,7 @@ fn ser_hashmap() {
     eprintln!("{}", out);
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 struct Test {
     spalte1: String,

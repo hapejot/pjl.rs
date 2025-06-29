@@ -10,7 +10,7 @@ use crossterm::{
     style::{Color, Print, ResetColor, SetBackgroundColor, SetForegroundColor},
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
-use std::io::{stdout, Write as IoWrite};
+use std::io::stdout;
 
 #[derive(Debug, Clone)]
 struct Node {
@@ -221,7 +221,7 @@ struct App {
 enum MenuState {
     MainMenu,
     AddNode(NodeType),
-    AddConnection,
+    // AddConnection,
     SelectSource,
     SelectTarget,
     SelectConnectionType,
@@ -475,8 +475,7 @@ impl App {
                     self.input_buffer.push(c);
                 }
                 _ => {}
-            },
-            _ => {}
+            }
         }
 
         true
@@ -667,7 +666,6 @@ impl App {
                     Print("Enter: Bestätigen | ESC: Abbrechen")
                 )?;
             }
-            _ => {}
         }
 
         // Meldungen anzeigen

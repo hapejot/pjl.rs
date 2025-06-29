@@ -87,7 +87,7 @@ impl Connection {
         })
     }
     #[allow(dead_code)]
-    fn lookup(&self, name: &str) -> Value {
+    fn lookup(&self, _name: &str) -> Value {
         todo!()
     }
 }

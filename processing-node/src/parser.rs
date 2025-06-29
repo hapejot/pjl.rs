@@ -685,6 +685,93 @@ pub mod rbparser {
 
         // parserWarning: aString [
         // "Raise a Warning"
+        // ]
+        // Implement proper warning handling logic here
+        fn parser_warning(a_string: &str) {
+            println!("Warning: {}", a_string);
+        }
+
+        // parserError: aString [
+        // "Evaluate the block. If it returns raise an error"
+        // ]
+        // Implement proper error handling logic here
+        fn parser_error(a_string: &str) -> Result<(), String> {
+            Err(format!("Error: {}", a_string))
+        }
+
+        // initializeParserWith: aString type: aSymbol [
+        // <category: 'accessing'>
+        // source := aString.
+        // self scanner: (self scannerClass
+        // 	    perform: aSymbol
+        // 	    with: (ReadStream on: aString)
+        // 	    with: self errorBlock)
+        // ]
+
+        // initializeParserWithStream: aStream type: aSymbol [
+        // <category: 'accessing'>
+        // source := nil.
+        // self scanner: (self scannerClass
+        // 	    perform: aSymbol
+        // 	    with: aStream
+        // 	    with: self errorBlock)
+        // ]
+
+        fn parse_expression(&mut self) {
+            // RBParser class >> parseExpression: aString [
+            // <category: 'accessing'>
+            // ^self parseExpression: aString onError: nil
+            // ]
+
+            // RBParser class >> parseExpression: aString onError: aBlock [
+            // <category: 'accessing'>
+            // | node parser |
+            // parser := self new.
+            // parser errorBlock: aBlock.
+            // parser initializeParserWith: aString type: #on:errorBlock:.
+            // node := parser parseExpression.
+            // ^(node statements size == 1 and: [node temporaries isEmpty])
+            //     ifTrue: [node statements first]
+            //     ifFalse: [node]
+            // ]
+
+            // parseExpression [
+            // <category: 'accessing'>
+            // | node |
+            // node := self parseStatements: false.
+            // self atEnd ifFalse: [self parserError: 'Unknown input at end'].
+            // ^node
+            // ]
+        }
+
+        // scannerClass [
+        // <category: 'accessing'>
+        // ^RBScanner
+        // ]
+
+        // errorBlock [
+        // <category: 'error handling'>
+        // ^errorBlock isNil ifTrue: [[:message :position | ]] ifFalse: [errorBlock]
+        // ]
+
+        // errorFile [
+        // <category: 'error handling'>
+        // ^scanner stream name
+        // ]
+
+        // errorLine [
+        // <category: 'error handling'>
+        // ^(scanner stream copyFrom: 1 to: self errorPosition) readStream lines
+        //     contents size
+        // ]
+
+        // errorPosition [
+        // <category: 'error handling'>
+        // ^currentToken start
+        // ]
+
+        // parserWarning: aString [
+        // "Raise a Warning"
 
         // <category: 'error handling'>
         // Warning signal: aString
@@ -1155,7 +1242,7 @@ pub mod rbparser {
                 // 	args add: self parseVariableNode].
                 assert!(self.current_token().is_identifier());
                 args.push(self.current_token().raw.clone());
-                // ^RBMethodNode selectorParts: keywords arguments: args
+                // ^RBMethodNode selectorParts: (Array with: keywords) arguments: args
                 // ]
                 self.step();
             }
@@ -1787,8 +1874,8 @@ pub mod rbparser {
         // 	buffer reset.
         // 	tokenStart := stream position.
         // 	characterType == #eof ifTrue: [^RBToken start: tokenStart + 1].	"The EOF token should occur after the end of input"
-        // 	token := self scanToken.
-        // 	self stripSeparators.
+        // 	token := self.scanToken.
+        // 	self.stripSeparators.
         // 	^token
         //     ]
 
@@ -2007,7 +2094,8 @@ pub mod rbparser {
         // 			["Might sit on the beginning of an identifier such as 123stu,
         // 			 or on a ScaledDecimal literal lacking the scale such as 123s"
         // 			(currentCharacter == $_ or: [currentCharacter isLetter])
-        // 			    ifTrue:
+        //  			    ifTrue:
+       
         // 				[stream skip: -1.
         // 				currentCharacter := $s]
         // 			    ifFalse: [scale := exponent negated]].
@@ -2018,7 +2106,7 @@ pub mod rbparser {
         // 		[currentCharacter == $d
         // 		    ifTrue: [num := num asFloatD]
         // 		    ifFalse:
-        // 			[currentCharacter == $q
+        // 				[currentCharacter == $q
         // 			    ifTrue: [num := num asFloatQ]
         // 			    ifFalse:
         // 				[^exponent isNil
@@ -2082,7 +2170,7 @@ pub mod rbparser {
         // 	^RBLiteralToken
         // 	    value: byteStream contents
         // 	    start: tokenStart
-        // 	    stop: self previousStepPosition
+        // 	    stop: self.previousStepPosition
         //     ]
 
         //     scanIdentifierOrKeyword [
@@ -2108,17 +2196,17 @@ pub mod rbparser {
         // 	| token |
         // 	currentCharacter == $.
         // 	    ifTrue:
-        // 		[(stream atEnd or: [(self classify: stream peek) ~~ #alphabetic])
+        // 		[(stream atEnd or: [(self classify: stream.peek) ~~ #alphabetic])
         // 		    ifTrue: [^nil]]
         // 	    ifFalse:
-        // 		[(currentCharacter == $: and: [stream peek == $:]) ifFalse: [^nil].
+        // 		[(currentCharacter == $: and: [stream.peek == $:]) ifFalse: [^nil].
         // 		self step].
         // 	buffer nextPut: $..
         // 	self step.
         // 	self scanName.
         // 	token := self scanNamespaceName.
         // 	token isNil
-        // 	    ifTrue: [token := RBIdentifierToken value: buffer contents start: tokenStart].
+        // 	    ifTrue: [token := RBIdentifierToken value: buffer.contents start: tokenStart].
         // 	^token
         //     ]
 
@@ -2128,7 +2216,7 @@ pub mod rbparser {
         // 	self stripSeparators.
         // 	characterType == #alphabetic ifTrue: [^self scanSymbol].
         // 	characterType == #binary
-        // 	    ifTrue: [^(self scanBinary: RBLiteralToken) stop: self previousStepPosition].
+        // 	    ifTrue: [^(self scanBinary: RBLiteralToken) stop: self.previousStepPosition].
         // 	currentCharacter == $' ifTrue: [^self scanStringSymbol].
         // 	currentCharacter == $( ifTrue: [^self scanLiteralArray].
         // 	currentCharacter == $[ ifTrue: [^self scanByteArray].
@@ -2152,9 +2240,9 @@ pub mod rbparser {
         // 		    buffer reset].
         // 	self step.
         // 	^RBLiteralToken
-        // 	    value: arrayStream contents
+        // 	    value: arrayStream.contents
         // 	    start: start
-        // 	    stop: self previousStepPosition
+        // 	    stop: self.previousStepPosition
         //     ]
 
         //     scanLiteralArrayParts [
@@ -2170,10 +2258,10 @@ pub mod rbparser {
         // 		value == #false ifTrue: [token value: false].
         // 		^token].
         // 	(characterType == #digit
-        // 	    or: [currentCharacter == $- and: [(self classify: stream peek) == #digit]])
+        // 	    or: [currentCharacter == $- and: [(self classify: stream.peek) == #digit]])
         // 		ifTrue: [^self scanNumber].
         // 	characterType == #binary
-        // 	    ifTrue: [^(self scanBinary: RBLiteralToken) stop: self previousStepPosition].
+        // 	    ifTrue: [^(self scanBinary: RBLiteralToken) stop: self.previousStepPosition].
         // 	currentCharacter == $' ifTrue: [^self scanLiteralString].
         // 	currentCharacter == $$ ifTrue: [^self scanLiteralCharacter].
         // 	currentCharacter == $( ifTrue: [^self scanLiteralArray].
@@ -2221,7 +2309,7 @@ pub mod rbparser {
         // 	^RBLiteralToken
         // 	    value: buffer contents
         // 	    start: tokenStart
-        // 	    stop: self previousStepPosition
+        // 	    stop: self.previousStepPosition
         //     ]
 
         //     scanPatternVariable [
@@ -2251,7 +2339,7 @@ pub mod rbparser {
         //         | stop val string |
         // 	<category: 'private-scanning'>
         //         val := self scanNumberValue.
-        //         stop := self previousStepPosition.
+        //         stop := self.previousStepPosition.
 
         //         "Get the parsed source"
         //         string := stream copyFrom: tokenStart - 1 to: stop - 1.
@@ -2273,9 +2361,9 @@ pub mod rbparser {
         // 		self step].
         // 	self step.	"}"
         // 	^RBBindingToken
-        // 	    value: nameStream contents
+        // 	    value: nameStream.contents
         // 	    start: tokenStart
-        // 	    stop: self previousStepPosition
+        // 	    stop: self.previousStepPosition
         //     ]
 
         //     scanAssignment [
@@ -2319,7 +2407,7 @@ pub mod rbparser {
         // 			hasColon := true.
         // 			lastPosition := stream position.
         // 			self step]].
-        // 	value := buffer contents.
+        // 	value := buffer.contents.
         // 	(hasColon and: [value last ~~ $:])
         // 	    ifTrue:
         // 		[stream position: lastPosition.
@@ -2328,7 +2416,7 @@ pub mod rbparser {
         // 	^RBLiteralToken
         // 	    value: value asSymbol
         // 	    start: tokenStart
-        // 	    stop: self previousStepPosition
+        // 	    stop: self.previousStepPosition
         //     ]
 
         //     stripComment [

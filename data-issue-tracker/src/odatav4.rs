@@ -5,15 +5,13 @@ use axum::extract;
 use axum::http::HeaderMap;
 use axum::http::{Request, Response, StatusCode};
 use axum::response::IntoResponse;
-use axum_macros::debug_handler;
-use futures::StreamExt;
-use http::{HeaderMap as HttpHeaderMap, Request as HttpRequest};
+use http::Request as HttpRequest;
 use http_body_util::BodyExt;
 use hyper::header;
 use serde_json::json;
 use std::sync::Arc;
 use tower::ServiceExt;
-use tracing::{info, instrument}; // for .oneshot()
+use tracing::*; 
 
 // Enum for OData V4 results (mirrors odata.rs)
 pub enum ODataV4Result {
@@ -102,7 +100,7 @@ async fn json_from_body(req: Request<axum::body::Body>) -> Result<serde_json::Va
     }
 }
 
-#[instrument(skip(state, headers))]
+// #[instrument(skip(state, headers))]
 pub async fn metadata(
     extract::State(state): extract::State<Arc<AppState>>,
     headers: HeaderMap,
@@ -190,8 +188,8 @@ fn handle_batch_json(data: &[u8]) -> serde_json::Value {
         json!({"error": "Batch body must be a JSON array of requests"})
     }
 }
-#[debug_handler]
-#[instrument(skip(state, headers, req))]
+// #[debug_handler]
+// #[instrument(skip(state, headers, req))]
 pub async fn batch(
     extract::State(state): extract::State<Arc<AppState>>,
     headers: HeaderMap,
@@ -210,7 +208,7 @@ pub async fn batch(
         let boundary = format!("--{}", content_type.split("boundary=").nth(1).unwrap_or(""));
         info!("boundary: {}", boundary);
         if let Ok(data) = body_bytes {
-            let mut responses: Vec<String> = Vec::new();
+            let _responses: Vec<String> = Vec::new();
             let bytes = data.to_bytes();
             let bytes = String::from_utf8_lossy(bytes.iter().as_slice());
             let mut x = bytes.split("\r\n").map(|x| x.to_string());
@@ -232,7 +230,7 @@ pub async fn batch(
                         let end = path.find("$batch").unwrap_or(path.len());
                         let url = format!("{}{}", &path[..end], parts[1]);
                         info!("URL: {}", url);
-                        let mut req_builder = HttpRequest::builder().method(parts[0]).uri(url);
+                        let req_builder = HttpRequest::builder().method(parts[0]).uri(url);
                         // for (k, v) in headers.iter() {
                         //     req_builder = req_builder.header(k, v);
                         // }
@@ -344,7 +342,7 @@ pub async fn batch(
     }
 }
 
-#[instrument(skip(state, req))]
+// #[instrument(skip(state, req))]
 pub async fn entity(
     extract::Path(path): extract::Path<String>,
     extract::State(state): extract::State<Arc<AppState>>,

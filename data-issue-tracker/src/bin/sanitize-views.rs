@@ -2,8 +2,6 @@
 // Generates default view and form definitions for each entity in entity-model, if not already present.
 
 use data_issue_tracker::*;
-use serde_yaml;
-use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
 
@@ -20,7 +18,7 @@ fn main() {
     }
 }
 
-fn generate_view_if_not_exists(model: &EntityModel, view_path: String) {
+fn generate_view_if_not_exists(_model: &EntityModel, _view_path: String) {
     // if !Path::new(&view_path).exists() {
     //     let columns: Vec<_> = model
     //         .attributes
@@ -52,7 +50,7 @@ fn generate_view_if_not_exists(model: &EntityModel, view_path: String) {
     // }
 }
 
-fn generate_form_if_not_exists(model: &EntityModel, form_path: String) {
+fn generate_form_if_not_exists(_model: &EntityModel, form_path: String) {
     if !Path::new(&form_path).exists() {
         // let fields: HashMap<String,String> = HashMap::from(model.attributes().iter().map(|a| (String::from("name"), a.name.clone())).collect::<Vec<_>>());
         // let relations = HashMap::from(model.relations().iter().map(|a| ("name", a.name.clone())).collect::<Vec<_>>());
