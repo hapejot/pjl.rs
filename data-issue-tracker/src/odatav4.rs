@@ -11,7 +11,7 @@ use hyper::header;
 use serde_json::json;
 use std::sync::Arc;
 use tower::ServiceExt;
-use tracing::*; 
+use tracing::*;
 
 // Enum for OData V4 results (mirrors odata.rs)
 pub enum ODataV4Result {
@@ -22,16 +22,32 @@ pub enum ODataV4Result {
 }
 
 // Helper to parse OData V4 entity path: Entity(key)
-pub fn parse_odata_entity_path(path: &str) -> Option<(String, String)> {
-    if let Some(idx) = path.find('(') {
-        let entity = &path[..idx];
-        let rest = &path[idx..];
-        if rest.starts_with('(') && rest.ends_with(')') && rest.len() > 2 {
-            let id = &rest[1..rest.len() - 1];
-            return Some((entity.to_string(), id.to_string()));
+/// Parses a path like Entity(key)/SubEntity(key2)/... into a Vec of (entity, key) pairs.
+pub fn parse_odata_entity_path(path: &str) -> Vec<(String, Option<String>)> {
+    let mut result = Vec::new();
+    for segment in path.split('/') {
+        match (segment.find("("), segment.find(")")) {
+            (Some(idx), Some(end)) => {
+                if idx >= end || end != segment.len() - 1 {
+                    return vec![]; //
+                }
+                let entity = &segment[..idx];
+                let after_entity = &segment[idx + 1..end];
+
+                if after_entity.len() == 0 || !segment.ends_with(")") {
+                    return vec![];
+                }
+                result.push((entity.to_string(), Some(after_entity.to_string())));
+            }
+            (None, None) => {
+                result.push((segment.to_string(), None));
+            }
+            _ => {
+                return vec![]; // Invalid segment, missing parentheses
+            }
         }
     }
-    None
+    result
 }
 
 // OData V4 JSON response (uses @odata.* annotations)
@@ -54,142 +70,8 @@ pub fn odata_v4_json_response<T: serde::Serialize>(
     b.body(json_str).unwrap()
 }
 
-pub async fn entity_post(
-    extract::Path(path): extract::Path<Vec<String>>,
-    extract::State(state): extract::State<Arc<AppState>>,
-    req: Request<axum::body::Body>,
-) -> axum::response::Response {
-    match int_odatav4_entity_post(path, state, req).await {
-        Ok(id) => odata_v4_json_response(StatusCode::OK, None, json!({"id": id})).into_response(),
-        Err(e) => {
-            odata_v4_json_response(StatusCode::UNPROCESSABLE_ENTITY, None, json!({"error": e}))
-                .into_response()
-        }
-    }
-}
+// === Public methods (alphabetically) ===
 
-async fn int_odatav4_entity_post(
-    path: Vec<String>,
-    state: Arc<AppState>,
-    req: Request<axum::body::Body>,
-) -> Result<String, String> {
-    if let Some((_entity, _id)) = parse_odata_entity_path(path[0].as_str()) {
-        let json_val = json_from_body(req).await?;
-        let mut record = state.get_record(&_entity, &_id);
-        for (key, val) in json_val.as_object().unwrap().iter() {
-            record[key] = val.clone();
-        }
-        record.as_object_mut().unwrap().remove("@odata.etag");
-        state.save_record(&_entity, record)
-    } else {
-        let json_val = json_from_body(req).await?;
-        let _entity = &path[0];
-        state.save_record(_entity, json_val)
-    }
-}
-
-async fn json_from_body(req: Request<axum::body::Body>) -> Result<serde_json::Value, String> {
-    let (_parts, mut body) = req.into_parts();
-    let body_bytes = BodyExt::collect(&mut body).await;
-    match body_bytes {
-        Ok(data) => match serde_json::from_slice(&data.to_bytes()) {
-            Ok(val) => Ok(val),
-            Err(e) => Err(format!("Invalid JSON: {}", e)),
-        },
-        Err(e) => Err(format!("Body read error: {}", e)),
-    }
-}
-
-// #[instrument(skip(state, headers))]
-pub async fn metadata(
-    extract::State(state): extract::State<Arc<AppState>>,
-    headers: HeaderMap,
-) -> impl IntoResponse {
-    info!("metadata handler v4");
-    let accept = headers
-        .get("accept")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("");
-    let wants_xml = !accept.contains("application/json") || accept.contains("text/json");
-    if wants_xml {
-        let mut xml = String::new();
-        xml.push_str(r#"<?xml version="1.0" encoding="UTF-8"?>"#);
-        xml.push_str(
-            r#"<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">"#,
-        );
-        xml.push_str(r#"<edmx:DataServices><Schema Namespace="Service" xmlns="http://docs.oasis-open.org/odata/ns/edm">"#);
-        for (entity_name, model) in state.entities().iter() {
-            xml.push_str(&format!(r#"<EntityType Name="{}">"#, entity_name));
-            xml.push_str(r#"<Key><PropertyRef Name="id"/></Key>"#);
-                for attr in model.attributes() {
-                    xml.push_str(&format!(
-                        r#"<Property Name="{}" Type="Edm.String" Nullable="true"/>"#,
-                        attr.name
-                    ));
-                }
-            xml.push_str(r#"</EntityType>"#);
-        }
-        xml.push_str(r#"<EntityContainer Name="Container">"#);
-        for (entity_name, _model) in state.entities().iter() {
-            xml.push_str(&format!(
-                r#"<EntitySet Name="{}" EntityType="Service.{}"/>"#,
-                entity_name, entity_name
-            ));
-        }
-        xml.push_str(r#"</EntityContainer>"#);
-        xml.push_str(r#"</Schema></edmx:DataServices></edmx:Edmx>"#);
-        return Response::builder()
-            .status(StatusCode::OK)
-            .header("Content-Type", "application/xml; charset=utf-8")
-            .body(xml)
-            .unwrap();
-    }
-    let mut json = serde_json::Map::new();
-    json.insert("@odata.context".to_string(), json!("$metadata"));
-    let entity_sets: Vec<_> = state
-        .entities()
-        .iter()
-        .map(|(name, model)| {
-            json!({
-                "name": name,
-                "entityType": model.service_name,
-                "title": model.title_attribute,
-                "attributes": model.attributes,
-                "relations": model.relations
-            })
-        })
-        .collect();
-    json.insert("EntitySets".to_string(), json!(entity_sets));
-    let json_str = serde_json::to_string(&json).unwrap();
-    Response::builder()
-        .status(StatusCode::OK)
-        .header("Content-Type", "application/json;odata.metadata=minimal")
-        .body(json_str)
-        .unwrap()
-}
-
-fn handle_batch_json(data: &[u8]) -> serde_json::Value {
-    use serde_json::Value;
-    let mut responses = Vec::new();
-    let json_val: Result<Value, _> = serde_json::from_slice(data);
-    if let Ok(Value::Array(requests)) = json_val {
-        for req in requests {
-            let method = req.get("method").and_then(|m| m.as_str()).unwrap_or("GET");
-            let url = req.get("url").and_then(|u| u.as_str()).unwrap_or("");
-            let body = req.get("body").cloned().unwrap_or(Value::Null);
-            responses.push(json!({
-                "method": method,
-                "url": url,
-                "body": body
-            }));
-        }
-        json!({"responses": responses})
-    } else {
-        json!({"error": "Batch body must be a JSON array of requests"})
-    }
-}
-// #[debug_handler]
-// #[instrument(skip(state, headers, req))]
 pub async fn batch(
     extract::State(state): extract::State<Arc<AppState>>,
     headers: HeaderMap,
@@ -204,15 +86,14 @@ pub async fn batch(
     let (_parts, mut body) = req.into_parts();
     let body_bytes = BodyExt::collect(&mut body).await;
     if content_type.starts_with("multipart/mixed") {
+        let mut responses = vec![];
         // Parse multipart/mixed batch
         let boundary = format!("--{}", content_type.split("boundary=").nth(1).unwrap_or(""));
         info!("boundary: {}", boundary);
         if let Ok(data) = body_bytes {
-            let _responses: Vec<String> = Vec::new();
             let bytes = data.to_bytes();
             let bytes = String::from_utf8_lossy(bytes.iter().as_slice());
             let mut x = bytes.split("\r\n").map(|x| x.to_string());
-
             while let Some(line) = x.next() {
                 if line == boundary {
                     // parse mime header until empty line
@@ -241,77 +122,29 @@ pub async fn batch(
                         let r = (*state.router()).clone();
                         let response = r.oneshot(req).await;
                         info!("Response: {:?}", response);
+                        responses.push(response.unwrap());
                     }
                 }
             }
         }
 
-        // for part in body_str.split(&format!("--{}", boundary)) {
-        //     let part = part.trim().to_string();
-        //     if part.is_empty() || part == "--" {
-        //         continue;
-        //     }
-        //     // Find the HTTP segment (e.g., GET /apiv4/Entity HTTP/1.1 ...)
-        //     let http_start = part.find("GET ").or_else(|| part.find("POST "));
-        //     if let Some(start) = http_start {
-        //         let http_segment = part[start..].to_string();
-        //         // Parse request line
-        //         let mut lines = http_segment
-        //             .lines()
-        //             .map(|x| x.to_string())
-        //             .collect::<Vec<_>>()
-        //             .iter();
-        //         let request_line = lines.next().unwrap_or(&String::new());
-        //         let mut method = "GET";
-        //         let mut url = "";
-        //         if let Some((m, rest)) = request_line.split_once(' ') {
-        //             method = m;
-        //             url = rest.split_whitespace().next().unwrap_or("");
-        //         }
-        //         // Collect headers
-        //         let mut headers = HttpHeaderMap::new();
-        //         for line in &mut lines {
-        //             let line = line.trim();
-        //             if line.is_empty() {
-        //                 break;
-        //             }
-        //             if let Some((k, v)) = line.split_once(":") {
-        //                 if let Ok(header_value) = v.trim().parse() {
-        //                     headers.insert(k.trim(), header_value);
-        //                 }
-        //             }
-        //         }
-        //         // Collect body
-        //         let body: String = lines.as_slice().join("\r\n");
-        //         // Build Axum request
-        //         let mut req_builder = HttpRequest::builder().method(method).uri(url);
-        //         for (k, v) in headers.iter() {
-        //             req_builder = req_builder.header(k, v);
-        //         }
-        //         let req = req_builder
-        //             .body(axum::body::Body::from(body.clone()))
-        //             .unwrap();
-        //         // Call router
-        //         let response = router.clone().oneshot(req).await.unwrap();
-        //         // Serialize response as HTTP/1.1
-        //         let (parts, body) = response.into_parts();
-        //         let status = parts.status.as_str();
-        //         let mut resp_headers = String::new();
-        //         for (k, v) in parts.headers.iter() {
-        //             resp_headers.push_str(&format!("{}: {}\r\n", k, v.to_str().unwrap_or("")));
-        //         }
-        //         let body_bytes = body.collect().await.unwrap().to_bytes();
-        //         let resp_body = String::from_utf8_lossy(&body_bytes);
-        //         let http_resp = format!("HTTP/1.1 {}\r\n{}\r\n{}", status, resp_headers, resp_body);
-        //         responses.push(http_resp);
-        //     }
-        // }
-        // Compose a multipart/mixed response
         let mut response_body = String::new();
         let resp_boundary = "batchresponse";
-        // for resp in responses {
-        //     response_body.push_str(&format!("--{}\r\nContent-Type: application/http\r\nContent-Transfer-Encoding: binary\r\n\r\n{}\r\n", resp_boundary, resp));
-        // }
+        for resp in responses {
+            let resp = response_to_http_string(resp).await;
+            let lines = vec![
+                format!("--{}", resp_boundary),
+                "Content-Type: application/http".to_string(),
+                format!("Content-Length: {}", resp.len()),
+                "Content-Transfer-Encoding: binary".to_string(),
+                "".to_string(), // Empty line to separate headers from body
+                resp,
+            ];
+            for s in lines {
+                response_body.push_str(&s);
+                response_body.push_str("\r\n");
+            }
+        }
         response_body.push_str(&format!("--{}--\r\n", resp_boundary));
         return Response::builder()
             .status(StatusCode::OK)
@@ -371,27 +204,30 @@ pub async fn entity(
             } else {
                 panic!("$count can only be used on collections");
             }
-        } else if let Some((entity, id)) = parse_odata_entity_path(part) {
-            result = api_get_record_v4(&entity, &id, state.clone()).await;
         } else {
-            match result {
-                ODataV4Result::Empty => {
-                    let _model = state.get_entity_model(part);
-                    let x = state.load_entity_refs(part);
-                    let lst = state.get_all_records(x);
-                    result = ODataV4Result::Collection(lst);
-                }
-                ODataV4Result::Single(ref record) => {
-                    let obj = record.as_object().unwrap();
-                    let r = obj
-                        .get(part)
-                        .and_then(|v| v.as_array().and_then(|w| Some(w.clone())))
-                        .unwrap_or_default();
-                    result = ODataV4Result::Collection(r);
-                }
-                ODataV4Result::Collection(_) => {}
-                ODataV4Result::Error(_) => {
-                    break;
+            let pairs = parse_odata_entity_path(part);
+            if let Some((entity, Some(id))) = pairs.get(0) {
+                result = api_get_record_v4(entity, id, state.clone()).await;
+            } else {
+                match result {
+                    ODataV4Result::Empty => {
+                        let _model = state.get_entity_model(part);
+                        let x = state.load_entity_refs(part);
+                        let lst = state.get_all_records(x);
+                        result = ODataV4Result::Collection(lst);
+                    }
+                    ODataV4Result::Single(ref record) => {
+                        let obj = record.as_object().unwrap();
+                        let r = obj
+                            .get(part)
+                            .and_then(|v| v.as_array().and_then(|w| Some(w.clone())))
+                            .unwrap_or_default();
+                        result = ODataV4Result::Collection(r);
+                    }
+                    ODataV4Result::Collection(_) => {}
+                    ODataV4Result::Error(_) => {
+                        break;
+                    }
                 }
             }
         }
@@ -451,12 +287,221 @@ pub async fn entity(
     }
 }
 
+pub async fn entity_patch(
+    extract::Path(path): extract::Path<Vec<String>>,
+    extract::State(state): extract::State<Arc<AppState>>,
+    req: Request<axum::body::Body>,
+) -> axum::response::Response {
+    match int_odatav4_entity_patch(path, state, req).await {
+        Ok(id) => odata_v4_json_response(StatusCode::OK, None, json!({"id": id})).into_response(),
+        Err(e) => {
+            odata_v4_json_response(StatusCode::UNPROCESSABLE_ENTITY, None, json!({"error": e}))
+                .into_response()
+        }
+    }
+}
+
+pub async fn entity_post(
+    extract::Path(path): extract::Path<Vec<String>>,
+    extract::State(state): extract::State<Arc<AppState>>,
+    req: Request<axum::body::Body>,
+) -> axum::response::Response {
+    match int_odatav4_entity_post(path, state, req).await {
+        Ok(id) => odata_v4_json_response(StatusCode::OK, None, json!({"id": id})).into_response(),
+        Err(e) => {
+            odata_v4_json_response(StatusCode::UNPROCESSABLE_ENTITY, None, json!({"error": e}))
+                .into_response()
+        }
+    }
+}
+
+pub async fn metadata(
+    extract::State(state): extract::State<Arc<AppState>>,
+    headers: HeaderMap,
+) -> impl IntoResponse {
+    info!("metadata handler v4");
+    let accept = headers
+        .get("accept")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("");
+    let wants_xml = !accept.contains("application/json") || accept.contains("text/json");
+    if wants_xml {
+        let mut xml = String::new();
+        xml.push_str(r#"<?xml version="1.0" encoding="UTF-8"?>"#);
+        xml.push_str(
+            r#"<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">"#,
+        );
+        xml.push_str(r#"<edmx:DataServices><Schema Namespace="Service" xmlns="http://docs.oasis-open.org/odata/ns/edm">"#);
+        for (entity_name, model) in state.entities().iter() {
+            xml.push_str(&format!(r#"<EntityType Name="{}">"#, entity_name));
+            xml.push_str(r#"<Key><PropertyRef Name="id"/></Key>"#);
+            for attr in model.attributes() {
+                xml.push_str(&format!(
+                    r#"<Property Name="{}" Type="Edm.String" Nullable="true"/>"#,
+                    attr.name
+                ));
+            }
+            xml.push_str(r#"</EntityType>"#);
+        }
+        xml.push_str(r#"<EntityContainer Name="Container">"#);
+        for (entity_name, _model) in state.entities().iter() {
+            xml.push_str(&format!(
+                r#"<EntitySet Name="{}" EntityType="Service.{}"/>"#,
+                entity_name, entity_name
+            ));
+        }
+        xml.push_str(r#"</EntityContainer>"#);
+        xml.push_str(r#"</Schema></edmx:DataServices></edmx:Edmx>"#);
+        return Response::builder()
+            .status(StatusCode::OK)
+            .header("Content-Type", "application/xml; charset=utf-8")
+            .body(xml)
+            .unwrap();
+    }
+    let mut json = serde_json::Map::new();
+    json.insert("@odata.context".to_string(), json!("$metadata"));
+    let entity_sets: Vec<_> = state
+        .entities()
+        .iter()
+        .map(|(name, model)| {
+            json!({
+                "name": name,
+                "entityType": model.service_name,
+                "title": model.title_attribute,
+                "attributes": model.attributes,
+                "relations": model.relations
+            })
+        })
+        .collect();
+    json.insert("EntitySets".to_string(), json!(entity_sets));
+    let json_str = serde_json::to_string(&json).unwrap();
+    Response::builder()
+        .status(StatusCode::OK)
+        .header("Content-Type", "application/json;odata.metadata=minimal")
+        .body(json_str)
+        .unwrap()
+}
+
+pub async fn response_to_http_string<T>(resp: Response<T>) -> String
+where
+    T: axum::body::HttpBody + Unpin,
+    T::Data: std::ops::Deref<Target = [u8]>,
+    T::Error: std::fmt::Debug,
+{
+    let (parts, body) = resp.into_parts();
+    let mut result = String::new();
+    use std::fmt::Write;
+    // Statuszeile
+    write!(
+        &mut result,
+        "HTTP/1.1 {} {}\r\n",
+        parts.status.as_u16(),
+        parts.status.canonical_reason().unwrap_or("")
+    )
+    .unwrap();
+    // Header
+    for (k, v) in parts.headers.iter() {
+        write!(&mut result, "{}: {}\r\n", k, v.to_str().unwrap_or("")).unwrap();
+    }
+    result.push_str("\r\n");
+    // Body
+    let body_bytes = body.collect().await.unwrap().to_bytes();
+    result.push_str(&String::from_utf8_lossy(&body_bytes));
+    result
+}
+
+// === Private/Helper methods (alphabetically) ===
+
 async fn api_get_record_v4(entity: &str, id: &str, state: Arc<AppState>) -> ODataV4Result {
     info!(entity = %entity, id = %id, "API: Get record V4");
+    let id = id.replace('\'', "");
     let record = state.get_record(&entity, &id);
     if record.is_null() {
+        info!("empty result");
         ODataV4Result::Empty
     } else {
+        info!("found one record");
         ODataV4Result::Single(record)
+    }
+}
+
+fn handle_batch_json(data: &[u8]) -> serde_json::Value {
+    use serde_json::Value;
+    let mut responses = Vec::new();
+    let json_val: Result<Value, _> = serde_json::from_slice(data);
+    if let Ok(Value::Array(requests)) = json_val {
+        for req in requests {
+            let method = req.get("method").and_then(|m| m.as_str()).unwrap_or("GET");
+            let url = req.get("url").and_then(|u| u.as_str()).unwrap_or("");
+            let body = req.get("body").cloned().unwrap_or(Value::Null);
+            responses.push(json!({
+                "method": method,
+                "url": url,
+                "body": body
+            }));
+        }
+        json!({"responses": responses})
+    } else {
+        json!({"error": "Batch body must be a JSON array of requests"})
+    }
+}
+
+async fn int_odatav4_entity_patch(
+    path: Vec<String>,
+    state: Arc<AppState>,
+    req: Request<axum::body::Body>,
+) -> Result<String, String> {
+    info!(path=%path.len(), "patching");
+    let pairs = parse_odata_entity_path(path[0].as_str());
+    if let Some((_entity, Some(_id))) = pairs.get(0) {
+        let json_val = json_from_body(req).await?;
+        let mut record = state.get_record(_entity, _id);
+        for (key, val) in json_val.as_object().unwrap().iter() {
+            record[key] = val.clone();
+        }
+        record.as_object_mut().unwrap().remove("@odata.etag");
+        state.save_record(_entity, record)
+    } else {
+        Err(format!("Invalid OData path: {:?}", path))
+    }
+}
+
+async fn int_odatav4_entity_post(
+    path: Vec<String>,
+    state: Arc<AppState>,
+    req: Request<axum::body::Body>,
+) -> Result<String, String> {
+    let pairs = parse_odata_entity_path(path[0].as_str());
+    if let Some((_entity, Some(_id))) = pairs.get(0) {
+        let json_val = json_from_body(req).await?;
+        let mut record = state.get_record(_entity, _id);
+        for (key, val) in json_val.as_object().unwrap().iter() {
+            record[key] = val.clone();
+        }
+        record.as_object_mut().unwrap().remove("@odata.etag");
+        state.save_record(_entity, record)
+    } else {
+        let json_val = json_from_body(req).await?;
+        let _entity = &path[0];
+        state.save_record(_entity, json_val)
+    }
+}
+
+async fn json_from_body(req: Request<axum::body::Body>) -> Result<serde_json::Value, String> {
+    let (_parts, mut body) = req.into_parts();
+    let body_bytes = BodyExt::collect(&mut body).await;
+    match body_bytes {
+        Ok(data) => {
+            let b = data.to_bytes();
+            match serde_json::from_slice(&b) {
+                Ok(val) => Ok(val),
+                Err(e) => Err(format!(
+                    "Invalid JSON: {} <{}>",
+                    e,
+                    str::from_utf8(&b).unwrap()
+                )),
+            }
+        }
+        Err(e) => Err(format!("Body read error: {}", e)),
     }
 }

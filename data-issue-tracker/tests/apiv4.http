@@ -67,6 +67,28 @@ http://localhost:3000/apiv4/form/User
 ###
 http://localhost:3000/apiv4/$metadata
 ###
+
+POST http://localhost:3000/apiv4/$batch HTTP/1.1
+Accept: multipart/mixed
+Accept-Language: de
+Content-Type: multipart/mixed; boundary=batch_id-1751650198639-37
+OData-MaxVersion: 4.0
+OData-Version: 4.0
+
+--batch_id-1751650198639-37
+Content-Type:application/http
+Content-Transfer-Encoding:binary
+
+PATCH Issue('1d6d989a-fb03-4187-82ea-660a8fc7fe3a') HTTP/1.1
+Accept:application/json;odata.metadata=minimal;IEEE754Compatible=true
+Accept-Language:de
+Content-Type:application/json;charset=UTF-8;IEEE754Compatible=true
+
+{"title":"Noch mal neu - Weiter...."}
+--batch_id-1751650198639-37--
+Group ID: $auto
+###
+
 POST http://localhost:3000/apiv4/$batch
 accept: multipart/mixed
 accept-language: de
@@ -76,14 +98,22 @@ odata-maxversion: 4.0
 odata-version: 4.0
 
 --batch_id-1750587175211-25
-Content-Type:application/http
-Content-Transfer-Encoding:binary
+Content-Type: application/http
+Content-Transfer-Encoding: binary
 
 GET Issue?$orderby=title&$skip=0&$top=100 HTTP/1.1
 Accept:application/json;odata.metadata=minimal;IEEE754Compatible=true
 Accept-Language:de
 Content-Type:application/json;charset=UTF-8;IEEE754Compatible=true
 
+--batch_id-1750587175211-25
+Content-Type: application/http
+Content-Transfer-Encoding: binary
+
+GET Issue?$orderby=title&$skip=0&$top=100 HTTP/1.1
+Accept:application/json;odata.metadata=minimal;IEEE754Compatible=true
+Accept-Language:de
+Content-Type:application/json;charset=UTF-8;IEEE754Compatible=true
 
 --batch_id-1750587175211-25--
 Group ID: $auto

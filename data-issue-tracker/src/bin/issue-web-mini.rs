@@ -1,5 +1,5 @@
 use axum::{
-    routing::{get, post},
+    routing::{get, patch, post},
     Router,
 };
 use data_issue_tracker::{odata, odatav4, AppState};
@@ -23,10 +23,12 @@ async fn main() {
         .route("/api/$batch", post(odata::batch))
         .route("/api/{*path}", get(odata::entity))
         .route("/api/{*path}", post(odata::entity_post))
+        .route("/api/{*path}", patch(odata::entity_post))
         .route("/apiv4/$metadata", get(odatav4::metadata))
         .route("/apiv4/$batch", post(odatav4::batch))
         .route("/apiv4/{*path}", get(odatav4::entity))
         .route("/apiv4/{*path}", post(odatav4::entity_post))
+        .route("/apiv4/{*path}", patch(odatav4::entity_patch))
         // Serve static files
         .with_state(state.clone())
         .nest_service("/static", ServeDir::new("webapp"));
