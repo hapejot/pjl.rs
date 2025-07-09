@@ -1,11 +1,11 @@
 use clap::Parser;
-use enigo::{Enigo, KeyboardControllable};
 use std::fs;
 use std::thread::sleep;
 use std::time::Duration;
 
 #[cfg(target_os = "windows")]
 mod win_focus {
+    use enigo::{Enigo, KeyboardControllable};
     use std::ffi::OsString;
     use std::os::windows::ffi::OsStringExt;
     use windows::Win32::Foundation::*;
@@ -16,7 +16,9 @@ mod win_focus {
             let mut buf = [0u16; 512];
             let len = GetWindowTextW(hwnd, &mut buf);
             if len > 0 {
-                let window_title = OsString::from_wide(&buf[..len as usize]).to_string_lossy().to_string();
+                let window_title = OsString::from_wide(&buf[..len as usize])
+                    .to_string_lossy()
+                    .to_string();
                 let search = unsafe { &*(lparam.0 as *const String) };
                 if window_title.contains(search) && IsWindowVisible(hwnd).as_bool() {
                     let _ = SetForegroundWindow(hwnd);
@@ -55,8 +57,7 @@ struct Args {
 #[cfg(target_os = "windows")]
 fn main() {
     let args = Args::parse();
-    let text = fs::read_to_string(&args.file)
-        .expect("Failed to read input file");
+    let text = fs::read_to_string(&args.file).expect("Failed to read input file");
     if let Some(ref title) = args.window_title {
         win_focus::focus_window_by_title(title);
     }
