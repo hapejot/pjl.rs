@@ -52,11 +52,11 @@ struct Args {
     window_title: Option<String>,
 }
 
+#[cfg(target_os = "windows")]
 fn main() {
     let args = Args::parse();
     let text = fs::read_to_string(&args.file)
         .expect("Failed to read input file");
-    #[cfg(target_os = "windows")]
     if let Some(ref title) = args.window_title {
         win_focus::focus_window_by_title(title);
     }
@@ -65,4 +65,10 @@ fn main() {
         enigo.key_sequence(&c.to_string());
         sleep(Duration::from_millis(args.delay));
     }
+}
+
+#[cfg(not(target_os = "windows"))]
+fn main() {
+    eprintln!("Error: key-sim is only supported on Windows.");
+    std::process::exit(1);
 }
