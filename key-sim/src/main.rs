@@ -5,7 +5,6 @@ use std::time::Duration;
 
 #[cfg(target_os = "windows")]
 mod win_focus {
-    use enigo::{Enigo, KeyboardControllable};
     use std::ffi::OsString;
     use std::os::windows::ffi::OsStringExt;
     use windows::Win32::Foundation::*;
@@ -56,6 +55,7 @@ struct Args {
 
 #[cfg(target_os = "windows")]
 fn main() {
+    use enigo::*;
     let args = Args::parse();
     let text = fs::read_to_string(&args.file).expect("Failed to read input file");
     if let Some(ref title) = args.window_title {

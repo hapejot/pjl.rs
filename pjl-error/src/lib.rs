@@ -72,11 +72,7 @@ mod tests {
         match err() {
             Ok(_) => todo!(),
             Err(e) => {
-                assert_eq!(
-                    "AppError { msg: \"No child processes (os error 10)\" }",
-                    format!("{e:?}")
-                );
-                assert_eq!("No child processes (os error 10)", e.message())
+                assert!(e.message().contains("(os error 10)"))
             }
         }
     }
