@@ -1,0 +1,139 @@
+{
+	"_version": "1.5.0",
+	"sap.app": {
+		"id": "hcm.fab.timeeventsapproval.inbox",
+		"type": "application",
+		"i18n": "i18n/i18n.properties",
+		"applicationVersion": {
+			"version": "1.1.22"
+		},
+		"title": "{{appTitle}}",
+		"description": "{{appDescription}}",
+		"resources": "resources.json",
+		"ach": "PA-FIO-CIO",
+		"sourceTemplate": {
+			"id": "ui5template.basicSAPUI5ApplicationProject",
+			"version": "1.40.12"
+		},
+		"dataSources": {
+			"HCMFAB_TIMEEVENTS_APR_SRV": {
+				"uri": "/sap/opu/odata/sap/HCMFAB_TIMEEVENTS_APR_SRV/",
+				"type": "OData",
+				"settings": {
+					"odataVersion": "2.0",
+					"localUri": "model/metadata.xml"
+				}
+			}
+		}
+	},
+	"sap.fiori": {
+		"registrationIds": ["F3099"],
+		"archeType": "transactional"
+	},
+	"sap.ui": {
+		"technology": "UI5",
+		"icons": {
+			"icon": "",
+			"favIcon": "",
+			"phone": "",
+			"phone@2": "",
+			"tablet": "",
+			"tablet@2": ""
+		},
+		"deviceTypes": {
+			"desktop": true,
+			"tablet": true,
+			"phone": true
+		},
+		"supportedThemes": [
+			"sap_hcb",
+			"sap_belize"
+
+		]
+	},
+
+	"sap.ui5": {
+		"rootView": {
+			"viewName": "hcm.fab.timeeventsapproval.inbox.view.App",
+			"type": "XML"
+		},
+		"config": {
+			"sapFiori2Adaptation": true
+		},
+		"handleValidation": true,
+		"dependencies": {
+			"minUI5Version": "1.44.9",
+			"libs": {
+				"sap.ui.core": {},
+				"sap.m": {},
+				"sap.ui.layout": {},
+				"sap.ushell": {},
+				"sap.collaboration": {},
+				"sap.ui.comp": {},
+				"sap.uxap": {},
+				"hcm.fab.lib.common": {}
+			}
+		},
+		"contentDensities": {
+			"compact": true,
+			"cozy": true
+		},
+		"models": {
+			"i18n": {
+				"type": "sap.ui.model.resource.ResourceModel",
+				"settings": {
+					"bundleName": "hcm.fab.timeeventsapproval.inbox.i18n.i18n"
+				}
+			},
+			"": {
+				"dataSource": "HCMFAB_TIMEEVENTS_APR_SRV",
+				"settings": {
+					"useBatch": true,
+					"disableHeadRequestForToken": true,
+					"metadataUrlParams": {
+						"sap-documentation": "heading"
+					}
+				}
+			}
+		},
+		"routing": {
+			"config": {
+				"viewType": "XML",
+				"viewPath": "hcm.fab.timeeventsapproval.inbox.view",
+				"controlId": "app",
+				"controlAggregation": "pages"
+			},
+			"routes": [{
+				"pattern": "detail/{SAP__Origin}/{InstanceID}/{contextPath}",
+				"name": "overview",
+				"target": "overview"
+			}, {
+				"pattern": "detail",
+				"name": "detail",
+				"target": "detail"
+			},
+			{
+				"name": "overview_deep",
+				"pattern": "detail_deep/{SAP__Origin}/{InstanceID}/{contextPath}",
+				"target": "overview"
+			}],
+			"targets": {
+				"overview": {
+					"viewName": "S3",
+					"transition": "slide",
+					"clearAggregation": true
+				},
+				"detail": {
+					"viewName": "S3",
+					"transition": "slide",
+					"clearAggregation": true
+				}
+			}
+		},
+		"resources": {
+			"css": [{
+				"uri": "css/style.css"
+			}]
+		}
+	}
+}

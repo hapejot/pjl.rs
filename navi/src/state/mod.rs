@@ -1,4 +1,4 @@
-use std::{fs, io, path::PathBuf};
+use std::{env, fs, io, path::PathBuf};
 
 use crate::settings::Settings;
 
@@ -12,7 +12,7 @@ pub struct State {
 impl State {
     pub(crate) fn new() -> Self {
         // let d = dirs::config_dir().unwrap();
-        let d = PathBuf::from("/mnt/pjl");
+        let d = PathBuf::from(env::current_dir().unwrap());
         let mut entries = fs::read_dir(&d)
             .unwrap()
             .map(|res| res.map(|e| e.path().as_mut_os_str().to_str().unwrap().to_string()))

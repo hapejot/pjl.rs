@@ -1,0 +1,1 @@
+<mvc:View xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" controllerName="cross.fnd.fiori.inbox.Main" xmlns:html="http://www.w3.org/1999/xhtml" displayBlock="true" height="100%"><App id="fioriContent"/></mvc:View>

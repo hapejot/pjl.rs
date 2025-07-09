@@ -1,0 +1,70 @@
+@startuml class
+' data-issue-tracker core class diagram
+
+class Attribute {
+  +name: String
+  +type_name: String
+  +description: String
+  +nullable: bool
+}
+
+class Relation {
+  +name: String
+  +type_name: String
+  +target: String
+  +cardinality: String
+  +description: String
+}
+
+class EntityModel {
+  +entity: String
+  +purpose: String
+  +title_attribute: String
+  +data_directory: String
+  +service_name: String
+  +attributes: Vec<Attribute>
+  +relations: Vec<Relation>
+}
+
+class SelectionEntry {
+  +id: String
+  +label: String
+  +status: String
+}
+
+class EntityRef {
+  +entity: String
+  +id: String
+  +label: String
+  +etag: String
+}
+
+class AppState {
+  -entities: EntityMap
+  -router: Mutex<Option<Arc<Router>>>
+  +entities()
+  +get_entity_model()
+  +load_entity_refs()
+  +get_all_records()
+  +get_record()
+  +save_record()
+  +new()
+  +router()
+  +set_router()
+}
+
+class EntityResult {
+  <<enum>>
+  +Single
+  +Collection
+}
+
+EntityModel "1" o-- "*" Attribute : has
+EntityModel "1" o-- "*" Relation : has
+AppState "1" o-- "*" EntityModel : manages
+RelationOptions .. SelectionEntry : deprecated
+AppState ..> Router : uses
+EntityRef ..> EntityModel : refers to
+EntityResult ..> EntityModel : result for
+
+@enduml

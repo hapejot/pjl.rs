@@ -1,0 +1,1 @@
+<mvc:View xmlns="sap.m" xmlns:layout="sap.ui.layout" xmlns:mvc="sap.ui.core.mvc"><layout:FixFlex id="embeddingContainer"/></mvc:View>

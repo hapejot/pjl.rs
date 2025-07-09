@@ -1,17 +1,22 @@
-status: 'New'
-description: ''
-data_source: ''
-resolution: ''
-title: Neu
-updated_at: ''
-tags: f89046b3-8c64-4c1a-9bd8-45f52ff405ec
-object_cluster: ''
+__metadata:
+  etag: 2025-07-05T12:21:42.718667600+00:00
+  type: Service.Issue
+  uri: /api/Issue('5df589c7-c7b2-482e-951d-9d781497b9e5')
+assignee: User('f66c32e7-7fc7-4e53-8a36-8eb40e311448')
 created_at: ''
-tracker: ''
+data_source: ''
+description: neue Beschreibung
+due_date: sofort
+id: 5df589c7-c7b2-482e-951d-9d781497b9e5
+last_modified: 2025-07-05T12:21:42.718667600+00:00
+object_cluster: ''
+priority: ''
+reporter: User('f66c32e7-7fc7-4e53-8a36-8eb40e311448')
+resolution: ''
 resolution_date: ''
 severity: ''
-reporter: f66c32e7-7fc7-4e53-8a36-8eb40e311448
-priority: ''
-due_date: ''
-assignee: f66c32e7-7fc7-4e53-8a36-8eb40e311448
-id: 5df589c7-c7b2-482e-951d-9d781497b9e5
+status: New
+tags: f89046b3-8c64-4c1a-9bd8-45f52ff405ec
+title: Neu
+tracker: ''
+updated_at: ''

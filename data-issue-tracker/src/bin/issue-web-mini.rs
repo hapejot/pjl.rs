@@ -19,11 +19,11 @@ async fn main() {
 
     let state = AppState::new();
     let app = Router::new()
-        .route("/api/$metadata", get(odata::metadata))
-        .route("/api/$batch", post(odata::batch))
-        .route("/api/{*path}", get(odata::entity))
-        .route("/api/{*path}", post(odata::entity_post))
-        .route("/api/{*path}", patch(odata::entity_post))
+        .route("/apiv2/$metadata", get(odata::metadata))
+        .route("/apiv2/$batch", post(odata::batch))
+        .route("/apiv2/{*path}", get(odata::entity))
+        .route("/apiv2/{*path}", post(odata::entity_post))
+        .route("/apiv2/{*path}", patch(odata::entity_post))
         .route("/apiv4/$metadata", get(odatav4::metadata))
         .route("/apiv4/$batch", post(odatav4::batch))
         .route("/apiv4/{*path}", get(odatav4::entity))

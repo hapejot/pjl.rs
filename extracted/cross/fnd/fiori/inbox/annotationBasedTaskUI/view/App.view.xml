@@ -1,0 +1,1 @@
+<mvc:View xmlns:mvc="sap.ui.core.mvc" xmlns:m="sap.m" height="100%"><m:NavContainer id="rootControl"/></mvc:View>

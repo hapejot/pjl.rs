@@ -1,9 +1,16 @@
+__metadata:
+  etag: 2025-07-05T12:08:30.353688+00:00
+  type: Service.Issue
+  uri: /api/Issue('1d6d989a-fb03-4187-82ea-660a8fc7fe3a')
 assignee: User('f66c32e7-7fc7-4e53-8a36-8eb40e311448')
+comments:
+- Comment('a70972aa-8138-436d-b867-245ee78f3dca')
 created_at: ''
 data_source: ''
 description: Alternative Berschreibung
 due_date: gestern
 id: 1d6d989a-fb03-4187-82ea-660a8fc7fe3a
+last_modified: 2025-07-05T12:08:30.353688+00:00
 object_cluster: ''
 priority: ''
 reporter: ''
@@ -13,8 +20,6 @@ severity: ''
 status: ''
 tags:
 - Tag('f89046b3-8c64-4c1a-9bd8-45f52ff405ec')
-title: Noch mal neu - Weiter
+title: Noch mal neu - Weiter geht es
 tracker: ''
 updated_at: 12.6.25 11:02
-comments: 
-- Comment('a70972aa-8138-436d-b867-245ee78f3dca')

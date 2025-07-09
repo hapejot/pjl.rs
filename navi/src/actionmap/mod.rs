@@ -20,6 +20,9 @@ impl ActionMap {
         }
     }
     fn translate_key_event(&self, key_event: KeyEvent) -> Option<Box<dyn Action>> {
+        if key_event.kind != crossterm::event::KeyEventKind::Press {
+            return None;
+        }
         match key_event.code {
             crossterm::event::KeyCode::Backspace => todo!(),
             crossterm::event::KeyCode::Enter => todo!(),

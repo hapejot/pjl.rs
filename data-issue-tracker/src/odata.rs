@@ -40,7 +40,7 @@ async fn int_odata_entity_post(
 ) -> Result<String, String> {
     if let Some((_entity, _id)) = parse_odata_entity_path(path[0].as_str()) {
         let json_val = json_from_body(req).await?;
-        let mut record = state.get_record(&_entity, &_id);
+        let mut record = state.get_record("/apiv2", &_entity, &_id);
         for (key, val) in json_val.as_object().unwrap().iter() {
             record[key] = val.clone();
         }
@@ -70,14 +70,14 @@ fn odata_json_response<T: serde::Serialize>(
     b.body(json_str).unwrap()
 }
 
-fn parse_odata_entity_path(path: &str) -> Option<(String, String)> {
+fn parse_odata_entity_path(path: &str) -> Option<(String, serde_json::Value)> {
     // Example: path = "User('abc-123')"
     if let Some(idx) = path.find('(') {
         let entity = &path[..idx];
         let rest = &path[idx..];
-        if rest.starts_with("('") && rest.ends_with("')") && rest.len() > 4 {
-            let id = &rest[2..rest.len() - 2];
-            return Some((entity.to_string(), id.to_string()));
+        if rest.starts_with("(") && rest.ends_with(")") && rest.len() > 2 {
+            let id = &rest[1..rest.len() - 1];
+            return Some((entity.to_string(), serde_json::from_str(id).unwrap()));
         }
     }
     None
@@ -319,9 +319,9 @@ async fn int_list_records(
 }
 
 // #[instrument(skip(state))]
-async fn api_get_record(entity: &str, id: &str, state: Arc<AppState>) -> ODataResult {
+async fn api_get_record(entity: &str, id: &serde_json::Value, state: Arc<AppState>) -> ODataResult {
     info!(entity = %entity, id = %id, "API: Get record");
-    let record = state.get_record(&entity, &id);
+    let record = state.get_record("/apiv2", &entity, &id);
     if record.is_null() {
         ODataResult::Empty
     } else {

@@ -22,6 +22,8 @@ members = [
     "pjl-static-strings", 
     "pjl-file-server", 
 #    "thumb-node",
-    "pjl-cache", "pjl-terminal-tools"] 
+    "pjl-cache", "pjl-terminal-tools",
+    "excel-cell-replace"
+, "key-sim"]
 
 

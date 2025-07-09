@@ -84,7 +84,7 @@ Accept:application/json;odata.metadata=minimal;IEEE754Compatible=true
 Accept-Language:de
 Content-Type:application/json;charset=UTF-8;IEEE754Compatible=true
 
-{"title":"Noch mal neu - Weiter...."}
+{"title":"Noch mal neu - Weiter geht es"}
 --batch_id-1751650198639-37--
 Group ID: $auto
 ###

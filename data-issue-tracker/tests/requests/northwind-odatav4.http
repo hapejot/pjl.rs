@@ -1,0 +1,9 @@
+http://services.odata.org/V4/Northwind/Northwind.svc/$metadata
+###
+http://services.odata.org/V4/Northwind/Northwind.svc/Customers/$count
+###
+http://services.odata.org/V4/Northwind/Northwind.svc/Customers
+###
+http://services.odata.org/V4/Northwind/Northwind.svc/Orders
+###
+http://services.odata.org/V4/Northwind/Northwind.svc/Orders(10248)?$expand=Order_Details

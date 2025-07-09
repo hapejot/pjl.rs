@@ -1,0 +1,1 @@
+<mvc:View xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" controllerName="cross.fnd.fiori.inbox.controller.SplitContainer" xmlns:html="http://www.w3.org/1999/xhtml" displayBlock="true" height="100%"><SplitContainer id="splitContainer"/></mvc:View>

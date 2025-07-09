@@ -1,7 +1,8 @@
 use std::io;
 
 use crossterm::{
-    cursor, event, execute, queue, style::{self, Stylize},
+    cursor, event, execute, queue,
+    style::{self, Stylize},
     terminal::{self, ClearType},
 };
 
@@ -24,7 +25,6 @@ impl Application {
         terminal::enable_raw_mode()?;
 
         while !self.state.done() {
-            // let offset = 3;
             let mut lineno = 0;
             queue!(
                 w,
@@ -33,14 +33,18 @@ impl Application {
                 cursor::Hide,
                 cursor::MoveTo(0, 0),
                 style::Print(self.state.title()),
+                style::Print(format!("{}", self.state.current_row())),
                 cursor::MoveToNextLine(2)
             )?;
 
             for line in self.state.output_lines() {
                 if lineno == self.state.current_row() {
-                    queue!(w, cursor::MoveToNextLine(1), style::Print(line.clone().negative()))?;
-                }
-                else {
+                    queue!(
+                        w,
+                        cursor::MoveToNextLine(1),
+                        style::Print(line.clone().negative())
+                    )?;
+                } else {
                     queue!(w, cursor::MoveToNextLine(1), style::Print(line))?;
                 }
                 lineno += 1;
@@ -54,14 +58,6 @@ impl Application {
             if let Some(a) = self.next_action() {
                 a.perform(&mut self.state);
             }
-
-            // match read_char()? {
-            //     'q' => {
-            //         execute!(w, cursor::SetCursorStyle::DefaultUserShape).unwrap();
-            //         break;
-            //     }
-            //     _ => {}
-            // };
         }
         execute!(
             w,

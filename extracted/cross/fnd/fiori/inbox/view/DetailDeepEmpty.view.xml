@@ -1,0 +1,1 @@
+<mvc:View xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" controllerName="cross.fnd.fiori.inbox.view.DetailDeepEmpty"><Page id="cross.fnd.fiori.inbox.view.DetailDeepEmpty" title="{i18n&gt;DETAIL_TITLE}"><content><MessageStrip id="messageStrip" text="{/messageStripText}" showIcon="true" class="sapUiMediumMarginBeginEnd sapUiLargeMarginTop"/></content></Page></mvc:View>

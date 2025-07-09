@@ -1,0 +1,1 @@
+<StandardListItem xmlns="sap.m" title="{userDataModel&gt;/displayName}" description="{userDataModel&gt;/company}" icon="{path:'userDataModel&gt;/media_src',formatter:'cross.fnd.fiori.inbox.view.ViewSubstitution.prototype.Substitution.formatterUserPictureIcon'}" iconDensityAware="false" iconInset="false"/>

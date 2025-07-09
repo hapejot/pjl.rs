@@ -1,0 +1,1 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core"><List items="{path:'detail&gt;/ObjectLinks/results'}"><items><CustomListItem><Link text="{detail&gt;Label}" target="_blank" rel="noreferrer noopener" href="{detail&gt;ObjectLink}" wrapping="true" class="crossFndFioriInboxObjectLink"/></CustomListItem></items></List></core:FragmentDefinition>

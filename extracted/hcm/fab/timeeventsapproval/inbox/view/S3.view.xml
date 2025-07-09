@@ -1,0 +1,53 @@
+<!--
+
+    Copyright (C) 2009-2021 SAP SE or an SAP affiliate company. All rights reserved.
+
+-->
+<mvc:View controllerName="hcm.fab.timeeventsapproval.inbox.controller.S3" xmlns:html="http://www.w3.org/1999/xhtml" xmlns:mvc="sap.ui.core.mvc"
+	xmlns="sap.m" xmlns:form="sap.ui.layout.form" xmlns:uxap="sap.uxap" xmlns:layout="sap.ui.layout" xmlns:core="sap.ui.core">
+	<uxap:ObjectPageLayout id="detailPage" enableLazyLoading="false" showHeaderContent="true" showTitleInHeaderContent="false">
+		<uxap:headerTitle>
+			<uxap:ObjectPageHeader id="S3_DETAIL_HEADER" objectTitle="{header>/EmployeeName}" objectImageShape="Circle"
+				objectSubtitle="{header>/EmployeePositionText}" 
+				objectImageURI="{parts: [{path:'header>/showEmployeePicture'},{path:'header>/MimeType'}], formatter:'.Conversions._formatImageURL'}"></uxap:ObjectPageHeader>
+		</uxap:headerTitle>
+		<uxap:headerContent>
+			<Image id='employeeImage' src="{header>/MimeType}" tooltip="{i18n>view.Header.EmployeePhoto}" height="5rem" width="5rem"></Image>
+			<layout:VerticalLayout class='sapUiTinyMarginTop'>
+				<ObjectAttribute id="S3_EMPID" title="{i18n>view.Header.EmployeeID}" visible="{header>/showEmployeeNumber}"
+				text="{parts: [{path:'header>/bShowEmployeeNumberWithoutZeros'},{path:'header>/EmployeeId'}], formatter:'.Conversions.numberWithoutZeros'}"></ObjectAttribute>
+				<ObjectAttribute id="S3_PHONE" title="{i18n>view.Header.Telephone}" text="{header>/WorkPhone}" active="true" press="onPhoneClick"></ObjectAttribute>
+				<ObjectAttribute id="S3_EMAIL" title="{i18n>view.Header.Email}" text="{header>/WorkEmail}" active="true" press="onEmailClick"></ObjectAttribute>
+				<ObjectStatus    id="S3_CANCELLATION" state="Error" visible="{=${time>/CancellationStatus} ? true : false}"></ObjectStatus>
+			</layout:VerticalLayout>
+			<!-- Extend the header Section -->
+			<core:ExtensionPoint name="extS3Header"></core:ExtensionPoint>
+		</uxap:headerContent>
+		<uxap:sections>
+			<uxap:ObjectPageSection id="S3_DETAIL_INFO" title="{i18n>view.detail.Information}" titleUppercase="false">
+				<uxap:subSections>
+					<uxap:ObjectPageSubSection>
+						<uxap:blocks>
+							<form:SimpleForm id="formTimeEvent" title="">
+								<form:content>
+									<Label id="S3_LABEL_NEW_TIME_EVENT" text="{i18n>view.detail.TypeOfCorrection}"/>
+									<Text id="S3_TEXT_NEW_TIME_EVENT" text="{time>/TimeTypeText}"/>
+									<Label/>
+									<Label id="S3_LABEL_NEW_DATE" text="{i18n>view.detail.NewDate}"/>
+									<Text id="S3_TEXT_NEW_DATE" text="{time>/EventDate}"/><Label/>
+									<Label id="S3_LABEL_NEW_TIME" text="{i18n>view.detail.NewTime}"/>
+									<Text id="S3_TEXT_NEW_TIME" text="{time>/EventTime}"/><Label/>
+									<Label id="S3_LABEL_NOTE_FOR_APPROVER" text="{i18n>view.detail.NoteForApprover}" visible="{=${time>/Note} ? true : false}"/>
+									<Text id="S3_TEXT_NOTE_FOR_APPROVER" text="{time>/Note}" visible="{=${time>/Note} ? true : false}"/>
+									<Label/>
+								</form:content>
+							</form:SimpleForm>
+							<!--extension point for Information Section -->
+							<core:ExtensionPoint name="extS3Information"/>
+						</uxap:blocks>
+					</uxap:ObjectPageSubSection>
+				</uxap:subSections>
+			</uxap:ObjectPageSection>
+		</uxap:sections>
+	</uxap:ObjectPageLayout>
+</mvc:View>
