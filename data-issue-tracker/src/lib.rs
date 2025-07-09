@@ -325,6 +325,7 @@ impl AppState {
     /// The returned JSON object includes metadata such as the last modified time and ETag.
     /// # Example
     /// ```
+    /// use data_issue_tracker::AppState;
     /// let state = AppState::new();
     /// let record = state.get_record("/lib", "User", &serde_json::json!("123"));
     /// println!("{:?}", record);
@@ -485,6 +486,9 @@ impl AppState {
     ///
     /// # Example
     /// ```
+    /// use data_issue_tracker::AppState;
+    /// use axum::routing::Router;
+    /// use axum::routing::get;
     /// let state = AppState::new();
     /// let router = Router::new().route("/", get(|| async { "Hello, World!" }));
     /// state.set_router(router);
