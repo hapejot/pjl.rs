@@ -11,7 +11,7 @@ pub use csdl::Schema;
 pub mod csdl {
     use serde::{Deserialize, Serialize};
 
-    #[derive(Debug, Serialize, Deserialize)]
+    #[derive(Debug, Serialize, Deserialize, Default)]
     pub struct Schema {
         pub annotations: Vec<Annotation>,
         pub associations: Vec<Association>,
@@ -84,7 +84,7 @@ pub mod csdl {
     }
     #[derive(Debug, Serialize, Deserialize)]
     pub struct EntityContianer {}
-    #[derive(Debug, Serialize, Deserialize)]
+    #[derive(Debug, Serialize, Deserialize, Default)]
     pub struct EntityType {
         pub name: String,
         pub base: Option<String>,
@@ -105,7 +105,7 @@ pub mod csdl {
         }
     }
 
-    #[derive(Debug, Serialize, Deserialize)]
+    #[derive(Debug, Serialize, Deserialize, Default)]
     pub struct EnumType {
         pub name: String,
         pub underlying_type: String,
@@ -118,7 +118,7 @@ pub mod csdl {
     pub struct Key {
         pub properties: Vec<String>,
     }
-    #[derive(Debug, Serialize, Deserialize)]
+    #[derive(Debug, Serialize, Deserialize, Default)]
     pub struct Member {
         pub name: String,
         pub value: String,
@@ -127,7 +127,7 @@ pub mod csdl {
     pub struct Using {}
     #[derive(Debug, Serialize, Deserialize)]
     pub struct ValueTerm {}
-    #[derive(Debug, Clone, Serialize, Deserialize)]
+    #[derive(Debug, Clone, Serialize, Deserialize, Default)]
     pub struct Property {
         pub name: String,
         #[serde(rename = "type")]

@@ -26,3 +26,7 @@ docx-rs = "0.4.17"
 scraper = "0.23.1"
 reqwest = { version = "0.12.20", features = ["blocking"] }
 tokio-util = { version = "0.7.15", features = ["codec"] }
+humantime = "2.2.0"
+pjl-pg = { version = "0.1.0", path = "../pjl-pg" }
+pjl-tab = { version = "0.1.0", path = "../pjl-tab" }
+edm = { version = "0.1.0", path = "../edm" }
