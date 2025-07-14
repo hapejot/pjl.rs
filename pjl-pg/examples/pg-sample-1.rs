@@ -4,7 +4,7 @@ use pjl_odata::ODataQuery;
 use pjl_pg::Database;
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), String> {
     if let Ok(mut db) =
         Database::new("host=localhost user=postgres password=Kennwort01 dbname=rk").await
     {
@@ -13,9 +13,10 @@ async fn main() {
             &HashMap::from([("$filter".into(), "Name eq 'AJ Applegate'".into())]),
         );
         q.add_condition("name", "eq", &"Danny D".into());
-        let result = db.select(q).await;
+        let result = db.select(q).await?;
         let mut out = String::new();
         result.dump(&mut out);
         println!("{out}");
     }
+    Ok(())
 }

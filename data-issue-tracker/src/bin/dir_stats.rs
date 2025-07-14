@@ -16,7 +16,7 @@ async fn main() {
     let args: Vec<String> = env::args().collect();
     let root = if args.len() > 1 { &args[1] } else { "." };
     let pg_url = std::env::var("PG_URL").unwrap_or_else(|_| {
-        "host=localhost user=postgres password=Kennwort01 dbname=postgres".to_string()
+        "host=localhost user=peter password=Kennwort01 dbname=rk".to_string()
     });
     let mut db = Database::new(&pg_url).await.expect("connect to postgres");
     info!("Connected");
@@ -31,6 +31,7 @@ async fn main() {
                 Property { name: "file_count".to_string(), ptype: "bigint".to_string(), .. Default::default()  },
                 Property { name: "newest".to_string(), ptype: "text".to_string(), .. Default::default()  },
                 Property { name: "oldest".to_string(), ptype: "text".to_string(), .. Default::default()  },
+                Property { name: "date_diff".to_string(), ptype: "bigint".to_string(), .. Default::default()  },
             ],
             key: Some(Key { properties: vec!["dir".to_string()] }),
             .. Default::default()
@@ -45,6 +46,7 @@ async fn main() {
     tab.add_column("file_count").unwrap();
     tab.add_column("newest").unwrap();
     tab.add_column("oldest").unwrap();
+    tab.add_column("date_diff").unwrap();
     let mut stack = vec![std::path::Path::new(root).to_path_buf()];
     while let Some(dir) = stack.pop() {
         debug!("Scanning directory: {}", dir.display());
@@ -82,13 +84,18 @@ async fn main() {
         let oldest_str = oldest
             .map(|t| humantime::format_rfc3339(t).to_string())
             .unwrap_or("-".to_string());
+        let date_diff = match (newest, oldest) {
+            (Some(n), Some(o)) => n.duration_since(o).map(|d| d.as_secs()).unwrap_or(0),
+            _ => 0,
+        };
         let row = tab.new_row();
         row.set("dir", &dir.display().to_string());
         row.set("total_size", &total_size.to_string());
         row.set("file_count", &file_count.to_string());
         row.set("newest", &newest_str);
         row.set("oldest", &oldest_str);
-        info!("Dir: {} size={} files={} newest={} oldest={}", dir.display(), total_size, file_count, newest_str, oldest_str);
+        row.set("date_diff", &date_diff.to_string());
+        info!("Dir: {} size={} files={} newest={} oldest={} date_diff={}", dir.display(), total_size, file_count, newest_str, oldest_str, date_diff);
     }
     // Ensure the dir_stats table exists in the database
     let mut schema = edm::Schema::new();
@@ -98,6 +105,7 @@ async fn main() {
     schema.new_property("dir_stats", "file_count");
     schema.new_property("dir_stats", "newest");
     schema.new_property("dir_stats", "oldest");
+    schema.new_property("dir_stats", "date_diff");
     schema.new_key("dir_stats", &["dir"]);
     db.activate(schema).await;
     db.modify("dir_stats", tab).await;
