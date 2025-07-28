@@ -35,7 +35,7 @@ enum Commands {
 }
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), String> {
     let args = Params::parse();
     let connection_string = format!(
         "host=localhost user=postgres password=Kennwort01 dbname={}",
@@ -72,7 +72,7 @@ async fn main() {
                 if let Some(orderby) = orderby {
                     q.set_orderby(&orderby);
                 }
-                let result = db.select(q).await;
+                let result = db.select(q).await?;
                 if yaml {
                     let out = serde_yaml::to_string(&result).unwrap();
                     println!("{out}");
@@ -103,4 +103,5 @@ async fn main() {
             }
         }
     };
+    Ok(())
 }

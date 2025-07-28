@@ -21,7 +21,7 @@ async fn select() {
             &HashMap::from([("$filter".into(), "Name eq 'AJ Applegate'".into())]),
         );
         q.add_condition("name", "eq", &"Danny D".into());
-        let result = db.select(q).await;
+        let result = db.select(q).await.unwrap();
         let mut out = String::new();
         result.dump(&mut out);
         println!("{out}");
