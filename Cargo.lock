@@ -2469,6 +2469,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "pjl-pandoc"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "pjl-pg"
 version = "0.1.0"
 dependencies = [
@@ -3039,6 +3047,16 @@ version = "1.3.1"
 source = "git+https://github.com/hapejot/santiago.git#9ebcc853e568f13f9deb2a8882227135b1440341"
 dependencies = [
  "regex",
+]
+
+[[package]]
+name = "sap2md"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "pjl-pandoc",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

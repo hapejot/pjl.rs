@@ -1,0 +1,100 @@
+ASDie Auswahl der Tabellen erfolgt nach der von der
+  SAP-Anwendungsabteilung festgelegten Auslieferungsklasse. Aufgrund der
+  Klasse läßt sich die Zugehörigkeit einer Tabelle zum Customizing-Umfeld
+  bestimmen. Dazu gehören alle Klassen außer L (Leer: soll in neuer
+  Systemumgebung leer bereitgestellt werden), A (Anwendungstabelle) und W
+  (intern fortgeschriebene Systemtabelle, rein technischer Inhalt). Die
+  Bedeutung der übrigen customizing-relevanten Klassen wird nachfolgend
+  beschrieben.
+ASDie Auslieferungsklasse legt für eine Tabelle fest, in welchem Maße der
+  Inhalt einer Tabelle ganz oder teilweise dem Kunden gehört. Hiervon
+  wird abgeleitet, wie das Überschreiben von Kundendaten verhindert wird,
+  d.h. welche der Alternativen
+B1Tabelle beim Kunden nicht einspielen
+B1Tabelle nur in SAP Mandant 000 einspielen, aber nicht in die
+  Kundenmandanten
+B1Tabelle wird in alle Kundenmandanten eingespielt.
+ASDie Klasse ist für den Kunden ein Mittel, das Überschreiben seiner
+  Einträge durch SAP bei einem Releasewechsel zu verhindern.
+U4Beschreibung der Auslieferungsklassen
+NOIn der folgenden Klassenbeschreibung werden typische Fragestellungen
+  nach Nutzungs- und Transporteigenschaften beantwortet, wie z.B. die
+  Fragen
+B1Auslieferung: Wird die Tabelle mit Voreinstellung oder leer
+  ausgeliefert? Eine Voreinstellung beinhaltet entweder ein
+  unverbindliches Muster, das nur der besseren Veranschaulichung in der
+  Customizing Phase dient, oder es handelt sich um eine produktiv
+  nutzbare Voreinstellung mit Verfahrens-parametern.
+B1Put: Werden Einträge beim SAP-Put in das Kundensystem bzw in
+  den Kundenmandanten importiert oder nicht?
+B1Mandantencopy: Wird die Tabelle beim Mandantencopy
+  mitkopiert?
+ASAuch für den Mandantencopy wirkt die Auslieferungsklasse. Zum
+  Customizing-Umfeld zählen die Customizing relevanten Klassen C, G, E
+  und S (sowie aus Kompatibilität auch M). Nicht ausgewählt werden W, L
+  und A (A nur optional).
+AS<ZF>Klasse S</>
+B1Bedeutung: Systemtabelle
+B1Programmcharacter: Die Änderungen sind wie Programm-änderungen zu
+  betrachten.
+B1Transporteigenschaften:
+B2mit Muster ausgeliefert,
+B2Put: wird importiert und in alle Kundenmandanten verteilt
+B2Mandantenkopie: wird kopiert
+AS<ZF>Klasse W</>
+B1Bedeutung: Systemtabelle
+/ Der Inhalt wird mittelbar über Pflegetransaktionen mitgepflegt, z.B.
+  der Software Entwicklungsumgebung (EU). Es wird über eigene
+  Transportobjekte (z.B. R3TR PROG,  R3TR TABL, etc) transportiert.
+B1Transporteigenschaften:
+B2Auslieferung: immer mit Inhalt (insbesondere gesamte EU),
+B2Put: wird über die zugehörigen Transportobjekte importiert,
+/ keine Mandantenverteilung !
+B2Mandantenkopie: wird kopiert, jedoch meist mandanten-unabhängig.
+AS<ZF>Klasse E</>
+B1Bedeutung: Systemtabelle mit eigenen Namensräumen für Kundeneinträge,
+  also erweiterbar durch Kunden.
+/ Bezüglich SAP-Namensraum ist Klasse E wie Klasse S zu betrachten
+  (Änderungen haben Character von Programmänderungen), Kundennamensraum
+  bleibt per Konvention von SAP unangetastet.
+B1Transporteigenschaften:
+B2Auslieferung: mit Voreinstellung (SAP-Namensraum) ,
+B2Put: wird importiert (SAP-Namensraum), in Mandanten verteilt,
+B2Mandantenkopie: wird kopiert .
+AS<ZF>Klasse C</>
+B1Bedeutung: Kundentabelle ("Customer only"). Pflegeverantwortung
+  ausschließlich beim Kunden, darf von SAP niemals bei Put überschrieben
+  werden.
+B1Transporteigenschaften:
+B2Auslieferung: meist mit Muster (Erleichterung des Customizings)
+B2Put: wird nur in den SAP Mandant 000 importiert,
+/ kein Import, falls Tabelle mandantenunabhängig !
+B2Mandantenkopie: wird kopiert .
+AS<ZF>Klasse G</>
+B1Bedeutung: Kundentabelle mit geschütztem Inhalt. Klasse G ist wie
+  Klasse C, jedoch können hier neue Einträge von SAP hinzugefügt werden.
+  Existierende Einträge sind grundsätzlich gegen Überschreibung bzw
+  Löschung geschützt.
+B1Transporteigenschaften:
+B2Auslieferung: mit Muster,
+B2Put-Import: Mandant 000 mit Update, Kundenmandant nur Insert.
+/ Nur Insert Mode, falls Tabelle mandantenunabhängig .
+B2Mandantenkopie: wird kopiert .
+NO<ZF>Klasse L</>
+B1Bedeutung: Tabelle zum Aufbewahren von temporären Daten, die als
+  Zwischenergebnisse mit zeitlich begrenzter Gültigkeit betrachtet werden
+  können.
+B1Transporteigenschaften:
+B2Auslieferung: immer leer,
+B2Put: kein Import, nicht transportfähig.
+B2Mandantenkopie: wird nicht kopiert .
+AS<ZF>Klasse A</>
+B1Bedeutung: Anwendungsdaten, die per Anwendungs-transaktionen durch den
+  Kunden fortgeschrieben werden (Stamm- und Bewegungsdaten). In der Regel
+  ist ein Transport solcher Daten nicht sinnvoll. Trotzdem unterstützt,
+  um die Übernahme eines gesamten Mandantenumfeldes inclusive
+  Anwendungsdaten von einem System in ein anderes zu ermöglichen.
+B1Transporteigenschaften:
+B2Auslieferung: leer (Präsentationsmuster im SAP Mandant 000)
+B2Put: wird importiert, siehe aber obige Bemerkung
+B2Mandantenkopie: nur auf expliziten Wunsch (Parameter-option).

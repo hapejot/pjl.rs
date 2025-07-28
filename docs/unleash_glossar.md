@@ -15,6 +15,20 @@ Dieses Glossar beschreibt die wichtigsten Architekturelemente von [Unleash](http
 
 ---
 
+## Constraint
+Ein **Constraint** (deutsch: Einschränkung oder Bedingung) ist eine Regel, die festlegt, wann eine Aktivierungsstrategie für ein Feature Flag greift. Constraints werden auf Eigenschaften des Unleash-Kontexts angewendet, z.B. User-ID, E-Mail-Domain, Land, Zeit, etc.
+
+- Constraints sind immer Teil einer Strategie und schränken deren Wirkung weiter ein.
+- Alle Constraints einer Strategie müssen erfüllt sein (logisches UND), damit die Strategie "true" ergibt.
+- Beispiele:
+    - Nur Nutzer mit E-Mail-Adresse, die auf "@firma.de" endet
+    - Nur an bestimmten Wochentagen (z.B. Montag bis Freitag)
+    - Nur für Nutzer aus einer bestimmten Region (z.B. "DE")
+    - Nur für Nutzer, die an einem Beta-Programm teilnehmen
+- Constraints können mit Segmenten wiederverwendbar gemacht werden.
+
+---
+
 ## Projects
 - **Project**: Enthält Feature Flags und deren Konfigurationen sowie die zugehörigen Umgebungen. Jeder Unleash-Instanz muss mindestens ein Projekt zugeordnet sein. Beispiel: Ein Projekt "Webshop" mit den Flags "checkout-redesign" und "recommendation-engine".
 
