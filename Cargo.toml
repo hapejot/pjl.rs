@@ -20,10 +20,11 @@ members = [
     "pjl-error", 
     "processing-node-client", 
     "pjl-static-strings", 
+    "pjl-pandoc",
     "pjl-file-server", 
 #    "thumb-node",
     "pjl-cache", "pjl-terminal-tools",
-    "excel-cell-replace"
-, "key-sim", "pjl-file-browser"]
-
-
+    "excel-cell-replace",
+    "key-sim", 
+    "pjl-file-browser",
+    "sap2md"]

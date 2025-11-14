@@ -1,0 +1,70 @@
+U1&USE&
+ASDiese Struktur wird im BAPI-Parametererweiterungskonzept fü
+= r Kunden verwendet. Es handelt sich hierbei um die Bezugsstruktur fü
+= r die standardisierten BAPI-
+= Erweiterungsparameter "ExtensionIn" und "ExtensionOut".
+ASDas BAPI-Parametererweiterungskonzept fü
+= r Kunden sieht die Verwendung der
+  standardisierten BAPI-Parameter "ExtensionIn" und "ExtensionOut" vor. Di
+  Parameter kön
+= nen mit sogenannten "BAPI Table Extensions" und Customer-Exits im
+  BAPI kombiniert werden, so daß kundenspezif
+= ische Tabellenerweiterungen durch
+  Append- oder Include-Techniken automatisch an der Schnittstelle und im P
+= ramm des BAPIs berü
+= cksichtigt werden. Weitere Informationen finden Sie in der Dokum
+= entation zu den BAPI-spezifischen Extension-Parametern.
+ASIm allgemeinen st
+= ehen diese Extensionparameter den Kunden als vordefinierte
+  Erweiterungsstellen zur freien Verfügung, um di
+= e Schnittstelle zu erweitern, ohne daß Inkompatibilitä
+= ten in der Schnittstellenkommunikation auftreten.
+U1BAPI Table Extensions
+ASBAPI Table Extensions sind von SAP vordefinierte Hilfsstrukturen zur
+  automatisierten Berücksichtigung vo
+= n kundenspezifischen Datenbanktabellen-
+= Erweiterungen (z.B. Materialstamm) an BAPI-Schnittstellen.
+ASDie Strukturen von BAPI Table Extensions setzen sich aus einem von SAP
+  vordefinierten Schlü
+= sselteil (Identifier) und einem vom Kunden durch Append-
+= Technik bestimmbaren Datenteil zusammen. Die Konvention fü
+= r den Strukturnamen lautet BAPI_TE_<(><<)>
+= Tabellenname>, wobei der Tabellenname der vom Kunden
+  erweiterten Tabelle entspricht. Die BAPI Table Extension "BAPI_TE_MARA"
+  beispielsweise ein Feld "Material_No", und der Kunde kann durch Append s
+  erweiterten Materialstamm an die Struktur anfügen.
+ASIn der BAPI-spezifischen Dokumentation
+  zum Extensionparameter werden die
+  verwendbaren BAPI Table Extensions angeführt. Diese werden genutzt, inde
+= m der
+  Name der BAPI Table Extension in das Feld "Structure" des Extensionparam
+  eingefü
+= gt wird. Die von SAP vordefinierten Identifier und der vom Kunden durch
+  Append-Technik spezifizierte
+  Datenteil werden in die Datenfelder "ValuePart1" bis
+  "ValuePart4" im Extension-Parameter eingefügt.
+ASWenn die an BAPI Table Extensions durch Append-Technik vom Kunden
+  hinzugefü
+= gten Felder genau mit den Feldern der vom Kunden erweiterten Tabelle ü
+= bereinstimmen, können die Daten vom BAPI automatisch mitgelesen oder
+  geschrieben werden.
+ASBeispiel: Im BAPI-Parameter "ExtensionIn" ist die BAPI Table Extension
+  "BAPI_TE_MARA" verwendbar. Der Kunde hat die Struktur "BAPI_TE_MARA"
+  mittels Append-Technik um die kundenspezifischen Felder aus der
+  Materialstammtabelle "MARA" erweitert. Fü
+= r eine korrekte Verwendung muß der
+  Kunde den Identifier "Material_No" versorgen.
+/
+/ ExtensionIn:
+/ Structure        ValuePart1   ValuePart2 ...
+/
+/ Daten:
+/ BAPI_TE_MARA     1174   <(><<)>kundenspezifische Daten>
+/ BAPI_TE_MARA     1741   <(><<)>kundenspezifische Daten>
+/ ...
+ASBei korrekter Funktionsweise werden die kundenspezifischen Daten vom BAP
+  au
+= tomatisch in die vom Kunden durch Append- oder Include-Technik erweitert
+  Materialstammtabelle "MARA" eingefügt.
+U1&MAINTENANCE&
+

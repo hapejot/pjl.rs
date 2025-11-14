@@ -1,0 +1,10 @@
+U1&CAUSE&
+ASBei dem Objekttyp &V2& ist der Name &V1& für Kunden reserviert. Er muß
+  deshalb in einer Kunden-Entwicklungsklasse liegen.
+/ Diese Entwicklungsklassen haben als erstes Zeichen ein <ZF>Z</>.
+U1&SYSTEM_RESPONSE&
+ASDie Transporteigenschaften können nicht angelegt oder geändert werden.
+U1&WHAT_TO_DO&
+ASTreffen Sie bitte folgende Zuordnung:
+B1Kundenobjekte    > Klassen mit <ZF>Z</>
+B1SAP-Objekte      > Klassen ohne <ZF>Z</>

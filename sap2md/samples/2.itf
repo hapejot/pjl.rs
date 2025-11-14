@@ -1,0 +1,52 @@
+U1&USE&
+ASThis structure is used in the BAPI parameter enhancement concept for
+  customers. It is the reference structure for the standardized BAPI
+  extension parameters "ExtensionIn" and "ExtensionOut".
+ASThe BAPI parameter enhancement concept for customers provides for the
+  use of the standardized BAPI parameters "ExtensionIn" and
+  "ExtensionOut". The parameters can be combined in the BAPI with BAPI
+  table extensions and customer exits, which enables customer-specific
+  table enhancements to be considered automatically, by means of appends
+  or includes, in the BAPI interface and program. For more information,
+  see the documentation for the BAPI-specific extension parameters.
+ASIn general, these extension parameters are available as predefined
+  enhancement positions that customers can use as required to enhance the
+  interface without causing incompatibilities in the interface
+  communication.
+U1BAPI Table Extensions
+ASBAPI table extensions are internal tables predefined by SAP, which
+  enable customer-specific database table enhancements (such as material
+  master) to be taken into consideration automatically in BAPI interfaces.
+ASThe structures of BAPI table extensions comprise a key part predefined
+  by SAP (identifier) and a data part that customers can specify using
+  appends. The naming convention for structures is BAPI_TE_<table name>,
+  whereby the table name is the table enhanced by the customer. For
+  example, BAPI table extension "BAPI_TE_MARA" contains the "Material_No"
+  field and the customer can use appends to append an enhanced material
+  master to the structure.
+ASThe BAPI-specific documentation for the extension parameter lists the
+  BAPI table extensions that can be used. These are used if the name of
+  the BAPI table extension is inserted in the "Structure" field of the
+  extension parameter. The identifiers predefined by SAP and the data part
+  specified by the customer by means of an append are inserted in the data
+  fields "ValuePart1" to "ValuePart4" in the extension parameter.
+ASIf the fields added to the BAPI table extensions by the customer by
+  means of appends match the fields in the customer-enhanced table, the
+  BAPI can read or write the data at the same time automatically.
+ASExample: The BAPI table extension "BAPI_TE_MARA" can be used in the BAPI
+  parameter "ExtensionIn". The customer has appended the structure
+  "BAPI_TE_MARA" with the customer-specific fields from the material
+  master table "MARA". To ensure correct usage, the customer must supply
+  the identifier "Material_No".
+/
+/ ExtensionIn:
+/ Structure        ValuePart1   ValuePart2 ...
+/
+/ Data:
+/ BAPI_TE_MARA     1174   <Customer-specific data>
+/ BAPI_TE_MARA     1741   <Customer-specific data>
+/ ...
+ASWhen functioning correctly, the BAPI automatically inserts the
+  customer-specific data in the material master table "MARA" that the
+  customer has enhanced using appends or includes.
+U1&MAINTENANCE&

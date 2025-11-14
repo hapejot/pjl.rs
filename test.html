@@ -1,0 +1,881 @@
+<p>INDEX @@WIDTH@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX @@ALIGN@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX @@LEFT@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX @@RIGHT@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX @@CENTER@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX @@PAD@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX @@CASE@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX @@RAW@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX @@UPPER@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX @@LOWER@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX @@SIGN@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX @@LEFTPLUS@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX @@LEFTSPACE@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX @@RIGHTPLUS@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX @@RIGHTSPACE@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX @@EXPONENT@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX @@DECIMALS@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX @@XSD@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX @@ZERO@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX @@YES@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX @@NO@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX @@NUMBER@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX @@USER@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX @@ENVIRONMENT@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX @@COUNTRY@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX @@STYLE@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX @@CURRENCY@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX @@ALPHA@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX @@DATE@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX @@ISO@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX @@TIME@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX @@TIMESTAMP@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX @@SPACE@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX @@TIMEZONE@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<h2>&amp;ABAP_EMBDEXP&amp; - format_options</h2>
+<p>&amp;ABAP_SYNTAX&amp;</p>
+<p> ... $[WIDTH = len$]</p>
+<p> $[ALIGN = LEFT$|RIGHT$|CENTER$|(dobj)$|expr$]</p>
+<p> $[PAD = c$]</p>
+<p> $[CASE = RAW$|UPPER$|LOWER$|(dobj)$|expr$]</p>
+<p> $[SIGN =
+LEFT$|LEFTPLUS$|LEFTSPACE$|RIGHT$|RIGHTPLUS$|RIGHTSPACE$|(dobj)$|expr$]</p>
+<p> $[EXPONENT = exp$]</p>
+<p> $[DECIMALS = dec$]</p>
+<p> $[ZERO = YES$|NO$|(dobj)$|expr$]</p>
+<p> $[XSD = YES$|NO$|(dobj)$|expr$]</p>
+<p> $[STYLE = SIMPLE$|SIGN_AS_POSTFIX$|SCALE_PRESERVING</p>
+<p> $|SCIENTIFIC$|SCIENTIFIC_WITH_LEADING_ZERO</p>
+<p> $|SCALE_PRESERVING_SCIENTIFIC$|ENGINEERING</p>
+<p> $|(dobj)$|expr$]</p>
+<p> $[CURRENCY = cur$]</p>
+<p> $[NUMBER = RAW$|USER$|ENVIRONMENT$|(dobj)$|expr$]</p>
+<p> $[ALPHA = IN$|OUT$|RAW$|(dobj)$|expr$]</p>
+<p> $[DATE = RAW$|ISO$|USER$|ENVIRONMENT$|(dobj)$|expr$]</p>
+<p> $[TIME = RAW$|ISO$|USER$|ENVIRONMENT$|(dobj)$|expr$]</p>
+<p> $[TIMESTAMP = SPACE$|ISO$|USER$|ENVIRONMENT$|(dobj)$|expr$]</p>
+<p> $[TIMEZONE = tz$]</p>
+<p> $[COUNTRY = cty$] ...</p>
+<p>&amp;ABAP_ADDITIONS:&amp;</p>
+<p>&amp;1&amp; ... WIDTH = len ...</p>
+<p>&amp;2&amp; ... ALIGN = LEFT$|RIGHT$|CENTER$|(dobj)$|expr ...</p>
+<p>&amp;3&amp; ... PAD = c ...</p>
+<p>&amp;4&amp; ... CASE = RAW$|UPPER$|LOWER$|(dobj)$|expr ...</p>
+<p>&amp;5&amp; ... SIGN =
+LEFT$|LEFTPLUS$|LEFTSPACE$|RIGHT$|RIGHTPLUS$|RIGHTSPACE$|(dobj)$|expr
+...</p>
+<p>&amp;6&amp; ... EXPONENT = exp ...</p>
+<p>&amp;7&amp; ... DECIMALS = dec ...</p>
+<p>&amp;8&amp; ... ZERO = YES$|NO$|(dobj)$|expr ...</p>
+<p>&amp;9&amp; ... XSD = YES$|NO$|(dobj)$|expr ...</p>
+<p>&amp;10&amp; ... STYLE = ...$|(dobj)$|expr ...</p>
+<p>&amp;11&amp; ... CURRENCY = cur ...</p>
+<p>&amp;12&amp; ... NUMBER = RAW$|USER$|ENVIRONMENT$|(dobj)$|expr
+...</p>
+<p>&amp;13&amp; ... ALPHA = IN$|OUT$|RAW$|(dobj)$|expr ...</p>
+<p>&amp;14&amp; ... DATE = RAW$|ISO$|USER$|ENVIRONMENT$|(dobj)$|expr
+...</p>
+<p>&amp;15&amp; ... TIME = RAW$|ISO$|USER$|ENVIRONMENT$|(dobj)$|expr
+...</p>
+<p>&amp;16&amp; ... TIMESTAMP =
+SPACE$|ISO$|USER$|ENVIRONMENT$|(dobj)$|expr ...</p>
+<p>&amp;17&amp; ... TIMEZONE = tz ...</p>
+<p>&amp;18&amp; ... COUNTRY = cty ...</p>
+<p>&amp;ABAP_EFFECT&amp;</p>
+<p>Diese Formatierungsoptionen übersteuern die vordefinierten Formate
+von eingebetteten Ausdrücken in Zeichenketten-Templates. Die
+Formatierungsoptionen werden in der Form von optionalen
+Schlüsselwortparametern angegeben, denen ein Aktualparameter zugewiesen
+wird.</p>
+<p>Aktualparameter mit fest vorgegebenen Werten können wie folgt
+angegeben werden:</p>
+<p>Statisch als Schlüsselwort</p>
+<p>Dynamisch als</p>
+<p>Inhalt eines in Klammern angegebenen Datenobjekts (dobj)</p>
+<p>Ergebnis einer funktionalen Methodeoder Methodenverkettung, eines
+Konstruktorausdrucks oder eines Tabellenausdrucks expr</p>
+<p>Die möglichen Werte von dobj bzw. expr sind in der Klasse
+CL_ABAP_FORMAT als Konstanten definiert.</p>
+<p>Welche Formatierungsoptionen angegeben werden können, hängt vom
+Datentyp des eingebetteten Ausdrucks ab. Die Formatierungsoptionen
+NUMBER,DATE, TIME, TIMESTAMP und COUNTRY schließen sich gegenseitig
+aus.</p>
+<p>Wenn als eingebetteter Ausdruck ein Formalparameter oder ein
+Feldsymbol mit generischem Datentyp angegeben ist, können nur
+Formatierungsoptionen angegeben werden, die bei allen möglichen
+konkreten Datentypen erlaubt sind.</p>
+<p>&amp;ABAP_HINT&amp;</p>
+<p>Die Angaben (dobj) und expr stellen zusammengefasst eine funktionale
+Operandenposition dar. Im Gegensatz zu den normalen funktionalen
+Operandenpositionen muss hier aber das Datenobjekt dobj in Klammern
+gesetzt werden, um es eindeutig von einem als Schlüsselwort angegebenen
+Parameter unterscheiden zu können.</p>
+<p>NON_V5_HINTS</p>
+<p>ABAP_HINT_END</p>
+<p>&amp;ABAP_ADDITION_1&amp;,,... WIDTH = len ...</p>
+<p>&amp;ABAP_EFFECT&amp;</p>
+<p>Diese Formatierungsoption legt die Länge der vom eingebetteten
+Ausdruck dargestellten Zeichenkette auf den Wert von len fest, wobei len
+eine numerische Ausdrucksposition ist.</p>
+<p>Die Option WIDTH kann für alle Datentypen des eingebetteten Ausdrucks
+angegeben werden. Wenn der Wert von len kleiner als die minimal
+benötigte Länge ist, wird die Angabe ignoriert. Die vordefinierte Länge
+kann also nur vergrößert aber nicht verkleinert werden. Standardmäßig
+wird die Zeichenkette bei einer Vergrößerung nach rechts verlängert und
+dort mit Leerzeichen aufgefüllt. Diese Standardeinstellung kann mit den
+Formatierungsoptionen ALIGN und PAD übersteuert werden.</p>
+<p>&amp;ABAP_EXAMPLE_VX5&amp;</p>
+<p>Die Länge des Ergebnisses des folgenden Zeichenketten-Templates ist
+20. Es besteht aus 4 Ziffern, einem Dezimaltrennzeichen und 15
+schließenden Leerzeichen.</p>
+<p>ABEXA 00121</p>
+<p>ABAP_EXAMPLE_END</p>
+<p>&amp;ABAP_EXAMPLE_ABEXA&amp;</p>
+<p>Zeichenketten-Templates, Längenangabe</p>
+<p>ABAP_EXAMPLE_END</p>
+<p>&amp;ABAP_ADDITION_2&amp;,,... ALIGN =
+LEFT$|RIGHT$|CENTER$|(dobj)$|expr ...</p>
+<p>&amp;ABAP_EFFECT&amp;</p>
+<p>Diese Formatierungsoption legt die Ausrichtung der vom eingebetteten
+Ausdruck dargestellten Zeichenkette fest. Sie hat nur eine Wirkung, wenn
+gleichzeitig mit WIDTH eine Länge festgelegt wird, die größer als die
+minimal benötigte Länge ist.</p>
+<p>Die Werte für die Ausrichtung sind fest vorgegeben. Die folgende
+Tabelle zeigt die Schlüsselwörter und die zugehörigen als dobj bzw. expr
+angebbaren Werte aus der Klasse CL_ABAP_FORMAT:</p>
+<p>Schlüsselwort,,Wert von dobj oder expr,,Auswirkung</p>
+<p>LEFT,,CL_ABAP_FORMAT=&gt;A_LEFT,,linksbündig</p>
+<p>RIGHT,,CL_ABAP_FORMAT=&gt;A_RIGHT,,rechtsbündig</p>
+<p>CENTER,,CL_ABAP_FORMAT=&gt;A_CENTER,,Zentriert</p>
+<p>Die Standardeinstellung ist LEFT. Je nach Ausrichtung werden
+überzählige Stellen im Ergebnis rechts, links oder abwechselnd rechts
+und links standardmäßig mit Leerzeichen aufgefüllt. Diese
+Standardeinstellung kann mit der Formatierungsoption PAD übersteuert
+werden.</p>
+<p>&amp;ABAP_EXAMPLE_VX5&amp;</p>
+<p>Das folgende Zeichenketten-Template erstellt die darunter gezeigte
+Zeichenfolge.</p>
+<p>ABEXA 00122</p>
+<p> 1 2 3&amp;</p>
+<p>ABAP_EXAMPLE_END</p>
+<p>&amp;ABAP_EXAMPLE_ABEXA&amp;</p>
+<p>Zeichenketten-Templates, Ausrichtung und Auffüllen</p>
+<p>ABAP_EXAMPLE_END</p>
+<p>&amp;ABAP_ADDITION_3&amp;,,... PAD = c ...</p>
+<p>&amp;ABAP_EFFECT&amp;</p>
+<p>Diese Formatierungsoption legt das Zeichen fest, mit der überzählige
+Stellen im Ergebnis aufgefüllt werden. Sie hat nur eine Wirkung, wenn
+gleichzeitig mit WIDTH eine Länge festgelegt wird, die größer als die
+minimal benötigte Länge ist.</p>
+<p>Für c kann ein Datenobjekt vom Datentyp c oder string angegeben
+werden, dessen erstes Zeichen zum Auffüllen verwendet wird. Wenn die
+Option PAD nicht angegeben ist oder für c ein leerer String angegeben
+wird, wird mit Leerzeichen aufgefüllt.</p>
+<p>&amp;ABAP_EXAMPLE_VX5&amp;</p>
+<p>Das folgende Zeichenketten-Template erstellt die darunter gezeigte
+Zeichenfolge.</p>
+<p>ABEXA 00123</p>
+<p>_________X</p>
+<p>ABAP_EXAMPLE_END</p>
+<p>&amp;ABAP_EXAMPLE_VX5&amp;</p>
+<p>Siehe Zeichenketten-Templates, Ausrichtung und Auffüllen</p>
+<p>ABAP_EXAMPLE_END</p>
+<p>&amp;ABAP_ADDITION_4&amp;,,... CASE = RAW$|UPPER$|LOWER$|(dobj)$|expr
+...</p>
+<p>&amp;ABAP_EFFECT&amp;</p>
+<p>Diese Formatierungsoption legt die Groß-/Kleinschreibung der vom
+eingebetteten Ausdruck dargestellten Zeichenkette fest. Sie kann für
+alle Datentypen des eingebetteten Ausdrucks angegeben werden.</p>
+<p>Die Werte für die Groß-/Kleinschreibung sind fest vorgegeben. Die
+folgende Tabelle zeigt die Schlüsselwörter und die zugehörigen als dobj
+bzw. expr angebbaren Werte aus der Klasse CL_ABAP_FORMAT:</p>
+<p>Schlüsselwort,,Wert von dobj oder expr,,Auswirkung</p>
+<p>RAW,,CL_ABAP_FORMAT=&gt;C_RAW,,unverändert</p>
+<p>UPPER,,CL_ABAP_FORMAT=&gt;C_UPPER,,Großschreibung</p>
+<p>LOWER,,CL_ABAP_FORMAT=&gt;C_LOWER,,Kleinschreibung</p>
+<p>Die Standardeinstellung ist RAW.</p>
+<p>&amp;ABAP_HINT&amp;</p>
+<p>Die Formatierungsoption CASE wirkt auf die Buchstaben der
+Zeichenkette. Sie wirkt nicht auf ein mit PAD angegebenes
+Auffüllungszeichen. Bei numerischen Datentypen wird das e oder E eines
+Exponenten beeinflusst, bei byteartigen Datentypen sind es die
+Buchstaben der Hexadezimaldarstellung. Beim Zeitstempeltyp wird ein T
+zwischen Datum und Zeit beeinflusst. Wenn gleichzeitig die
+Formatierungsoption XSD angegeben ist, wirkt CASE auf das damit erzeugte
+asXML-Format.</p>
+<p>NON_V5_HINTS</p>
+<p>ABAP_HINT_END</p>
+<p>&amp;ABAP_EXAMPLE_VX5&amp;</p>
+<p>Das folgende Zeichenketten-Template erstellt die darunter gezeigte
+Zeichenfolge.</p>
+<p>ABEXA 00124</p>
+<p>48656c6c6f20576f726c6421</p>
+<p>ABAP_EXAMPLE_END</p>
+<p>&amp;ABAP_EXAMPLE_ABEXA&amp;</p>
+<p>Zeichenketten-Templates, Groß-/Kleinschreibung</p>
+<p>ABAP_EXAMPLE_END</p>
+<p>&amp;ABAP_ADDITION_5&amp;,,... SIGN =
+LEFT$|LEFTPLUS$|LEFTSPACE$|RIGHT$|RIGHTPLUS$|RIGHTSPACE$|(dobj)$|expr
+...</p>
+<p>&amp;ABAP_EFFECT&amp;</p>
+<p>Diese Formatierungsoption legt das Format des Vorzeichens fest, wenn
+die vom eingebetteten Ausdruck dargestellte Zeichenkette einen
+numerischen Wert darstellt. Sie kann nur angegeben werden, wenn der
+eingebettete Ausdruck einen numerischen Datentyphat.</p>
+<p>Die Werte für das Format des Vorzeichens sind fest vorgegeben. Die
+folgende Tabelle zeigt die Schlüsselwörter und die zugehörigen als dobj
+bzw. expr angebbaren Werte aus der Klasse CL_ABAP_FORMAT:</p>
+<p>Schlüsselwort,,Wert von dobj oder expr,,Auswirkung</p>
+<p>LEFT,,CL_ABAP_FORMAT=&gt;S_LEFT,,- links ohne Zwischenraum, kein
++</p>
+<p>LEFTPLUS,,CL_ABAP_FORMAT=&gt;S_LEFTPLUS,,- und + links ohne
+Zwischenraum</p>
+<p>LEFTSPACE,,CL_ABAP_FORMAT=&gt;S_LEFTSPACE,,- links ohne Zwischenraum,
+Leerzeichen links für +</p>
+<p>RIGHT,,CL_ABAP_FORMAT=&gt;S_RIGHT,,- rechts ohne Zwischenraum, kein
++</p>
+<p>RIGHTPLUS,,CL_ABAP_FORMAT=&gt;S_RIGHTPLUS,,- und + rechts ohne
+Zwischenraum</p>
+<p>RIGHTSPACE,,CL_ABAP_FORMAT=&gt;S_RIGHTSPACE,,- links ohne
+Zwischenraum, Leerzeichen rechts für +</p>
+<p>Die Standardeinstellung ist LEFT.</p>
+<p>&amp;ABAP_EXAMPLE_VX5&amp;</p>
+<p>Das folgende Zeichenketten-Template erstellt die darunter gezeigte
+Zeichenfolge.</p>
+<p>ABEXA 00125</p>
+<p>+1</p>
+<p>ABAP_EXAMPLE_END</p>
+<p>&amp;ABAP_EXAMPLE_ABEXA&amp;</p>
+<p>Zeichenketten-Templates, Vorzeichen</p>
+<p>ABAP_EXAMPLE_END</p>
+<p>&amp;ABAP_ADDITION_6&amp;,,... EXPONENT = exp ...</p>
+<p>&amp;ABAP_EFFECT&amp;</p>
+<p>Diese Formatierungsoption legt den Exponenten bei der Aufbereitung
+von Gleitpunktzahlen auf den Wert von exp fest, wobei exp eine
+numerische Ausdrucksposition ist. Die Option EXPONENT kann nur angegeben
+werden, wenn der eingebettete Ausdruck einen numerischen Datentyp hat.
+Sie darf nicht zusammen mit den Optionen TIMESTAMP oder TIMEZONE
+angegeben werden.</p>
+<p>Die Option EXPONENT wirkt nur auf den Datentyp f oder wenn die Option
+STYLE mit dem Wert scientific angegeben ist.</p>
+<p>INCLUDE ABENFORMAT_EXPONENT OBJECT DOKU ID SD</p>
+<p>Wenn für exp der Wert der Konstanten CL_ABAP_FORMAT=&gt;EXP_PRESERVE
+angegeben wird, wird der Exponent verwendet, welcher der internen
+Darstellung der Gleitpunktzahl entspricht.</p>
+<p>&amp;ABAP_EXAMPLE_VX5&amp;</p>
+<p>Das folgende Zeichenketten-Template erstellt die darunter gezeigte
+Zeichenfolge.</p>
+<p>ABEXA 00126</p>
+<p>0,66666666666666663, 6,6666666666666663E-01</p>
+<p>ABAP_EXAMPLE_END</p>
+<p>&amp;ABAP_ADDITION_7&amp;,,... DECIMALS = dec ...</p>
+<p>&amp;ABAP_EFFECT&amp;</p>
+<p>Diese Formatierungsoption legt die Anzahl der Nachkommastellen bei
+der Aufbereitung von numerischen Werten oder von Zeitstempeln auf den
+Wert von dec fest, wobei dec eine numerische Ausdrucksposition ist. Die
+Option DECIMALS kann nur angegeben werden, wenn der eingebettete
+Ausdruck einen numerischen Datentyp oder den Zeitstempeltyp utclong hat.
+Sie darf nicht zusammen mit der Option CURRENCY angegeben werden.</p>
+<p>INCLUDE ABENFORMAT_DECIMALS OBJECT DOKU ID SD</p>
+<p>Wenn einer der Zusätze TIMEZONE oder TIMESTAMP für passende Zahlen
+vom Typ p angegeben ist, wird deren Inhalt als Zeitstempel aufgefasst.
+Beim Datentyp p der Länge 8 ohne Nachkommastellen (TIMESTAMP aus dem
+ABAP Dictionary) werden so viele Nullen angehängt, wie in dec angegeben
+sind. Beim Datentyp p der Länge 11 mit 7 Nachkommastellen (TIMESTAMPL
+aus dem ABAP Dictionary) werden so viele Nachkommastellen verwendet, wie
+in dec angegeben sind. Überzählige Nachkommastellen werden
+abgeschnitten. Wenn dec den Wert 0 hat, wird das Dezimaltrennzeichen
+entfernt.</p>
+<p>&amp;ABAP_HINT&amp;</p>
+<p>Die Formatierungsoption DECIMALS übersteuert nicht die vordefinierte
+Einstellung für numerische Typen, dass keine Tausendertrennzeichen
+eingefügt werden.</p>
+<p>NON_V5_HINTS</p>
+<p>ABAP_HINT_END</p>
+<p>&amp;ABAP_EXAMPLE_VX5&amp;</p>
+<p>Das folgende Zeichenketten-Template erstellt die darunter gezeigte
+Zeichenfolge. Ohne Angabe des Konvertierungsoperators ist der Rechentyp
+des eingebetteten Ausdrucks i.</p>
+<p>ABEXA 00127</p>
+<p>-1,000, -0,667, -0,667</p>
+<p>ABAP_EXAMPLE_END</p>
+<p>&amp;ABAP_ADDITION_8&amp;,,... ZERO = YES$|NO$|(dobj)$|expr ...</p>
+<p>&amp;ABAP_EFFECT&amp;</p>
+<p>Diese Formatierungsoption legt das Format des numerischen Werts Null
+fest. Die Option ZERO kann nur angegeben werden, wenn der eingebettete
+Ausdruck einen numerischen Datentyp hat. Sie darf nicht zusammen mit den
+Optionen TIMESTAMP oder TIMEZONE angegeben werden.</p>
+<p>Die Werte für das Format des Werts Null sind fest vorgegeben. Die
+folgende Tabelle zeigt die Schlüsselwörter und die zugehörigen als dobj
+bzw. expr angebbaren Werte aus der Klasse CL_ABAP_FORMAT:</p>
+<p>Schlüsselwort,,Wert von dobj oder expr,,Auswirkung</p>
+<p>YES,,CL_ABAP_FORMAT=&gt;Z_YES,,Der Wert Null wird gemäß der aktuellen
+Formatierung als Zahlenwert dargestellt.</p>
+<p>NEIN,,CL_ABAP_FORMAT=&gt;Z_NO,,Der Wert Null wird als leere
+Zeichenkette dargestellt.</p>
+<p>Die Standardeinstellung ist YES.</p>
+<p>&amp;ABAP_EXAMPLE_VX5&amp;</p>
+<p>Das folgende Zeichenketten-Template erstellt die darunter gezeigte
+Zeichenfolge.</p>
+<p>ABEXA 00128</p>
+<p>, 0</p>
+<p>ABAP_EXAMPLE_END</p>
+<p>&amp;ABAP_ADDITION_9&amp;,,... XSD = YES$|NO$|(dobj)$|expr ...</p>
+<p>&amp;ABAP_EFFECT&amp;</p>
+<p>Diese Formatierungsoption bereitet den Wert des eingebetteten
+Ausdrucks im asXML-Format auf, das seinem Datentyp zugeordnet ist. Die
+Option XSD kann für alle elementaren Datentypen angegeben werden. Sie
+kann nicht gemeinsam mit anderen Formatierungsoptionen außer WIDTH,
+ALIGN, PAD, CASE und ZERO angegeben werden.</p>
+<p>Die Option XSD wirkt auf alle unter Mapping elementarer ABAP-Typen
+aufgeführten Datentypen wie dort angegeben.</p>
+<p>Die Werte für asXML-Format sind fest vorgegeben. Die folgende Tabelle
+zeigt die Schlüsselwörter und die zugehörigen als dobj bzw. expr
+angebbaren Werte aus der Klasse CL_ABAP_FORMAT:</p>
+<p>Schlüsselwort,,Wert von dobj oder expr,,Auswirkung</p>
+<p>YES,,CL_ABAP_FORMAT=&gt;X_YES,,Der Wert des eingebetteten Ausdrucks
+wird in Abhängigkeit von seinem Datentyp gemäß dem unter Mapping
+elementarer ABAP-Typen angegebenen asXML-Format formatiert. Wenn der
+Datentyp sich auf eine der unter Mapping weiterer XML -Schema-Datentypen
+genannten Domänen außer XSDQNAME bezieht, wird das dort angegebene
+Format verwendet. Das Mapping von XML-Fragmenten über die Domäne XSDANY
+wird nicht unterstützt.</p>
+<p>NEIN,,CL_ABAP_FORMAT=&gt;X_NO,,unverändert</p>
+<p>Wenn der Datentyp des eingebetteten Ausdrucks vom Typ x oder xstring
+ist, hat eine gleichzeitig angegebene FormatierungsoptionCASE keine
+Wirkung, außer er bezieht sich auf die Domäne XSDUUID_RAW.</p>
+<p>&amp;ABAP_HINT&amp;</p>
+<p>Die Formatierung eines eingebetteten Ausdrucks mit XSD hat im
+Wesentlichen gleiche Ergebnis wie eine Anwendung der vordefinierten
+Identitätstransformation ID. Im Unterschied zum Aufruf von CALL
+TRANSFORMATION sind Ausnahmen, die beim Mapping auftreten können, aber
+nicht verschalt sondern müssen direkt behandelt werden.</p>
+<p>NON_V5_HINTS</p>
+<p>ABAP_HINT_END</p>
+<p>&amp;ABAP_EXAMPLE_VX5&amp;</p>
+<p>Das folgende Zeichenketten-Template erstellt die darunter gezeigte
+Zeichenfolge. XSDBOOLEAN ist ein Datenelement, das sich auf die
+spezielle Domäne XSDBOOLEAN für das Mapping von Wahrheitswerten
+bezieht.</p>
+<p>ABEXA 00129</p>
+<p>wahr, falsch</p>
+<p>ABAP_EXAMPLE_END</p>
+<p>&amp;ABAP_EXAMPLE_ABEXA&amp;</p>
+<p>Zeichenketten-Templates, asXML-Format</p>
+<p>ABAP_EXAMPLE_END</p>
+<p>INDEX @@SIMPLE@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX @@SIGN_AS_POSTFIX@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX @@SCALE_PRESERVING@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX @@SCIENTIFIC@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX
+@@SCIENTIFIC_WITH_LEADING_ZERO@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX
+@@SCALE_PRESERVING_SCIENTIFIC@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>INDEX @@ENGINEERING@@&amp;ABAP_STRING_TEMPL&amp;@@</p>
+<p>&amp;ABAP_ADDITION_10&amp;,,... STYLE = ...$|(dobj)$|expr ...</p>
+<p>&amp;ABAP_EFFECT&amp;</p>
+<p>Diese Formatierungsoption legt das Format von dezimalen
+Gleitpunktzahlen fest. Die Option STYLE kann nur angegeben werden, wenn
+der eingebettete Ausdruck einen numerischen Datentyp hat. Sie darf nicht
+zusammen mit den Optionen CURRENCY, SIGN, TIMESTAMP oder TIMEZONE
+angegeben werden.</p>
+<p>Die Werte für das Format einer dezimalen Gleitpunktzahl sind fest
+vorgegeben. Die folgende Tabelle zeigt die Schlüsselwörter und die
+zugehörigen als dobj bzw. expr angebbaren Werte aus der Klasse
+CL_ABAP_FORMAT:</p>
+<p>Schlüsselwort,,Wert von dobj oder expr</p>
+<p>SIMPLE,,CL_ABAP_FORMAT=&gt;O_SIMPLE</p>
+<p>SIGN_AS_POSTFIX,,CL_ABAP_FORMAT=&gt;O_SIGN_AS_POSTFIX</p>
+<p>SCALE_PRESERVING,,CL_ABAP_FORMAT=&gt;O_SCALE_PRESERVING</p>
+<p>SCIENTIFIC,,CL_ABAP_FORMAT=&gt;O_SCIENTIFIC</p>
+<p>SCIENTIFIC_WITH_LEADING_ZERO,,CL_ABAP_FORMAT=&gt;O_SCIENTIFIC_WITH_LEADING_ZERO</p>
+<p>SCALE_PRESERVING_SCIENTIFIC,,
+CL_ABAP_FORMAT=&gt;O_SCALE_PRESERVING_SCIENTIFIC</p>
+<p>ENGINEERING,,CL_ABAP_FORMAT=&gt;O_ENGINEERING</p>
+<p>Der numerische Wert der Zeichenkette wird in den Datentyp decfloat34
+konvertiert und wie folgt behandelt:</p>
+<p>Die Standardeinstellung SIMPLE erstellt das vordefinierte Format
+eingebetteter Ausdrücke.</p>
+<p>SIGN_AS_POSTFIX erstellt eine Kaufmännische Notation. Das Vorzeichen
+wird rechts angefügt (Minuszeichen bei negativen Werten, Leerzeichen bei
+positiven Werten). Schließende Nullen in den Nachkommastellen werden
+abgeschnitten.</p>
+<p>SCALE_PRESERVING erhält die Skalierung wobei schließende Nullen in
+den Nachkommastellen nicht abgeschnitten werden. Es wird das gleiche
+Format wie bei der Konvertierung eines Quellfelds vom Typdecfloat34 in
+den Typ string erzeugt.</p>
+<p>SCIENTIFIC erstellt eine Wissenschaftliche Notation. Bei einer
+positiven Zahl wird kein Vorzeichen eingefügt. Die Ausgabe hat immer
+einen mindestens zweistelligen Exponenten mit Vorzeichen. Wenn der
+Zusatz EXPONENTnicht angegeben ist, wird in der Mantisse genau eine
+Vorkommastelle ausgegeben, deren Wert ungleich Null ist, außer das
+Quellfeld hat den Wert 0. Schließende Nullen in den Nachkommastellen der
+Mantisse werden abgeschnitten. Mit der Formatierungsoption DECIMALS kann
+die Anzahl der Nachkommastellen, mit EXPONENT der Exponent vorgegeben
+werden.</p>
+<p>SCIENTIFIC_WITH_LEADING_ZERO erstellt eine Wissenschaftliche Notation
+mit führender Null. Wie SCIENTIFIC mit folgenden Unterschieden:</p>
+<p>Es wird genau eine Vorkommastelle mit dem Wert 0 ausgegeben.</p>
+<p>Die Formatierungsoption EXPONENT kann nicht angegeben werden.</p>
+<p>SCALE_PRESERVING_SCIENTIFIC erstellt eine Wissenschaftliche Notation
+mit Erhaltung der Skalierung. Wie SCIENTIFICmit folgenden
+Unterschieden:</p>
+<p>Der Exponent ist immer dreistellig für decfloat16 und vierstellig für
+decfloat34.</p>
+<p>Schließende Nullen in den Nachkommastellen der Mantisse werden nicht
+abgeschnitten.</p>
+<p>Die Formatierungsoption EXPONENT kann nicht angegeben werden.</p>
+<p>ENGINEERING erstellt ein technisches Format. Wie SCIENTIFIC mit
+folgenden Unterschieden:</p>
+<p>Der Wert des Exponenten ist immer ein ganzzahliges Vielfaches von
+3.</p>
+<p>Der Wertebereich der Vorkommastellen liegt zwischen 1 und 999 außer
+das Quellfeld hat den Wert 0.</p>
+<p>Die Formatierungsoption EXPONENT kann nicht angegeben werden.</p>
+<p>Betreffs Tausender- und Dezimaltrennzeichen gelten die allgemeinen
+Regeln für eingebettete Ausdrücke. Für das Zusammenspiel mit anderen
+Formatierungsoptionen gilt:</p>
+<p>Die Formatierungsoption EXPONENT darf nur bei dem Ausgabeformat
+SCIENTIFIC angegeben werden.</p>
+<p>Die Formatierungsoption DECIMALS darf nicht bei Ausgabeformaten
+angegeben werden, welche die Skalierung erhalten. Für die
+AusgabeformateSIMPLE und SIGN_AS_POSTFIX legt DECIMALS die Anzahl der
+Nachkommastellen fest, wobei gegebenenfalls eine kaufmännische Rundung
+stattfindet oder schließende Nullen angehängt werden. Für die
+wissenschaftlichen Ausgabeformate legt DECIMALS die Anzahl der
+Nachkommastellen der Mantisse fest, wobei gegebenenfalls kaufmännisch
+gerundet wird.</p>
+<p>INCLUDE ABENFORMAT_STYLE_HINTS OBJECT DOKU ID SD</p>
+<p>&amp;ABAP_EXAMPLE_VX5&amp;</p>
+<p>Das folgende Zeichenketten-Template erstellt die darunter gezeigte
+Zeichenfolge.</p>
+<p>ABEXA 00130</p>
+<p>123,456E+03</p>
+<p>ABAP_EXAMPLE_END</p>
+<p>&amp;ABAP_EXAMPLE_ABEXA&amp;</p>
+<p>Dezimale Gleitpunktzahlen, Aufbereitung mit STYLE</p>
+<p>ABAP_EXAMPLE_END</p>
+<p>&amp;ABAP_ADDITION_11&amp;,,... CURRENCY = cur ...</p>
+<p>&amp;ABAP_EFFECT&amp;</p>
+<p>Diese Formatierungsoption legt die Anzahl der Nachkommastellen bei
+der Aufbereitung von numerischen Werten in Abhängigkeit von einer in cur
+über ein Währungskürzel angegebenen Währung fest. Die Option CURRENCY
+kann nur angegeben werden, wenn der eingebettete Ausdruck einen der
+numerischen Datentypen (b, s), i, int8, p und f, decfloat16 oder
+decfloat34 hat. Sie darf nicht zusammen mit den Optionen DECIMALS,
+STYLE, TIMESTAMP oder TIMEZONE angegeben werden. Mit der Option SIGN
+kann dann zusätzlich die Formatierung des Vorzeichens gesteuert
+werden.</p>
+<p>Die Aufbereitung der Zeichenkette bezüglich ihrer Nachkommastellen
+ist für die einzelnen numerischen Datentypen wie folgt:</p>
+<p>Bei Datenobjekten der Typen (b, s), i und int8 wird ein
+Dezimaltrennzeichen an der durch cur bestimmten Stelle in das Ergebnis
+eingefügt.</p>
+<p>Beim Datentyp p kommt es darauf an, wie der Wert angegeben ist:</p>
+<p>Bei der Angabe als Datenobjekt oder als funktionale Methode werden
+die in der Definition des Datentyps festgelegten Nachkommastellen
+vollständig ignoriert. Unabhängig vom tatsächlichen Wert und ohne
+Rundungen, wird ein Dezimaltrennzeichen an der durch cur bestimmten
+Stelle zwischen den Ziffern eingefügt.</p>
+<p>Bei der Angabe eines arithmetischen Ausdrucks oder einer allgemeinen
+numerischen Funktion wirkt CURRENCY wie DECIMALS.</p>
+<p>Bei Datenobjekten vom Typ f wirkt die Formatierungsoption CURRENCY
+wie DECIMALS, wobei die Anzahl der Nachkommastellen durch cur bestimmt
+wird.</p>
+<p>Bei Datenobjekten vom Typ decfloat16 und decfloat34 fügt die
+Formatierungsoption CURRENCY den Zusatz STYLE
+cl_abap_format=&gt;o_sign_as_postfix, der die Ausgabe in kaufmännischer
+Notation formatiert, implizit hinzu. Das Format des +/--Zeichens kann
+jedoch durch die Formatierungsoption SIGN überschrieben werden. Bei den
+Nachkommastellen gilt dieselbe Wirkung wie der Zusatz DECIMALS (siehe
+oben), wobei die Anzahl der Nachkommastellen durch cur festgelegt
+wird.</p>
+<p>Bei den numerischen Datentypen i, p und f wird in cur ein
+Währungskürzel aus der Spalte WAERS der DDIC-Datenbanktabelle TCURC
+erwartet. Bei den anderen numerischen Typen werden für jedes angegebene
+Währungskürzel zwei Nachkommastellen verwendet, es sei denn es ist in
+der Spalte CURRKEY der DDIC-Datenbanktabelle TCURX enthalten. Dann wird
+die Anzahl der Nachkommastellen aus der Spalte CURRDEC der
+entsprechenden Zeile in Tabelle TCURX ermittelt.</p>
+<p>&amp;ABAP_HINTS&amp;</p>
+<p>Die Formatierungsoption CURRENCY übersteuert nicht die vordefinierte
+Einstellung, dass keine Tausendertrennzeichen eingefügt werden.</p>
+<p>Die Formatierungsoption CURRENCY mit Währungen aus den
+Datenbanktabellen TCURC oder TCURX ist sinnvoll für die Formatierung von
+Datenobjekten der Typen (b, s), i,int8 oder p ohne Nachkommastellen,
+deren Inhalte Währungsbeträge in der kleinsten Einheit der Währung
+sind.</p>
+<p>Für dezimale Gleitpunktzahlen gibt es die Methoden
+CONVERT_CURR_TO_DECFLOAT und CONVERT_DECFLOAT_TO_CURR der Systemklasse
+CL_ABAP_DECFLOAT. Diese konvertieren Währungsbeträge in Abhängigkeit von
+einem Währungsschlüssel in dezimale Gleitpunktzahlen und umgekehrt.</p>
+<p>NON_V5_HINTS</p>
+<p>ABAP_HINT_END</p>
+<p>&amp;ABAP_EXAMPLE_VX5&amp;</p>
+<p>Das folgende Zeichenketten-Template erstellt die darunter gezeigte
+Zeichenfolge.</p>
+<p>ABEXA 00131</p>
+<p>123456,78</p>
+<p>ABAP_EXAMPLE_END</p>
+<p>&amp;ABAP_ADDITION_12&amp;,,... NUMBER =
+RAW$|USER$|ENVIRONMENT$|(dobj)$|expr ...</p>
+<p>&amp;ABAP_EFFECT&amp;</p>
+<p>Diese Formatierungsoption legt das Format der Dezimaldarstellung
+(Dezimaltrennzeichen und Tausendertrennzeichen) fest. Die Option NUMBER
+kann nur angegeben werden, wenn der eingebettete Ausdruck einen
+numerischen Datentyp hat. Sie darf neben oben aufgeführten Ausschlüssen
+auch nicht mit den Optionen TIMESTAMP oder TIMEZONE zusammen angegeben
+werden.</p>
+<p>Die Werte für das Format der Dezimaldarstellung sind fest vorgegeben.
+Die folgende Tabelle zeigt die Schlüsselwörter und die zugehörigen als
+dobj bzw. expr angebbaren Werte aus der Klasse CL_ABAP_FORMAT:</p>
+<p>Schlüsselwort,,Wert von dobj oder expr,,Auswirkung</p>
+<p>RAW,,CL_ABAP_FORMAT=&gt;N_RAW,,Das Dezimaltrennzeichen ist der Punkt
+(.) und es werden keine Tausendertrennzeichen eingefügt.</p>
+<p>USER,,CL_ABAP_FORMAT=&gt;N_USER,,Dezimaltrennzeichen und
+Tausendertrennzeichen werden dem Benutzerstammsatz entnommen.</p>
+<p>ENVIRONMENT,,CL_ABAP_FORMAT=&gt;N_ENVIRONMENT,,Dezimaltrennzeichen
+und Tausendertrennzeichen richten sich</p>
+<p>INCLUDE ABENCURRENT_FORMAT_SETTING OBJECT DOKU ID SD</p>
+<p>Die Standardeinstellung ist RAW.</p>
+<p>INCLUDE ABENENVIRONMENT_USER_HINT OBJECT DOKU ID SD</p>
+<p>&amp;ABAP_EXAMPLE_VX&amp;</p>
+<p>Das folgende Zeichenketten-Template erstellt die darunter gezeigte
+Zeichenfolge.</p>
+<p>ABEXA 00132</p>
+<p>1.000.000</p>
+<p>ABAP_EXAMPLE_END</p>
+<p>&amp;ABAP_EXAMPLE_V5&amp;</p>
+<p>Falls SET COUNTRY bisher nicht verwendet wurde, geben folgende
+Zeichenketten-Templates den gleichen Wert zurück.</p>
+<p>ABEXA 01728</p>
+<p>ABAP_EXAMPLE_END</p>
+<p>&amp;ABAP_ADDITION_13&amp;,,... ALPHA = IN$|OUT$|RAW$|(dobj)$|expr
+...</p>
+<p>&amp;ABAP_EFFECT&amp;</p>
+<p>Diese Formatierungsoption fügt Ziffernfolgen führende Nullen hinzu
+oder entfernt diese. Die Option ALPHA kann nur angegeben werden, wenn
+der eingebettete Ausdruck den Datentyp string, c oder n hat. Sie kann
+nicht gemeinsam mit anderen Formatierungsoptionen außer WIDTH und CASE
+angegeben werden.</p>
+<p>Die Werte für das Format der Ziffernfolge sind fest vorgegeben. Die
+folgende Tabelle zeigt die Schlüsselwörter und die zugehörigen als dobj
+bzw. expr angebbaren Werte aus der Klasse CL_ABAP_FORMAT:</p>
+<p>Schlüsselwort,,Wert von dobj oder expr,,Auswirkung</p>
+<p>IN,,CL_ABAP_FORMAT=&gt;L_IN,,Wenn die Zeichenkette des eingebetteten
+Ausdrucks außer öffnenden und schließenden Leerzeichen nichts als eine
+ununterbrochene Folge von Ziffern enthält, wird die Ziffernfolge
+rechtsbündig in eine Zeichenkette bestimmter Länge (siehe unten)
+gestellt und diese wird falls notwendig links mit der Ziffer 0
+aufgefüllt. Ansonsten werden die Zeichen der Zeichenkette des
+eingebetteten Ausdrucks linksbündig in die Zeichenkette gestellt und
+falls notwendig rechts mit Leerzeichen aufgefüllt. Wenn die Länge nicht
+ausreicht, wird in beiden Fällen rechts abgeschnitten.</p>
+<p>OUT,,CL_ABAP_FORMAT=&gt;L_OUT,,Wenn die Zeichenkette des
+eingebetteten Ausdrucks außer öffnenden und schließenden Leerzeichen
+nichts als eine ununterbrochene Folge von Ziffern enthält, werden
+führende Nullen aus der Ziffernfolge entfernt und die restlichen Ziffern
+linksbündig in eine Zeichenkette bestimmter Länge (siehe unten) gestellt
+und diese wird falls notwendig rechts mit Leerzeichen aufgefüllt.
+Ansonsten werden alle Zeichen der Zeichenkette des eingebetteten
+Ausdrucks linksbündig in die Zeichenkette gestellt und falls notwendig
+rechts mit Leerzeichen aufgefüllt. Wenn die Länge nicht ausreicht, wird
+in beiden Fällen rechts abgeschnitten.</p>
+<p>RAW,,CL_ABAP_FORMAT=&gt;L_RAW,,Keine Formatierung.</p>
+<p>Die Länge der resultierenden Zeichenkette wird wie folgt
+bestimmt:</p>
+<p>Wenn die Formatierungsoption WIDTH nicht angegeben ist und einem
+Zielfeld fester Länge vom Typ c, n, d oder tein Zeichenketten-Template
+mit einem einzelnen eingebetteten Ausdruck zugeordnet wird, das aus
+einem einzelnen Datenobjekt (kein Ausdruck oder Funktion) besteht,
+bestimmt die Länge des Zielfelds die verfügbare Länge. Ansonsten wird
+die Länge des ursprünglichen Datenobjekts oder Ausdrucks inklusive
+schließender Leerzeichen verwendet.</p>
+<p>Wenn die Formatierungsoption WIDTH angegeben ist, wird die angegebene
+Länge nur dann verwendet wenn sie größer als die Länge der
+ununterbrochenen Ziffernfolge ohne führende Nullen bzw. der Zeichenfolge
+ohne schließende Leerzeichen ist. Andernfalls wird die Länge der
+ununterbrochenen Ziffernfolge ohne führende Nullen bzw. der Zeichenfolge
+ohne schließende Leerzeichen verwendet.</p>
+<p>&amp;ABAP_HINTS&amp;</p>
+<p>Mit dem Parameter IN können Ziffernfolgen ohne führende Nullen in das
+Format von numerischem Text mit führenden Nullen verwandelt werden. Mit
+dem Parameter OUT kann numerischer Text mit führenden Nullen in
+Ziffernfolgen ohne führende Nullen konvertiert werden.</p>
+<p>NON_V5_HINTS</p>
+<p>Die Formatierungsoption ALPHA hat die gleiche Funktion wie die
+Konvertierungsroutinen CONVERSION_EXIT_ALPHA_INPUT oder
+CONVERSION_EXIT_ALPHA_OUTPUT, die den Konvertierungs-Exit ALPHA
+implementieren.</p>
+<p>ABAP_HINT_END</p>
+<p>&amp;ABAP_EXAMPLE_VX5&amp;</p>
+<p>Das folgende Zeichenketten-Template erstellt die darunter gezeigte
+Zeichenfolge.</p>
+<p>ABEXA 00133</p>
+<p>0000001234</p>
+<p>ABAP_EXAMPLE_END</p>
+<p>&amp;ABAP_EXAMPLE_VX5&amp;</p>
+<p>Mit folgenden Zuordnungen von Zeichenketten-Templates werden
+unterschiedliche Ergebnisse erzeugt:</p>
+<p>12345 in target1</p>
+<p>Die Länge des Ergebnisses des Zeichenketten-Templates ist die Länge
+des Zielfeldes, nämlich 5. Das Ergebnis ist die rechtsbündige Kette von
+Ziffern 0000012345, wobei die führenden 00000 abgeschnitten werden. Das
+Ergebnis 12345 wird target1 vollständig zugeordnet.</p>
+<p>00000 in target2</p>
+<p>Da der eingebettete Ausdruck ein Tabellenausdruck ist, entspricht die
+Länge des Ergebnisses des Zeichen-Templates der Länge des ursprünglichen
+Feldes, nämlich 10. Das Ergebnis ist der vollständige Inhalt 0000012345.
+Bei der Zuordnung zu target2 werden die schließenden 12345
+abgeschnitten.</p>
+<p>ABEXA 01768</p>
+<p>ABAP_EXAMPLE_END</p>
+<p>&amp;ABAP_EXAMPLE_ABEXA&amp;</p>
+<p>Zeichenketten-Templates, Ziffernfolgen</p>
+<p>ABAP_EXAMPLE_END</p>
+<p>&amp;ABAP_ADDITION_14&amp;,,... DATE =
+RAW$|ISO$|USER$|ENVIRONMENT$|(dobj)$|expr ...</p>
+<p>&amp;ABAP_EFFECT&amp;</p>
+<p>Diese Formatierungsoption legt das Format eines Datums fest. Die
+Option DATE kann nur angegeben werden, wenn der eingebettete Ausdruck
+den Datentyp d hat.</p>
+<p>Die Werte für das Format des Datums sind fest vorgegeben. Die
+folgende Tabelle zeigt die Schlüsselwörter und die zugehörigen als dobj
+bzw. expr angebbaren Werte aus der Klasse CL_ABAP_FORMAT:</p>
+<p>Schlüsselwort,,Wert von dobj oder expr,,Auswirkung</p>
+<p>RAW,,CL_ABAP_FORMAT=&gt;D_RAW,,Der Inhalt des Datumsfelds wird
+unformatiert übernommen.</p>
+<p>ISO,,CL_ABAP_FORMAT=&gt;D_ISO,,Die Aufbereitung des Datums erfolgt
+gemäß ISO 8601 mit Strichen (-) als Trennzeichen: yyyy-mm-dd.</p>
+<p>USER,,CL_ABAP_FORMAT=&gt;D_USER,,Die Aufbereitung des Datums
+geschieht entsprechend der im Benutzerstammsatz definierten Maske.</p>
+<p>ENVIRONMENT,,CL_ABAP_FORMAT=&gt;D_ENVIRONMENT,,Die Aufbereitung des
+Datums richtet sich</p>
+<p>INCLUDE ABENCURRENT_FORMAT_SETTING OBJECT DOKU ID SD</p>
+<p>Die Standardeinstellung ist RAW.</p>
+<p>INCLUDE ABENENVIRONMENT_USER_HINT OBJECT DOKU ID SD</p>
+<p>&amp;ABAP_EXAMPLE_VX5&amp;</p>
+<p>Das folgende Zeichenketten-Template erzeugt in Abhängigkeit vom
+aktuellen Datum die darunter gezeigte Zeichenkette.</p>
+<p>ABEXA 00134</p>
+<p>2016-09-09</p>
+<p>ABAP_EXAMPLE_END</p>
+<p>&amp;ABAP_ADDITION_15&amp;,,... TIME =
+RAW$|ISO$|USER$|ENVIRONMENT$|(dobj)$|expr ...</p>
+<p>&amp;ABAP_EFFECT&amp;</p>
+<p>Diese Formatierungsoption legt das Format einer Zeitangabe fest. Die
+Option TIME kann nur angegeben werden, wenn der eingebettete Ausdruck
+den Datentyp t hat.</p>
+<p>Die Werte für das Format der Zeitangabe sind fest vorgegeben. Die
+folgende Tabelle zeigt die Schlüsselwörter und die zugehörigen als dobj
+bzw. expr angebbaren Werte aus der Klasse CL_ABAP_FORMAT:</p>
+<p>Schlüsselwort,,Wert von dobj oder expr,,Auswirkung</p>
+<p>RAW,,CL_ABAP_FORMAT=&gt;T_RAW,,Der Inhalt des Zeitfelds wird
+unformatiert übernommen.</p>
+<p>ISO,,CL_ABAP_FORMAT=&gt;T_ISO,,Die Aufbereitung der Zeitangabe
+erfolgt gemäß ISO 8601 im 24-Stunden-Format mit Doppelpunkten (:) als
+Trennzeichen: hh:mm:ss.</p>
+<p>USER,,CL_ABAP_FORMAT=&gt;T_USER,,Die Aufbereitung der Zeit geschieht
+entsprechend der im Benutzerstammsatz definierten Maske.</p>
+<p>ENVIRONMENT,,CL_ABAP_FORMAT=&gt;T_ENVIRONMENT,,Die Aufbereitung der
+Zeit richtet sich</p>
+<p>INCLUDE ABENCURRENT_FORMAT_SETTING OBJECT DOKU ID SD</p>
+<p>Die Standardeinstellung ist RAW.</p>
+<p>&amp;ABAP_HINT&amp;</p>
+<p>NON_V5_HINTS</p>
+<p>Im Benutzerstammsatz oder über die Anweisung SET COUNTRY können ein
+24-Stunden-Format und vier 12-Stunden-Formate eingestellt werden. Um
+eine Formatierung im 12-Stunden-Format zu erwirken, muss USER oder
+ENVIRONMENT angegeben oder alternativ mit der Formatierungsoption
+COUNTRY gearbeitet werden.</p>
+<p>ABAP_HINT_END</p>
+<p>INCLUDE ABENENVIRONMENT_USER_HINT OBJECT DOKU ID SD</p>
+<p>&amp;ABAP_EXAMPLE_VX&amp;</p>
+<p>Das folgende Zeichenketten-Template erzeugt in Abhängigkeit von der
+aktuellen Zeit die darunter gezeigte Zeichenkette, falls in der
+DDIC-Datenbanktabelle T005X ein Land mit einem 12-Stunden-Format
+gefunden wird.</p>
+<p>ABEXA 00135</p>
+<p>10:55:58 AM</p>
+<p>ABAP_EXAMPLE_END</p>
+<p>&amp;ABAP_EXAMPLE_V5&amp;</p>
+<p>Falls SET COUNTRY bisher nicht verwendet wurde, geben folgende
+Zeichenketten-Templates den gleichen Wert zurück.</p>
+<p>ABEXA 01729</p>
+<p>ABAP_EXAMPLE_END</p>
+<p>&amp;ABAP_ADDITION_16&amp;,,... TIMESTAMP =
+SPACE$|ISO$|USER$|ENVIRONMENT$|(dobj)$|expr ...</p>
+<p>&amp;ABAP_EFFECT&amp;</p>
+<p>Diese Formatierungsoption legt das Format eines Zeitstempels fest.
+Die Option TIMESTAMP kann nur angegeben werden, wenn der eingebettete
+Ausdruck einen der folgenden Datentypen hat, sonst kommt es zu einem
+Syntax oder Laufzeitfehler:</p>
+<p>INCLUDE ABENTIME_STAMP_TYPES OBJECT DOKU ID SD</p>
+<p>Die Werte für das Format des Zeitstempels sind fest vorgegeben. Die
+folgende Tabelle zeigt die Schlüsselwörter und die zugehörigen als dobj
+bzw. expr angebbaren Werte aus der Klasse CL_ABAP_FORMAT:</p>
+<p>Schlüsselwort,,Wert von dobj oder expr,,Auswirkung</p>
+<p>SPACE,,CL_ABAP_FORMAT=&gt;TS_SPACE,,Der Zeitstempel wird gemäß
+SQL-Standard ISO 9075 dargestellt, wobei ein Leerzeichen zwischen Datum
+und Zeit steht und als Dezimaltrennzeichen der Punkt (.) verwendet wird:
+yyyy-mm-dd hh:mm:ss.fffffff.</p>
+<p>ISO,,CL_ABAP_FORMAT=&gt;TS_ISO,,Der Zeitstempel wird gemäß ISO 8601
+für Datumsformate und Zeitangaben dargestellt, wobei das Zeichen T
+zwischen Datum und Zeit steht und als Dezimaltrennzeichen das Komma (,)
+verwendet wird: yyyy-mm-ddThh:mm:ss,fffffff.</p>
+<p>USER,,CL_ABAP_FORMAT=&gt;TS_USER,,Wie SPACE, wobei aber das Datums-
+und das Zeitformat sowie das Dezimaltrennzeichen dem Benutzerstammsatz
+entnommen werden.</p>
+<p>ENVIRONMENT,,CL_ABAP_FORMAT=&gt;TS_ENVIRONMENT,,Wie SPACE. Datums-
+und das Zeitformat sowie das Dezimaltrennzeichen richten sich hier
+aber</p>
+<p>INCLUDE ABENCURRENT_FORMAT_SETTING OBJECT DOKU ID SD</p>
+<p>-,,CL_ABAP_FORMAT=&gt;TS_RAW,,Der Zeitstempel wird als
+ununterbrochene Ziffernfolge ohne Trennzeichen außer einem Dezimalpunkt
+(.) vor Sekundenbruchteilen aufbereitet.</p>
+<p>Die Standardeinstellung ist SPACE.</p>
+<p>Initialwerte und ungültige Werte werden wie folgt behandelt:</p>
+<p>Ein initialer Ausdruck vom Typ utclong wird als eine mit Leerzeichen
+gefüllte Zeichenkette dargestellt, deren Länge dem Ergebnis für einen
+gültigen Zeitstempel entspricht. Diese Länge hängt von den angegebenen
+Formatierungsoptionen ab. Ein ungültiger Wert führt zu einer
+behandelbaren Ausnahme der Klasse CX_SY_CONVERSION_NO_DATE_TIME.</p>
+<p>Eine gepackte Zahl, die keinen gültigen Zeitstempel darstellt, wird
+dennoch wie ein Zeitstempel aufbereitet, wobei bei negativen Zahlen der
+Absolutwert betrachtet wird. Bei den Formaten USER und ENVIRONMENT wird
+vor dem Datum ein Stern * eingefügt und die letzte Stelle der Zeit
+abgeschnitten.</p>
+<p>&amp;ABAP_HINTS&amp;</p>
+<p>Zusätzlich zu TIMESTAMP kann mit der Formatierungsoption DECIMALS die
+Anzahl der Nachkommastellen beeinflusst werden. Andere Optionen, welche
+das Datums- und Zeitformat oder das Dezimaltrennzeichenändern, können
+nicht angegeben werden. werden.</p>
+<p>Mit der Option TIMEZONE kann Zeitzone angegeben werden, um die
+Datums- und Zeitanteile des Zeitstempels in entsprechende lokale Werte
+zu konvertieren.</p>
+<p>Während für den Datentyp utclong das Zeitstempelformat ISObereits
+vordefiniert ist, und auch ohne Formatierungsoption wirkt, ist für
+Zeitstempel in gepackten Zahlen das numerische Format vordefiniert. Ein
+als gepackte Zahl dargestellter Zeitstempel wird nur über Verwendung der
+Formatierungsoptionen TIMESTAMP oder TIMEZONE als Zeitstempel erkannt
+und aufbereitet.</p>
+<p>Das Zeitstempelformat ISO hat keinen optional Zeitzonenbezeichner wie
+in ISO 8601 zugelassen.</p>
+<p>NON_V5_HINTS</p>
+<p>Wenn die Formatierungseinstellung der Sprachumgebung nicht über SET
+COUNTRY auf ein länderspezifisches Format gesetzt wurde, ist die
+Verwendung von ENVIRONMENT gleichbedeutend zur Verwendung vonUSER.</p>
+<p>ABAP_HINT_END</p>
+<p>&amp;ABAP_EXAMPLE_VX5&amp;</p>
+<p>Mit folgendem Quelltextabschnitt wird die Verwendung der
+Zeitstempelformate gezeigt.</p>
+<p>ABEXA 00136</p>
+<p>BEGIN_SECTION VERSION 5 OUT</p>
+<p>Er ist ein Ausschnitt aus der Klasse CL_DEMO_STRING_TEMPL_TMSTMP.</p>
+<p>END_SECTION VERSION 5 OUT</p>
+<p>ABAP_EXAMPLE_END</p>
+<p>&amp;ABAP_EXAMPLE_ABEXA&amp;</p>
+<p>Zeichenketten-Templates, Formatierungseinstellungen</p>
+<p>ABAP_EXAMPLE_END</p>
+<p>&amp;ABAP_ADDITION_17&amp;,,... TIMEZONE = tz ...</p>
+<p>&amp;ABAP_EFFECT&amp;</p>
+<p>Diese Formatierungsoption konvertiert die Datums- und Zeitinformation
+eines Zeitstempels gemäß des Regelwerks für Zeitzonen in das lokale
+Datum und die lokale Zeit der in tz angegebenen Zeitzone und bereitet
+das Ergebnis als Zeitstempel auf. Die Option TIMEZONE kann nur angegeben
+werden, wenn der eingebettete Ausdruck einen der folgenden Datentypen
+hat, sonst kommt es zu einem Syntax oder Laufzeitfehler:</p>
+<p>INCLUDE ABENTIME_STAMP_TYPES OBJECT DOKU ID SD</p>
+<p>Wenn die Option TIMESTAMP nicht angegeben ist, wird ein Ausdruck vom
+Typ utclong gemäß seinem vordefinierten Format aufbereitet. Ein
+Zeitstempel in einer gepackten Zahl wird wie mit der Angabe TIMESTAMP =
+SPACE aufbereitet. Wenn die Option TIMESTAMP angegeben ist, wirkt
+diese.</p>
+<p>Für tz muss ein zeichenartiges Datenobjekt angegeben werden, das eine
+Zeitzone aus der DDIC-DatenbanktabelleTTZZ enthält. Ist das Regelwerk
+für die angegebene Zeitzone nicht vollständig, kommt es zu einer
+unbehandelbaren Ausnahme. Ist tz initial, wird keine Zeitverschiebung
+berechnet. Die Konvertierung erfolgt wie bei den Anweisungen CONVERT
+UTCLONG bzw. CONVERT TIME STAMP beschrieben. Für den Zeitstempeltyp
+utclong gelten dabei die besonderen Regeln für die erste und letzte
+Sekunde.</p>
+<p>Initiale Werte werden wie folgt behandelt:</p>
+<p>Für den Zeitstempeltyp utclong wird eine mit Leerzeichen gefüllte
+Zeichenkette erzeugt, deren Länge dem Ergebnis für einen gültigen
+Zeitstempel entspricht.</p>
+<p>Für Zeitstempel in gepackten Zahlen ist der Initialwert 0 ein
+ungültiger Wert und wird als solcher aufbereitet.</p>
+<p>Die Fehlerbehandlung ist wie folgt:</p>
+<p>Das Quellfeld enthält keinen gültigen Zeitstempel:</p>
+<p>Für den Zeitstempeltyp utclong kommt es zu einer behandelbaren
+Ausnahme der Klasse CX_SY_CONVERSION_NO_DATE_TIME.</p>
+<p>Zeitstempel in gepackten Zahlen werden dennoch wie ein Zeitstempel
+aufbereitet, wobei bei negativen Zahlen der Absolutwert betrachtet wird.
+Die angegebene Zeitzone spielt keine Rolle.</p>
+<p>Der Wert von tz ist nicht in der DDIC-Datenbanktabelle TTZZ enthalten
+oder die Konvertierung würde einen lokalen Zeitpunkt außerhalb des
+Wertebereichs für lokales Datum und Zeit ergeben:</p>
+<p>Für den Zeitstempeltyp utclong kommt es zu einer behandelbaren
+Ausnahme der Klasse CX_SY_CONVERSION_NO_DATE_TIME.</p>
+<p>Für Zeitstempel in gepackten Zahlen wird implizit die Zeitzone UTC
+verwendet.</p>
+<p>&amp;ABAP_HINTS&amp;</p>
+<p>Die Nachkommastellen von Zeitstempeln können zusätzlich mit der
+Formatierungsoption DECIMALS festgelegt werden.</p>
+<p>Eine initiale Zeitzone tz entspricht nur dann der Angabe UTC, wenn
+die Tabellen des Regelwerks für Zeitzonen für die Zeitzone UTC richtig
+gefüllt sind.</p>
+<p>NON_V5_HINTS</p>
+<p>Anders als TIMESTAMP kann der Zusatz TIMEZONE auch mit der
+Formatierungsoption COUNTRY kombiniert werden, um das Datums- und
+Zeitformat zu beeinflussen.</p>
+<p>ABAP_HINT_END</p>
+<p>&amp;ABAP_EXAMPLE_VX5&amp;</p>
+<p>Die Klasse CL_DEMO_STRING_TEMPLATE_TZ zeigt die Verwendung der Option
+TIMEZONE ohne Verwendung der Option TIMESTAMP aber auch in Verbindung
+mit der Option COUNTRY. Ein Ausführen des Programms zeigt ihre
+Wirkung.</p>
+<p>ABEXA 00137</p>
+<p>ABAP_EXAMPLE_END</p>
+<p>&amp;ABAP_EXAMPLE_ABEXA&amp;</p>
+<p>Zeichenketten-Templates, Zeitzonen</p>
+<p>ABAP_EXAMPLE_END</p>
+<p>&amp;ABAP_ADDITION_18&amp;,,... COUNTRY = cty ...</p>
+<p>&amp;ABAP_EFFECT&amp;</p>
+<p>Die Formatierungsoption COUNTRY legt eine temporäre
+Formatierungseinstellung für den aktuellen eingebetteten Ausdruck fest.
+Sie kann alternativ zu allen Formatierungsoptionen angegeben werden, für
+die der Parameter ENVIRONMENT angegeben kann, also statt NUMBER, DATE,
+TIME und TIMESTAMP. Der eingebettete Ausdruck wird je nach Datentyp als
+Zahl, Datum, Zeit oder Zeitstempel formatiert.</p>
+<p>Für cty muss ein Datenobjekt vom Typ LAND1 aus dem ABAP Dictionary
+angegeben werden, das entweder einen Wert aus der Spalte LAND der
+DDIC-Datenbanktabelle T005X enthält oder initial ist, ansonsten kommt es
+zu einer Ausnahme der Klasse CX_SY_STRG_FORMAT</p>
+<p>Wenn cty einen Wert aus der Datenbanktabelle T005X enthält, wird das
+dort festgelegte länderspezifische Format verwendet. Wenn cty initial
+ist, wird die im Benutzerstammsatz angegebene Formatierung
+verwendet.</p>
+<p>&amp;ABAP_HINTS&amp;</p>
+<p>NON_V5_HINTS</p>
+<p>Im Gegensatz zur Verwendung der Anweisung SET COUNTRY und dem
+Parameter ENVIRONMENT ist die Verwendung der Formatierungsoption COUNTRY
+nebenwirkungsfrei. Die Länderangabe wirkt nur auf den aktuellen
+eingebetteten Ausdruck und nicht auf alle nachfolgenden Anweisungen der
+aktuellen internen Sitzung.</p>
+<p>Die Formatierungsoption COUNTRY übersteuert in Zahlen die
+vordefinierte Einstellung bezüglich Tausendertrennzeichen.</p>
+<p>ABAP_HINT_END</p>
+<p>&amp;ABAP_EXAMPLE_VX5&amp;</p>
+<p>Das folgende Zeichenketten-Template erzeugt in Abhängigkeit vom
+Inhalt der DDIC-Datenbanktabelle T005X die darunter gezeigte
+Zeichenkette.</p>
+<p>ABEXA 00138</p>
+<p>1.000.000</p>
+<p>ABAP_EXAMPLE_END</p>
+<p>&amp;ABAP_EXAMPLES_ABEXA&amp;</p>
+<p>Zeichenketten-Templates, Zahlenformate</p>
+<p>Zeichenketten-Templates, Datumsformate</p>
+<p>Zeichenketten-Templates, Zeitformate</p>
+<p>Zeichenketten-Templates, Zeitstempelformate</p>
+<p>ABAP_EXAMPLE_END</p>
