@@ -1,0 +1,6 @@
+[ edm ] --> [ pg-database ]
+[ edm ] --> [ web service ]
+[ edm ] --> [ $metadata ] --> [ fiori elements ]
+[ yspec ] --> [ csn ]
+[ csn ] --> [ edm ]
+[ ui spec ] -> [ UI5? ]

@@ -1,0 +1,10 @@
+definitions:
+  'Name':     {type:"cds.String"}
+  'Currency': {type:"cds.String", length:3}
+  'USD':      {type:"Currency"}
+  'Amount':
+    elements:
+      'value':    {type:"cds.Decimal", precision:11, scale:3}
+      'currency': {type:"Currency"}
+  'SortOrder': {enum: { 'asc': {}, 'desc': {} } }
+

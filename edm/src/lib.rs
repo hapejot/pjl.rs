@@ -5,7 +5,7 @@ pub mod number;
 pub mod primitive;
 pub mod structure;
 pub mod value;
-
+pub mod csn;
 pub use csdl::Schema;
 
 pub mod csdl {

@@ -24,6 +24,6 @@ members = [
 #    "thumb-node",
     "pjl-cache", "pjl-terminal-tools",
     "excel-cell-replace"
-, "key-sim"]
+, "key-sim", "pjl-file-browser"]
 
 

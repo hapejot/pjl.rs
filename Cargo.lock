@@ -216,6 +216,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "021e862c184ae977658b36c4500f7feac3221ca5da43e3f25bd04ab6c79a29b5"
 dependencies = [
  "axum-core 0.5.2",
+ "axum-macros",
  "bytes",
  "form_urlencoded",
  "futures-util",
@@ -991,6 +992,7 @@ version = "0.1.0"
 dependencies = [
  "paste",
  "serde",
+ "serde_json",
  "serde_yaml",
  "xml-rs 0.8.22",
  "xml_derive",
@@ -2457,6 +2459,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "pjl-file-browser"
+version = "0.1.0"
+
+[[package]]
 name = "pjl-file-server"
 version = "0.1.0"
 dependencies = [
@@ -3165,9 +3171,9 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.140"
+version = "1.0.143"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "20068b6e96dc6c9bd23e01df8827e6c7e1f2fddd43c21810382803c136b99373"
+checksum = "d401abef1d108fbd9cbaebc3e46611f4b1021f714a0597a71f41ee463f5f4a5a"
 dependencies = [
  "itoa",
  "memchr",

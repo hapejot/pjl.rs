@@ -1,0 +1,11 @@
+.app-cell {
+    white-space: nowrap; /* Prevent line breaks */
+    overflow: hidden;    /* Hide overflowing content */
+    text-overflow: ellipsis; /* Add ellipsis (...) for overflow */
+}
+
+.sapMTextRenderWhitespaceWrap {
+    white-space: nowrap;
+    text-overflow: ellipsis; /* Add ellipsis (...) for overflow */
+    overflow: hidden;    /* Hide overflowing content */
+}
