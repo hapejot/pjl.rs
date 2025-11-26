@@ -137,7 +137,8 @@ pub struct CsnAction {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CsnElement {
     /// The type of the element (scalar, association, etc.)
-    pub r#type: Option<String>,
+    #[serde(rename = "type")]
+    pub datatype: Option<String>,
     /// Is this element a key?
     pub key: Option<bool>,
     /// Not null constraint

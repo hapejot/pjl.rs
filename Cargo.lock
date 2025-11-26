@@ -2475,6 +2475,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "pjl-macros"
+version = "0.1.0"
+
+[[package]]
 name = "pjl-odata"
 version = "0.1.0"
 dependencies = [
@@ -2488,8 +2492,11 @@ dependencies = [
 name = "pjl-pandoc"
 version = "0.1.0"
 dependencies = [
+ "axum 0.7.9",
  "serde",
  "serde_json",
+ "tokio",
+ "tower 0.4.13",
 ]
 
 [[package]]
