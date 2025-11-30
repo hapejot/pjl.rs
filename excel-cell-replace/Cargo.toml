@@ -1,8 +1,0 @@
-[package]
-name = "excel-cell-replace"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-umya-spreadsheet = "1.1"
-csv = "1.3"

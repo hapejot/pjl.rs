@@ -1,16 +1,13 @@
 use edm::csdl::{EntityType, Key, Property};
-use humantime::format_rfc3339;
 use pjl_pg::Database;
 use pjl_tab::Table;
 use std::env;
-use std::path::Path;
-use std::time::{SystemTime, UNIX_EPOCH};
 use tracing::*;
 use tracing_subscriber;
 use edm::*;
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), String> {
     tracing_subscriber::fmt::init();
     info!("Starting dir_stats");
     let args: Vec<String> = env::args().collect();
@@ -38,9 +35,9 @@ async fn main() {
         }],
         .. Default::default()
     };
-    db.activate(schema).await;
+    db.activate(schema).await.map_err(|x| x.to_string())?;
 
-    let mut tab = Table::new();
+    let tab = Table::new();
     tab.add_column("dir").unwrap();
     tab.add_column("total_size").unwrap();
     tab.add_column("file_count").unwrap();
@@ -107,7 +104,8 @@ async fn main() {
     schema.new_property("dir_stats", "oldest");
     schema.new_property("dir_stats", "date_diff");
     schema.new_key("dir_stats", &["dir"]);
-    db.activate(schema).await;
-    db.modify("dir_stats", tab).await;
+    db.activate(schema).await.map_err(|x| x.to_string())?;
+    db.modify("dir_stats", tab).await.map_err(|x| x.to_string())?;
     info!("Stats written to Postgres table 'dir_stats'");
+    Ok(())
 }

@@ -2,10 +2,11 @@
 name = "key-sim"
 version = "0.1.0"
 edition = "2024"
+build = "build.rs"
 
 [dependencies]
 clap = { version = "4", features = ["derive"] }
 
 [target.'cfg(windows)'.dependencies]
-windows = { version = "0.51", features = ["Win32_Foundation", "Win32_UI_WindowsAndMessaging"] }
-enigo = "0.1"
+windows = { version = "0.58", features = ["Win32_Foundation", "Win32_UI_WindowsAndMessaging"] }
+enigo = "0"

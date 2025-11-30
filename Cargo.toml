@@ -25,6 +25,6 @@ members = [
 #    "thumb-node",
     "pjl-cache", "pjl-terminal-tools",
     "excel-cell-replace"
-, "key-sim", "sap2md"]
+, "key-sim", "sap2md", "yaml2json"]
 
 
