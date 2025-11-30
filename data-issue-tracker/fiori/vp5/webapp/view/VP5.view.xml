@@ -1,0 +1,96 @@
+<mvc:View controllerName="vp5.controller.VP5"
+		height="100%"
+		xmlns="sap.gantt.simple"
+		xmlns:axistime="sap.gantt.axistime"
+		xmlns:config="sap.gantt.config"
+		xmlns:mvc="sap.ui.core.mvc"
+		xmlns:m="sap.m"
+		xmlns:shapes="sap.gantt.simple.shapes"
+		xmlns:table="sap.ui.table"
+		xmlns:rm="sap.ui.table.rowmodes">
+	<GanttChartContainer id="gant-container">
+		<toolbar>
+			<ContainerToolbar showDisplayTypeButton="true" showBirdEyeButton="true"	id="containerToolbar"/>
+		</toolbar>
+		<GanttChartWithTable id="gantt1" 
+			shapeDrop=".onShapeDrop"
+			shapeResize=".onShapeResize"
+			shapeContextMenu=".onShapeContextMenu"
+			shapeConnect=".onShapeConnect"
+			showTextOnGhost="true"
+			shapeSelectionMode="MultiWithKeyboardAndLasso">
+			<axisTimeStrategy>
+				<axistime:ProportionZoomStrategy id="proportionZoomStrategy">
+					<axistime:totalHorizon>
+						<config:TimeHorizon id="totalHorizon-1"
+								startTime="20240401000000" endTime="20250401000000"/>
+					</axistime:totalHorizon>
+					<axistime:visibleHorizon>
+						<config:TimeHorizon id="visibleHorizon-2"
+								startTime="20241001000000" endTime="20250301000000"/>
+					</axistime:visibleHorizon>
+				</axistime:ProportionZoomStrategy>
+			</axisTimeStrategy>
+			<table>
+				<table:Table id="table-1"
+						selectionMode="Single"
+						selectionBehavior="RowSelector"
+						enableColumnReordering="true"
+						rows="{
+								path: '/Activities'
+							}">
+					<table:columns> 
+						<table:Column id="col-wbs" sortProperty="WBSID/Name" filterProperty="WBSID/Name" width="200px">
+							<m:Text id="wbs" text="WBS" />
+							<table:template>
+								<m:Link id="wbs-link" text="{WBSID/Name}" press=".onWBSLinkPress" />
+								<!-- <m:Text id="wbs-t" text="{WBSID/Name}" /> -->
+							</table:template>
+						</table:Column>
+						<table:Column id="col-1">
+							<m:Text id="name" text="Name" />
+							<table:template>
+								<m:Text id="name-t" text="{Description}" />
+							</table:template>
+						</table:Column>
+						<table:Column id="col-3" sortProperty="EarlyStart" filterProperty="EarlyStart">
+							<m:Text id="startDate" text="Start Date" />
+							<table:template>
+								<m:DatePicker id="startDatePicker" dateValue="{EarlyStart}"/>
+							</table:template>
+						</table:Column>
+						<table:Column id="col-4" sortProperty="EarlyFinish" filterProperty="EarlyFinish">
+							<m:Text id="endDate" text="End Date" />
+							<table:template>
+								<m:DatePicker id="endDatePicker" dateValue="{EarlyFinish}"/>
+							</table:template>
+						</table:Column>
+					</table:columns>
+					<table:rowMode>
+						<rm:Auto id="auto" minRowCount="12"/>
+					</table:rowMode>
+					<table:rowSettingsTemplate>
+						<GanttRowSettings id="gantrowsettings" rowId="{Name}">
+							<shapes1>
+								<BaseRectangle id="baseRectangle"
+								title="{Description}"
+								tooltip="{Description}"
+								fill="#0092D1"
+								selectedFill="#0955d9"
+								fontSize="15"
+								fontWeight="bold"
+								selectedTitleColor="#F7ADCD"				
+								hoverable="true"
+								height="19"
+								titleSpacing="20"
+								horizontalTextAlignment="Dynamic"
+								verticalTextAlignment="Center"
+								time="{EarlyStart}" selectable="true" countInBirdEye="true" connectable="true" draggable="true" resizable="true" endTime="{EarlyFinish}" />
+							</shapes1>
+						</GanttRowSettings>
+					</table:rowSettingsTemplate>
+				</table:Table>
+			</table>
+		</GanttChartWithTable>
+	</GanttChartContainer>
+</mvc:View>

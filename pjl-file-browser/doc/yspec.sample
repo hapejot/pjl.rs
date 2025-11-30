@@ -1,0 +1,31 @@
+entity: Issue
+plural: Issues
+purpose: Represents a single data issue or inconsistency tracked by the system.
+title_attribute: title
+aspects:
+  - uniqueid
+  - managed
+attributes:
+  title:            
+    type:           String
+    description:    Short summary of the issue
+    null:           false
+    value:          id + ' ' + status
+    default:        New Title
+  description:      String                                          <Detailed explanation of the issue.>
+  status:           String                                          <Current status of the issue (e.g., open, closed, in progress).>
+  created_at:       DateTime                                        <Timestamp when the issue was created.>
+  updated_at:       DateTime                                        <Timestamp when the issue was last updated.>
+  due_date:         DateTime                                        <Deadline for resolving the issue.>
+  resolution:       String                                          <Description of how the issue was resolved, if applicable.>
+  resolution_date:  DateTime                                        <Timestamp when the issue was resolved, if applicable.>
+  severity:         String                                          <Severity level of the issue (e.g., critical, major, minor).>
+  tracker:          association to Tracker                          <The tracker that manages this issue.
+  comments:         composition of many Comments on issue           <Comments associated with the issue for discussion and updates.
+  assignee:         association to User                             <User assigned to resolve the issue.
+  reporter:         association to User                             <User who reported the issue.
+  tags:             composition of many TagAssignments on issue     <Tags associated with the issue for categorization.
+  attachments:      composition of many Attachments on issue        <Files or documents attached to the issue for reference.>
+  priority:         association to Priority                         <Priority level of the issue (e.g., low, medium, high).>
+  object_cluster:   association to ObjectCluster                    <The object cluster associated with the issue, if applicable.>
+  data_source:      association to DataSource                       <The data source related to the issue, if applicable.>

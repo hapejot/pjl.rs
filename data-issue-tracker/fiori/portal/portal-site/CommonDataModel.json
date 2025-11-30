@@ -1,0 +1,156 @@
+{
+  "_version": "3.0.0",
+  "identification": {
+    "title": "versandplanung",
+    "id": "versandplanung-flp",
+    "entityType": "bundle"
+  },
+  "payload": {
+    "catalogs": [
+      {
+        "_version": "3.0.0",
+        "identification": {
+          "id": "versandplanung-catalog",
+          "title": "{{title}}",
+          "entityType": "catalog",
+          "i18n": "i18n/catalog.properties"
+        },
+        "payload": {
+          "viz": [
+            {
+              "appId": "vp0",
+              "vizId": "ShippingProject-list"
+            },
+            {
+              "appId": "vp1",
+              "vizId": "Component-manage"
+            },
+            {
+              "appId": "inw.vp2.vp2",
+              "vizId": "Packing-list"
+            },
+            {
+              "appId": "vp3",
+              "vizId": "Transport-manage"
+            },
+            {
+              "appId": "vp4",
+              "vizId": "Component-listOpen"
+            },
+            {
+              "appId": "vp5",
+              "vizId": "ShippingProject-overview"
+            },
+            {
+              "appId": "vp7",
+              "vizId": "Component-overview"
+            },
+            {
+              "appId": "wbs",
+              "vizId": "WBSElement-list"
+            }
+          ]
+        }
+      }
+    ],
+    "groups": [
+      {
+        "_version": "3.0.0",
+        "identification": {
+          "id": "versandplanung-group",
+          "title": "{{title}}",
+          "entityType": "group",
+          "i18n": "i18n/group.properties"
+        },
+        "payload": {
+          "viz": [
+            {
+              "id": "versandplanungvp0-001",
+              "appId": "vp0",
+              "vizId": "ShippingProject-list"
+            },
+            {
+              "id": "versandplanungvp1-001",
+              "appId": "vp1",
+              "vizId": "Component-manage"
+            },
+            {
+              "id": "versandplanungvp2-001",
+              "appId": "inw.vp2.vp2",
+              "vizId": "Packing-list"
+            },
+            {
+              "id": "versandplanungvp3-001",
+              "appId": "vp3",
+              "vizId": "Transport-manage"
+            },
+            {
+              "id": "versandplanungvp4-001",
+              "appId": "vp4",
+              "vizId": "Component-listOpen"
+            },
+            {
+              "id": "versandplanungvp5-001",
+              "appId": "vp5",
+              "vizId": "ShippingProject-overview"
+            },
+            {
+              "id": "versandplanungvp7-001",
+              "appId": "vp7",
+              "vizId": "Component-overview"
+            },
+            {
+              "id": "versandplanungwbs-001",
+              "appId": "wbs",
+              "vizId": "WBSElement-list"
+            }
+          ]
+        }
+      }
+    ],
+    "sites": [
+      {
+        "_version": "3.0.0",
+        "identification": {
+          "id": "versandplanung-site",
+          "entityType": "site",
+          "title": "versandplanung",
+          "description": "Versandplanung"
+        },
+        "payload": {
+          "config": {
+            "ushellConfig": {
+              "renderers": {
+                "fiori2": {
+                  "componentData": {
+                    "config": {
+                      "applications": {
+                        "Shell-home": {}
+                      },
+                      "enableSearch": true,
+                      "enablePersonalization": true,
+                      "enableSetTheme": true,
+                      "enableSetLanguage": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "groupsOrder": ["versandplanung-group"],
+          "sap.cloud.portal": {
+            "config": {
+              "theme.id": "sap_horizon",
+              "theme.active": [
+                "sap_horizon",
+                "sap_horizon_dark",
+                "sap_horizon_hcw",
+                "sap_horizon_hcb"
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}

@@ -31,6 +31,7 @@ impl Pandoc {
 pub enum Block {
     Plain(Vec<Inline>),
     Para(Vec<Inline>),
+    LineBlock(Vec<Vec<Inline>>),
     CodeBlock((Attr, String)),
     RawBlock((String, String)),
     BlockQuote(Vec<Block>),
@@ -43,7 +44,7 @@ pub enum Block {
         (
             Attr,
             Caption,
-            ColSpecs,
+            Vec<ColSpecs>,
             TableHead,
             Vec<TableBody>,
             TableFoot,
@@ -85,15 +86,18 @@ pub type ShortCaption = Vec<Inline>;
 pub type ColSpecs = Vec<ColSpec>;
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct ColSpec(pub ColWidth, pub Alignment);
-
-#[derive(Debug, Serialize, Deserialize)]
-pub enum ColWidth {
+#[serde(tag = "t", content = "c")]
+pub enum ColSpec {
     ColWidthDefault,
-    ColWidthDouble(f64),
+    ColWidth(f64),
+    AlignDefault,
+    AlignLeft,
+    AlignRight,
+    AlignCenter,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(tag = "t", content = "c")]
 pub enum Alignment {
     AlignLeft,
     AlignRight,
@@ -152,6 +156,7 @@ pub enum CitationMode {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(tag = "t")]
 pub enum MathType {
     DisplayMath,
     InlineMath,
@@ -160,6 +165,7 @@ pub enum MathType {
 pub type Target = (String, String);
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(tag = "t")]
 pub enum ListNumberStyle {
     DefaultStyle,
     Example,
@@ -171,11 +177,10 @@ pub enum ListNumberStyle {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(tag = "t")]
 pub enum ListNumberDelim {
     DefaultDelim,
     Period,
     OneParen,
     TwoParens,
 }
-
-// ...extend as needed for your use case...

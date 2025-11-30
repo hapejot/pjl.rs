@@ -1,0 +1,170 @@
+//@ui5-bundle preview/Component-preload.js
+        jQuery.sap.registerPreloadedModules({
+        "version":"2.0",
+        "modules":{
+          "preview/Component.js": function(){sap.ui.define(
+    ["sap/ovp/app/Component"],
+    function (Component) {
+        "use strict";
+
+        return Component.extend("vp7.Component", {
+            metadata: {
+                manifest: "json"
+            }
+        });
+    }
+);
+        },
+          "preview/manifest.json":{
+  "_version": "1.65.0",
+  "sap.app": {
+    "id": "vp7",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": {
+      "version": "0.0.1"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "resources": "resources.json",
+    "sourceTemplate": {
+      "id": "@sap/generator-fiori:ovp",
+      "version": "1.17.4",
+      "toolsId": "c6bb313c-8182-4a6a-b824-4f5ea3fc19d0"
+    },
+    "dataSources": {
+      "mainService": {
+        "uri": "/odata/v4/processor/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "odataVersion": "4.0"
+        }
+      }
+    },
+    "crossNavigation": {
+      "inbounds": {
+        "Component-overview": {
+          "semanticObject": "Component",
+          "action": "overview",
+          "title": "{{Component-overview.flpTitle}}",
+          "signature": {
+            "parameters": {},
+            "additionalParameters": "allowed"
+          }
+        }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {
+      "icon": "",
+      "favIcon": "",
+      "phone": "",
+      "phone@2": "",
+      "tablet": "",
+      "tablet@2": ""
+    },
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "flexEnabled": true,
+    "dependencies": {
+      "minUI5Version": "1.138.1",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {},
+        "sap.fe.templates": {},
+        "sap.ovp": {},
+        "sap.ui.rta": {},
+        "sap.ui.layout": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "vp7.i18n.i18n"
+        }
+      },
+      "mainModel": {
+        "dataSource": "mainService",
+        "preload": true,
+        "settings": {
+          "operationMode": "Server",
+          "autoExpandSelect": true,
+          "earlyRequests": true
+        }
+      },
+      "@i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "uri": "i18n/i18n.properties"
+      }
+    },
+    "resources": {
+      "css": []
+    },
+    "routing": {
+      "config": {},
+      "routes": [],
+      "targets": {}
+    }
+  },
+  "sap.ovp": {
+    "globalFilterModel": "mainModel",
+    "containerLayout": "resizable",
+    "enableLiveFilter": true,
+    "considerAnalyticalParameters": false,
+    "cards": {
+      "card00": {
+        "template": "sap.ovp.cards.v4.table",
+        "model": "mainModel",
+        "settings": {
+          "listType": "condensed",
+          "entitySet": "ShippingProjects",
+          "title": "{{card00_title}}",
+          "subTitle": "{{card00_subTitle}}",
+          "annotationPath": "com.sap.vocabularies.UI.v1.LineItem",
+          "addODataSelect": false
+        }
+      },
+      "card01": {
+        "template": "sap.ovp.cards.v4.charts.analytical",
+        "model": "mainModel",
+        "settings": {
+          "listType": "condensed",
+          "entitySet": "ComponentUsage",
+          "title": "{{card01_title}}",
+          "subTitle": "{{card01_subTitle}}",
+          "annotationPath": "com.sap.vocabularies.UI.v1.LineItem",
+          "addODataSelect": false
+        }
+      }
+    },
+    "globalFilterControlType": "MacroFilterBar",
+    "bHeaderExpanded": true,
+    "chartSettings": {},
+    "disableErrorPage": true,
+    "showBasicSearch": true,
+    "filterSettings": {
+      "dateSettings": {
+        "selectedValues": "THISMONTH"
+      }
+    }
+  },
+  "sap.fiori": {
+    "registrationIds": [],
+    "archeType": "analytical"
+  }
+}
+
+        }});

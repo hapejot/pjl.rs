@@ -1,0 +1,2895 @@
+edmx:Edmx:
+  '@Version': '4.0'
+  '@xmlns:edmx': http://docs.oasis-open.org/odata/ns/edmx
+  edmx:Reference:
+    - '@Uri': https://sap.github.io/odata-vocabularies/vocabularies/Common.xml
+      edmx:Include:
+        '@Alias': Common
+        '@Namespace': com.sap.vocabularies.Common.v1
+    - '@Uri': https://sap.github.io/odata-vocabularies/vocabularies/Communication.xml
+      edmx:Include:
+        '@Alias': Communication
+        '@Namespace': com.sap.vocabularies.Communication.v1
+    - '@Uri': https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Core.V1.xml
+      edmx:Include:
+        '@Alias': Core
+        '@Namespace': Org.OData.Core.V1
+    - '@Uri': https://sap.github.io/odata-vocabularies/vocabularies/UI.xml
+      edmx:Include:
+        '@Alias': UI
+        '@Namespace': com.sap.vocabularies.UI.v1
+    - '@Uri': https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Validation.V1.xml
+      edmx:Include:
+        '@Alias': Validation
+        '@Namespace': Org.OData.Validation.V1
+  edmx:DataServices:
+    Schema:
+      '@Namespace': ProcessorService
+      '@xmlns': http://docs.oasis-open.org/odata/ns/edm
+      Annotation:
+        '@Term': Core.Links
+        Collection:
+          Record:
+            PropertyValue:
+              - '@Property': rel
+                '@String': author
+              - '@Property': href
+                '@String': https://cap.cloud.sap
+      EntityContainer:
+        '@Name': EntityContainer
+        EntitySet:
+          - '@Name': Components
+            '@EntityType': ProcessorService.Components
+            NavigationPropertyBinding:
+              - '@Path': Project
+                '@Target': ShippingProjects
+              - '@Path': ActivityID
+                '@Target': Activities
+              - '@Path': SiblingEntity
+                '@Target': Components
+          - '@Name': Packing
+            '@EntityType': ProcessorService.Packing
+            NavigationPropertyBinding:
+              - '@Path': TransportID
+                '@Target': Transports
+              - '@Path': PackingType
+                '@Target': PackingTypes
+              - '@Path': Components
+                '@Target': PackingComponents
+              - '@Path': Project
+                '@Target': ShippingProjects
+              - '@Path': SiblingEntity
+                '@Target': Packing
+          - '@Name': PackingComponents
+            '@EntityType': ProcessorService.PackingComponents
+            NavigationPropertyBinding:
+              - '@Path': Packing
+                '@Target': Packing
+              - '@Path': Component
+                '@Target': Components
+              - '@Path': SiblingEntity
+                '@Target': PackingComponents
+          - '@Name': Transports
+            '@EntityType': ProcessorService.Transports
+            NavigationPropertyBinding:
+              - '@Path': TransportType
+                '@Target': TransportTypes
+              - '@Path': Packings
+                '@Target': Packing
+              - '@Path': Project
+                '@Target': ShippingProjects
+              - '@Path': SiblingEntity
+                '@Target': Transports
+          - '@Name': PackingTypes
+            '@EntityType': ProcessorService.PackingTypes
+            NavigationPropertyBinding:
+              - '@Path': Packings
+                '@Target': Packing
+              - '@Path': SiblingEntity
+                '@Target': PackingTypes
+          - '@Name': TransportTypes
+            '@EntityType': ProcessorService.TransportTypes
+            NavigationPropertyBinding:
+              - '@Path': Transports
+                '@Target': Transports
+              - '@Path': SiblingEntity
+                '@Target': TransportTypes
+          - '@Name': ShippingProjects
+            '@EntityType': ProcessorService.ShippingProjects
+            NavigationPropertyBinding:
+              - '@Path': Status
+                '@Target': Status
+              - '@Path': Components
+                '@Target': Components
+              - '@Path': Packings
+                '@Target': Packing
+              - '@Path': Transports
+                '@Target': Transports
+              - '@Path': SiblingEntity
+                '@Target': ShippingProjects
+          - '@Name': ComponentUsage
+            '@EntityType': ProcessorService.ComponentUsage
+            NavigationPropertyBinding:
+              '@Path': Component
+              '@Target': Components
+          - '@Name': ComponentsUnpacked
+            '@EntityType': ProcessorService.ComponentsUnpacked
+            NavigationPropertyBinding:
+              '@Path': Component
+              '@Target': Components
+          - '@Name': Activities
+            '@EntityType': ProcessorService.Activities
+            NavigationPropertyBinding:
+              - '@Path': WBSID
+                '@Target': WBSElements
+              - '@Path': Project
+                '@Target': ShippingProjects
+              - '@Path': Components
+                '@Target': Components
+          - '@Name': WBSElements
+            '@EntityType': ProcessorService.WBSElements
+            NavigationPropertyBinding:
+              - '@Path': Project
+                '@Target': ShippingProjects
+              - '@Path': Activities
+                '@Target': Activities
+          - '@Name': Status
+            '@EntityType': ProcessorService.Status
+            NavigationPropertyBinding:
+              - '@Path': texts
+                '@Target': Status_texts
+              - '@Path': localized
+                '@Target': Status_texts
+          - '@Name': Status_texts
+            '@EntityType': ProcessorService.Status_texts
+      EntityType:
+        - '@Name': Components
+          Key:
+            PropertyRef:
+              - '@Name': ID
+              - '@Name': IsActiveEntity
+          Property:
+            - '@Name': ID
+              '@Type': Edm.Guid
+              '@Nullable': 'false'
+            - '@Name': createdAt
+              '@Type': Edm.DateTimeOffset
+              '@Precision': '7'
+            - '@Name': createdBy
+              '@Type': Edm.String
+              '@MaxLength': '255'
+            - '@Name': modifiedAt
+              '@Type': Edm.DateTimeOffset
+              '@Precision': '7'
+            - '@Name': modifiedBy
+              '@Type': Edm.String
+              '@MaxLength': '255'
+            - '@Name': Name
+              '@Type': Edm.String
+            - '@Name': Description
+              '@Type': Edm.String
+            - '@Name': Title
+              '@Type': Edm.String
+            - '@Name': Project_ID
+              '@Type': Edm.Guid
+            - '@Name': ComponentDBID
+              '@Type': Edm.String
+            - '@Name': Activity
+              '@Type': Edm.String
+            - '@Name': ActivityID_ID
+              '@Type': Edm.Guid
+            - '@Name': Item
+              '@Type': Edm.String
+            - '@Name': Material
+              '@Type': Edm.String
+            - '@Name': MaterialDescription
+              '@Type': Edm.String
+            - '@Name': Plant
+              '@Type': Edm.String
+            - '@Name': StatusLine
+              '@Type': Edm.String
+            - '@Name': Quantity
+              '@Type': Edm.Decimal
+              '@Precision': '10'
+              '@Scale': '3'
+            - '@Name': QuantityUnit
+              '@Type': Edm.String
+            - '@Name': ItemCategroy
+              '@Type': Edm.String
+            - '@Name': ItemText
+              '@Type': Edm.String
+            - '@Name': RequestedDate
+              '@Type': Edm.Date
+            - '@Name': IsActiveEntity
+              '@Type': Edm.Boolean
+              '@Nullable': 'false'
+              '@DefaultValue': 'true'
+            - '@Name': HasActiveEntity
+              '@Type': Edm.Boolean
+              '@Nullable': 'false'
+              '@DefaultValue': 'false'
+            - '@Name': HasDraftEntity
+              '@Type': Edm.Boolean
+              '@Nullable': 'false'
+              '@DefaultValue': 'false'
+          NavigationProperty:
+            - '@Name': Project
+              '@Type': ProcessorService.ShippingProjects
+              '@Partner': Components
+              ReferentialConstraint:
+                '@Property': Project_ID
+                '@ReferencedProperty': ID
+            - '@Name': ActivityID
+              '@Type': ProcessorService.Activities
+              '@Partner': Components
+              ReferentialConstraint:
+                '@Property': ActivityID_ID
+                '@ReferencedProperty': ID
+            - '@Name': DraftAdministrativeData
+              '@Type': ProcessorService.DraftAdministrativeData
+              '@ContainsTarget': 'true'
+            - '@Name': SiblingEntity
+              '@Type': ProcessorService.Components
+        - '@Name': Packing
+          Key:
+            PropertyRef:
+              - '@Name': ID
+              - '@Name': IsActiveEntity
+          Property:
+            - '@Name': ID
+              '@Type': Edm.Guid
+              '@Nullable': 'false'
+            - '@Name': createdAt
+              '@Type': Edm.DateTimeOffset
+              '@Precision': '7'
+            - '@Name': createdBy
+              '@Type': Edm.String
+              '@MaxLength': '255'
+            - '@Name': modifiedAt
+              '@Type': Edm.DateTimeOffset
+              '@Precision': '7'
+            - '@Name': modifiedBy
+              '@Type': Edm.String
+              '@MaxLength': '255'
+            - '@Name': Name
+              '@Type': Edm.String
+              '@MaxLength': '100'
+            - '@Name': Description
+              '@Type': Edm.String
+              '@MaxLength': '500'
+            - '@Name': Title
+              '@Type': Edm.String
+            - '@Name': TransportID_ID
+              '@Type': Edm.Guid
+            - '@Name': PackingType_ID
+              '@Type': Edm.Guid
+            - '@Name': Project_ID
+              '@Type': Edm.Guid
+            - '@Name': IsActiveEntity
+              '@Type': Edm.Boolean
+              '@Nullable': 'false'
+              '@DefaultValue': 'true'
+            - '@Name': HasActiveEntity
+              '@Type': Edm.Boolean
+              '@Nullable': 'false'
+              '@DefaultValue': 'false'
+            - '@Name': HasDraftEntity
+              '@Type': Edm.Boolean
+              '@Nullable': 'false'
+              '@DefaultValue': 'false'
+          NavigationProperty:
+            - '@Name': TransportID
+              '@Type': ProcessorService.Transports
+              '@Partner': Packings
+              ReferentialConstraint:
+                '@Property': TransportID_ID
+                '@ReferencedProperty': ID
+            - '@Name': PackingType
+              '@Type': ProcessorService.PackingTypes
+              '@Partner': Packings
+              ReferentialConstraint:
+                '@Property': PackingType_ID
+                '@ReferencedProperty': ID
+            - '@Name': Components
+              '@Type': Collection(ProcessorService.PackingComponents)
+              '@Partner': Packing
+              OnDelete:
+                '@Action': Cascade
+            - '@Name': Project
+              '@Type': ProcessorService.ShippingProjects
+              '@Partner': Packings
+              ReferentialConstraint:
+                '@Property': Project_ID
+                '@ReferencedProperty': ID
+            - '@Name': DraftAdministrativeData
+              '@Type': ProcessorService.DraftAdministrativeData
+              '@ContainsTarget': 'true'
+            - '@Name': SiblingEntity
+              '@Type': ProcessorService.Packing
+        - '@Name': PackingComponents
+          Key:
+            PropertyRef:
+              - '@Name': ID
+              - '@Name': IsActiveEntity
+          Property:
+            - '@Name': ID
+              '@Type': Edm.Guid
+              '@Nullable': 'false'
+            - '@Name': createdAt
+              '@Type': Edm.DateTimeOffset
+              '@Precision': '7'
+            - '@Name': createdBy
+              '@Type': Edm.String
+              '@MaxLength': '255'
+            - '@Name': modifiedAt
+              '@Type': Edm.DateTimeOffset
+              '@Precision': '7'
+            - '@Name': modifiedBy
+              '@Type': Edm.String
+              '@MaxLength': '255'
+            - '@Name': Packing_ID
+              '@Type': Edm.Guid
+            - '@Name': Component_ID
+              '@Type': Edm.Guid
+            - '@Name': Quantity
+              '@Type': Edm.Int32
+            - '@Name': IsActiveEntity
+              '@Type': Edm.Boolean
+              '@Nullable': 'false'
+              '@DefaultValue': 'true'
+            - '@Name': HasActiveEntity
+              '@Type': Edm.Boolean
+              '@Nullable': 'false'
+              '@DefaultValue': 'false'
+            - '@Name': HasDraftEntity
+              '@Type': Edm.Boolean
+              '@Nullable': 'false'
+              '@DefaultValue': 'false'
+          NavigationProperty:
+            - '@Name': Packing
+              '@Type': ProcessorService.Packing
+              '@Partner': Components
+              ReferentialConstraint:
+                '@Property': Packing_ID
+                '@ReferencedProperty': ID
+            - '@Name': Component
+              '@Type': ProcessorService.Components
+              ReferentialConstraint:
+                '@Property': Component_ID
+                '@ReferencedProperty': ID
+            - '@Name': DraftAdministrativeData
+              '@Type': ProcessorService.DraftAdministrativeData
+              '@ContainsTarget': 'true'
+            - '@Name': SiblingEntity
+              '@Type': ProcessorService.PackingComponents
+        - '@Name': Transports
+          Key:
+            PropertyRef:
+              - '@Name': ID
+              - '@Name': IsActiveEntity
+          Property:
+            - '@Name': ID
+              '@Type': Edm.Guid
+              '@Nullable': 'false'
+            - '@Name': createdAt
+              '@Type': Edm.DateTimeOffset
+              '@Precision': '7'
+            - '@Name': createdBy
+              '@Type': Edm.String
+              '@MaxLength': '255'
+            - '@Name': modifiedAt
+              '@Type': Edm.DateTimeOffset
+              '@Precision': '7'
+            - '@Name': modifiedBy
+              '@Type': Edm.String
+              '@MaxLength': '255'
+            - '@Name': Name
+              '@Type': Edm.String
+              '@MaxLength': '100'
+            - '@Name': Description
+              '@Type': Edm.String
+              '@MaxLength': '500'
+            - '@Name': Title
+              '@Type': Edm.String
+            - '@Name': TransportType_ID
+              '@Type': Edm.Guid
+            - '@Name': Project_ID
+              '@Type': Edm.Guid
+            - '@Name': IsActiveEntity
+              '@Type': Edm.Boolean
+              '@Nullable': 'false'
+              '@DefaultValue': 'true'
+            - '@Name': HasActiveEntity
+              '@Type': Edm.Boolean
+              '@Nullable': 'false'
+              '@DefaultValue': 'false'
+            - '@Name': HasDraftEntity
+              '@Type': Edm.Boolean
+              '@Nullable': 'false'
+              '@DefaultValue': 'false'
+          NavigationProperty:
+            - '@Name': TransportType
+              '@Type': ProcessorService.TransportTypes
+              '@Partner': Transports
+              ReferentialConstraint:
+                '@Property': TransportType_ID
+                '@ReferencedProperty': ID
+            - '@Name': Packings
+              '@Type': Collection(ProcessorService.Packing)
+              '@Partner': TransportID
+            - '@Name': Project
+              '@Type': ProcessorService.ShippingProjects
+              '@Partner': Transports
+              ReferentialConstraint:
+                '@Property': Project_ID
+                '@ReferencedProperty': ID
+            - '@Name': DraftAdministrativeData
+              '@Type': ProcessorService.DraftAdministrativeData
+              '@ContainsTarget': 'true'
+            - '@Name': SiblingEntity
+              '@Type': ProcessorService.Transports
+        - '@Name': PackingTypes
+          Key:
+            PropertyRef:
+              - '@Name': ID
+              - '@Name': IsActiveEntity
+          Property:
+            - '@Name': ID
+              '@Type': Edm.Guid
+              '@Nullable': 'false'
+            - '@Name': createdAt
+              '@Type': Edm.DateTimeOffset
+              '@Precision': '7'
+            - '@Name': createdBy
+              '@Type': Edm.String
+              '@MaxLength': '255'
+            - '@Name': modifiedAt
+              '@Type': Edm.DateTimeOffset
+              '@Precision': '7'
+            - '@Name': modifiedBy
+              '@Type': Edm.String
+              '@MaxLength': '255'
+            - '@Name': Name
+              '@Type': Edm.String
+              '@MaxLength': '100'
+            - '@Name': Description
+              '@Type': Edm.String
+              '@MaxLength': '500'
+            - '@Name': IsActiveEntity
+              '@Type': Edm.Boolean
+              '@Nullable': 'false'
+              '@DefaultValue': 'true'
+            - '@Name': HasActiveEntity
+              '@Type': Edm.Boolean
+              '@Nullable': 'false'
+              '@DefaultValue': 'false'
+            - '@Name': HasDraftEntity
+              '@Type': Edm.Boolean
+              '@Nullable': 'false'
+              '@DefaultValue': 'false'
+          NavigationProperty:
+            - '@Name': Packings
+              '@Type': Collection(ProcessorService.Packing)
+              '@Partner': PackingType
+            - '@Name': DraftAdministrativeData
+              '@Type': ProcessorService.DraftAdministrativeData
+              '@ContainsTarget': 'true'
+            - '@Name': SiblingEntity
+              '@Type': ProcessorService.PackingTypes
+        - '@Name': TransportTypes
+          Key:
+            PropertyRef:
+              - '@Name': ID
+              - '@Name': IsActiveEntity
+          Property:
+            - '@Name': ID
+              '@Type': Edm.Guid
+              '@Nullable': 'false'
+            - '@Name': createdAt
+              '@Type': Edm.DateTimeOffset
+              '@Precision': '7'
+            - '@Name': createdBy
+              '@Type': Edm.String
+              '@MaxLength': '255'
+            - '@Name': modifiedAt
+              '@Type': Edm.DateTimeOffset
+              '@Precision': '7'
+            - '@Name': modifiedBy
+              '@Type': Edm.String
+              '@MaxLength': '255'
+            - '@Name': Name
+              '@Type': Edm.String
+              '@MaxLength': '100'
+            - '@Name': Description
+              '@Type': Edm.String
+              '@MaxLength': '500'
+            - '@Name': IsActiveEntity
+              '@Type': Edm.Boolean
+              '@Nullable': 'false'
+              '@DefaultValue': 'true'
+            - '@Name': HasActiveEntity
+              '@Type': Edm.Boolean
+              '@Nullable': 'false'
+              '@DefaultValue': 'false'
+            - '@Name': HasDraftEntity
+              '@Type': Edm.Boolean
+              '@Nullable': 'false'
+              '@DefaultValue': 'false'
+          NavigationProperty:
+            - '@Name': Transports
+              '@Type': Collection(ProcessorService.Transports)
+              '@Partner': TransportType
+            - '@Name': DraftAdministrativeData
+              '@Type': ProcessorService.DraftAdministrativeData
+              '@ContainsTarget': 'true'
+            - '@Name': SiblingEntity
+              '@Type': ProcessorService.TransportTypes
+        - '@Name': ShippingProjects
+          Key:
+            PropertyRef:
+              - '@Name': ID
+              - '@Name': IsActiveEntity
+          Property:
+            - '@Name': ID
+              '@Type': Edm.Guid
+              '@Nullable': 'false'
+            - '@Name': createdAt
+              '@Type': Edm.DateTimeOffset
+              '@Precision': '7'
+            - '@Name': createdBy
+              '@Type': Edm.String
+              '@MaxLength': '255'
+            - '@Name': modifiedAt
+              '@Type': Edm.DateTimeOffset
+              '@Precision': '7'
+            - '@Name': modifiedBy
+              '@Type': Edm.String
+              '@MaxLength': '255'
+            - '@Name': Name
+              '@Type': Edm.String
+              '@MaxLength': '100'
+            - '@Name': Description
+              '@Type': Edm.String
+              '@MaxLength': '500'
+            - '@Name': Title
+              '@Type': Edm.String
+            - '@Name': Status_code
+              '@Type': Edm.String
+              '@DefaultValue': N
+            - '@Name': IsActiveEntity
+              '@Type': Edm.Boolean
+              '@Nullable': 'false'
+              '@DefaultValue': 'true'
+            - '@Name': HasActiveEntity
+              '@Type': Edm.Boolean
+              '@Nullable': 'false'
+              '@DefaultValue': 'false'
+            - '@Name': HasDraftEntity
+              '@Type': Edm.Boolean
+              '@Nullable': 'false'
+              '@DefaultValue': 'false'
+          NavigationProperty:
+            - '@Name': Status
+              '@Type': ProcessorService.Status
+              ReferentialConstraint:
+                '@Property': Status_code
+                '@ReferencedProperty': code
+            - '@Name': Components
+              '@Type': Collection(ProcessorService.Components)
+              '@Partner': Project
+            - '@Name': Packings
+              '@Type': Collection(ProcessorService.Packing)
+              '@Partner': Project
+            - '@Name': Transports
+              '@Type': Collection(ProcessorService.Transports)
+              '@Partner': Project
+            - '@Name': DraftAdministrativeData
+              '@Type': ProcessorService.DraftAdministrativeData
+              '@ContainsTarget': 'true'
+            - '@Name': SiblingEntity
+              '@Type': ProcessorService.ShippingProjects
+        - '@Name': ComponentUsage
+          Key:
+            PropertyRef:
+              '@Name': ID
+          Property:
+            - '@Name': ID
+              '@Type': Edm.Guid
+              '@Nullable': 'false'
+            - '@Name': Quantity
+              '@Type': Edm.Decimal
+              '@Precision': '10'
+              '@Scale': '3'
+            - '@Name': UsedQuantity
+              '@Type': Edm.Decimal
+              '@Precision': '10'
+              '@Scale': '3'
+          NavigationProperty:
+            '@Name': Component
+            '@Type': ProcessorService.Components
+            ReferentialConstraint:
+              '@Property': ID
+              '@ReferencedProperty': ID
+        - '@Name': ComponentsUnpacked
+          Key:
+            PropertyRef:
+              '@Name': ID
+          Property:
+            - '@Name': ID
+              '@Type': Edm.Guid
+              '@Nullable': 'false'
+            - '@Name': Quantity
+              '@Type': Edm.Decimal
+              '@Precision': '10'
+              '@Scale': '3'
+            - '@Name': UsedQuantity
+              '@Type': Edm.Decimal
+              '@Precision': '10'
+              '@Scale': '3'
+          NavigationProperty:
+            '@Name': Component
+            '@Type': ProcessorService.Components
+            ReferentialConstraint:
+              '@Property': ID
+              '@ReferencedProperty': ID
+        - '@Name': Activities
+          Key:
+            PropertyRef:
+              '@Name': ID
+          Property:
+            - '@Name': ID
+              '@Type': Edm.Guid
+              '@Nullable': 'false'
+            - '@Name': createdAt
+              '@Type': Edm.DateTimeOffset
+              '@Precision': '7'
+            - '@Name': createdBy
+              '@Type': Edm.String
+              '@MaxLength': '255'
+            - '@Name': modifiedAt
+              '@Type': Edm.DateTimeOffset
+              '@Precision': '7'
+            - '@Name': modifiedBy
+              '@Type': Edm.String
+              '@MaxLength': '255'
+            - '@Name': Name
+              '@Type': Edm.String
+            - '@Name': Description
+              '@Type': Edm.String
+              '@MaxLength': '500'
+            - '@Name': Title
+              '@Type': Edm.String
+            - '@Name': Activity
+              '@Type': Edm.String
+            - '@Name': Duration
+              '@Type': Edm.Decimal
+              '@Precision': '10'
+              '@Scale': '2'
+            - '@Name': DurationUnit
+              '@Type': Edm.String
+            - '@Name': DurationScheduled
+              '@Type': Edm.Decimal
+              '@Precision': '10'
+              '@Scale': '2'
+            - '@Name': EarlyFinish
+              '@Type': Edm.DateTimeOffset
+            - '@Name': EarlyStart
+              '@Type': Edm.DateTimeOffset
+            - '@Name': LateFinish
+              '@Type': Edm.DateTimeOffset
+            - '@Name': LateStart
+              '@Type': Edm.DateTimeOffset
+            - '@Name': ObjectClass
+              '@Type': Edm.String
+            - '@Name': Plant
+              '@Type': Edm.String
+            - '@Name': WBSID_ID
+              '@Type': Edm.Guid
+            - '@Name': WBS
+              '@Type': Edm.String
+            - '@Name': Project_ID
+              '@Type': Edm.Guid
+          NavigationProperty:
+            - '@Name': WBSID
+              '@Type': ProcessorService.WBSElements
+              '@Partner': Activities
+              ReferentialConstraint:
+                '@Property': WBSID_ID
+                '@ReferencedProperty': ID
+            - '@Name': Project
+              '@Type': ProcessorService.ShippingProjects
+              ReferentialConstraint:
+                '@Property': Project_ID
+                '@ReferencedProperty': ID
+            - '@Name': Components
+              '@Type': Collection(ProcessorService.Components)
+              '@Partner': ActivityID
+        - '@Name': WBSElements
+          Key:
+            PropertyRef:
+              '@Name': ID
+          Property:
+            - '@Name': ID
+              '@Type': Edm.Guid
+              '@Nullable': 'false'
+            - '@Name': createdAt
+              '@Type': Edm.DateTimeOffset
+              '@Precision': '7'
+            - '@Name': createdBy
+              '@Type': Edm.String
+              '@MaxLength': '255'
+            - '@Name': modifiedAt
+              '@Type': Edm.DateTimeOffset
+              '@Precision': '7'
+            - '@Name': modifiedBy
+              '@Type': Edm.String
+              '@MaxLength': '255'
+            - '@Name': Name
+              '@Type': Edm.String
+              '@MaxLength': '100'
+            - '@Name': Description
+              '@Type': Edm.String
+              '@MaxLength': '500'
+            - '@Name': Title
+              '@Type': Edm.String
+            - '@Name': Project_ID
+              '@Type': Edm.Guid
+          NavigationProperty:
+            - '@Name': Project
+              '@Type': ProcessorService.ShippingProjects
+              ReferentialConstraint:
+                '@Property': Project_ID
+                '@ReferencedProperty': ID
+            - '@Name': Activities
+              '@Type': Collection(ProcessorService.Activities)
+              '@Partner': WBSID
+        - '@Name': Status
+          Key:
+            PropertyRef:
+              '@Name': code
+          Property:
+            - '@Name': name
+              '@Type': Edm.String
+              '@MaxLength': '255'
+            - '@Name': descr
+              '@Type': Edm.String
+              '@MaxLength': '1000'
+            - '@Name': code
+              '@Type': Edm.String
+              '@Nullable': 'false'
+            - '@Name': criticality
+              '@Type': Edm.Int32
+          NavigationProperty:
+            - '@Name': texts
+              '@Type': Collection(ProcessorService.Status_texts)
+              OnDelete:
+                '@Action': Cascade
+            - '@Name': localized
+              '@Type': ProcessorService.Status_texts
+              ReferentialConstraint:
+                '@Property': code
+                '@ReferencedProperty': code
+        - '@Name': DraftAdministrativeData
+          Key:
+            PropertyRef:
+              '@Name': DraftUUID
+          Property:
+            - '@Name': DraftUUID
+              '@Type': Edm.Guid
+              '@Nullable': 'false'
+            - '@Name': CreationDateTime
+              '@Type': Edm.DateTimeOffset
+              '@Precision': '7'
+            - '@Name': CreatedByUser
+              '@Type': Edm.String
+              '@MaxLength': '256'
+            - '@Name': DraftIsCreatedByMe
+              '@Type': Edm.Boolean
+            - '@Name': LastChangeDateTime
+              '@Type': Edm.DateTimeOffset
+              '@Precision': '7'
+            - '@Name': LastChangedByUser
+              '@Type': Edm.String
+              '@MaxLength': '256'
+            - '@Name': InProcessByUser
+              '@Type': Edm.String
+              '@MaxLength': '256'
+            - '@Name': DraftIsProcessedByMe
+              '@Type': Edm.Boolean
+        - '@Name': Status_texts
+          Key:
+            PropertyRef:
+              - '@Name': locale
+              - '@Name': code
+          Property:
+            - '@Name': locale
+              '@Type': Edm.String
+              '@MaxLength': '14'
+              '@Nullable': 'false'
+            - '@Name': name
+              '@Type': Edm.String
+              '@MaxLength': '255'
+            - '@Name': descr
+              '@Type': Edm.String
+              '@MaxLength': '1000'
+            - '@Name': code
+              '@Type': Edm.String
+              '@Nullable': 'false'
+      Action:
+        - '@Name': draftPrepare
+          '@IsBound': 'true'
+          '@EntitySetPath': in
+          Parameter:
+            - '@Name': in
+              '@Type': ProcessorService.Components
+            - '@Name': SideEffectsQualifier
+              '@Type': Edm.String
+          ReturnType:
+            '@Type': ProcessorService.Components
+        - '@Name': draftPrepare
+          '@IsBound': 'true'
+          '@EntitySetPath': in
+          Parameter:
+            - '@Name': in
+              '@Type': ProcessorService.Packing
+            - '@Name': SideEffectsQualifier
+              '@Type': Edm.String
+          ReturnType:
+            '@Type': ProcessorService.Packing
+        - '@Name': draftPrepare
+          '@IsBound': 'true'
+          '@EntitySetPath': in
+          Parameter:
+            - '@Name': in
+              '@Type': ProcessorService.PackingComponents
+            - '@Name': SideEffectsQualifier
+              '@Type': Edm.String
+          ReturnType:
+            '@Type': ProcessorService.PackingComponents
+        - '@Name': draftPrepare
+          '@IsBound': 'true'
+          '@EntitySetPath': in
+          Parameter:
+            - '@Name': in
+              '@Type': ProcessorService.Transports
+            - '@Name': SideEffectsQualifier
+              '@Type': Edm.String
+          ReturnType:
+            '@Type': ProcessorService.Transports
+        - '@Name': draftPrepare
+          '@IsBound': 'true'
+          '@EntitySetPath': in
+          Parameter:
+            - '@Name': in
+              '@Type': ProcessorService.PackingTypes
+            - '@Name': SideEffectsQualifier
+              '@Type': Edm.String
+          ReturnType:
+            '@Type': ProcessorService.PackingTypes
+        - '@Name': draftPrepare
+          '@IsBound': 'true'
+          '@EntitySetPath': in
+          Parameter:
+            - '@Name': in
+              '@Type': ProcessorService.TransportTypes
+            - '@Name': SideEffectsQualifier
+              '@Type': Edm.String
+          ReturnType:
+            '@Type': ProcessorService.TransportTypes
+        - '@Name': draftPrepare
+          '@IsBound': 'true'
+          '@EntitySetPath': in
+          Parameter:
+            - '@Name': in
+              '@Type': ProcessorService.ShippingProjects
+            - '@Name': SideEffectsQualifier
+              '@Type': Edm.String
+          ReturnType:
+            '@Type': ProcessorService.ShippingProjects
+        - '@Name': draftActivate
+          '@IsBound': 'true'
+          '@EntitySetPath': in
+          Parameter:
+            '@Name': in
+            '@Type': ProcessorService.Components
+          ReturnType:
+            '@Type': ProcessorService.Components
+        - '@Name': draftActivate
+          '@IsBound': 'true'
+          '@EntitySetPath': in
+          Parameter:
+            '@Name': in
+            '@Type': ProcessorService.Packing
+          ReturnType:
+            '@Type': ProcessorService.Packing
+        - '@Name': draftActivate
+          '@IsBound': 'true'
+          '@EntitySetPath': in
+          Parameter:
+            '@Name': in
+            '@Type': ProcessorService.Transports
+          ReturnType:
+            '@Type': ProcessorService.Transports
+        - '@Name': draftActivate
+          '@IsBound': 'true'
+          '@EntitySetPath': in
+          Parameter:
+            '@Name': in
+            '@Type': ProcessorService.PackingTypes
+          ReturnType:
+            '@Type': ProcessorService.PackingTypes
+        - '@Name': draftActivate
+          '@IsBound': 'true'
+          '@EntitySetPath': in
+          Parameter:
+            '@Name': in
+            '@Type': ProcessorService.TransportTypes
+          ReturnType:
+            '@Type': ProcessorService.TransportTypes
+        - '@Name': draftActivate
+          '@IsBound': 'true'
+          '@EntitySetPath': in
+          Parameter:
+            '@Name': in
+            '@Type': ProcessorService.ShippingProjects
+          ReturnType:
+            '@Type': ProcessorService.ShippingProjects
+        - '@Name': draftEdit
+          '@IsBound': 'true'
+          '@EntitySetPath': in
+          Parameter:
+            - '@Name': in
+              '@Type': ProcessorService.Components
+            - '@Name': PreserveChanges
+              '@Type': Edm.Boolean
+          ReturnType:
+            '@Type': ProcessorService.Components
+        - '@Name': draftEdit
+          '@IsBound': 'true'
+          '@EntitySetPath': in
+          Parameter:
+            - '@Name': in
+              '@Type': ProcessorService.Packing
+            - '@Name': PreserveChanges
+              '@Type': Edm.Boolean
+          ReturnType:
+            '@Type': ProcessorService.Packing
+        - '@Name': draftEdit
+          '@IsBound': 'true'
+          '@EntitySetPath': in
+          Parameter:
+            - '@Name': in
+              '@Type': ProcessorService.Transports
+            - '@Name': PreserveChanges
+              '@Type': Edm.Boolean
+          ReturnType:
+            '@Type': ProcessorService.Transports
+        - '@Name': draftEdit
+          '@IsBound': 'true'
+          '@EntitySetPath': in
+          Parameter:
+            - '@Name': in
+              '@Type': ProcessorService.PackingTypes
+            - '@Name': PreserveChanges
+              '@Type': Edm.Boolean
+          ReturnType:
+            '@Type': ProcessorService.PackingTypes
+        - '@Name': draftEdit
+          '@IsBound': 'true'
+          '@EntitySetPath': in
+          Parameter:
+            - '@Name': in
+              '@Type': ProcessorService.TransportTypes
+            - '@Name': PreserveChanges
+              '@Type': Edm.Boolean
+          ReturnType:
+            '@Type': ProcessorService.TransportTypes
+        - '@Name': draftEdit
+          '@IsBound': 'true'
+          '@EntitySetPath': in
+          Parameter:
+            - '@Name': in
+              '@Type': ProcessorService.ShippingProjects
+            - '@Name': PreserveChanges
+              '@Type': Edm.Boolean
+          ReturnType:
+            '@Type': ProcessorService.ShippingProjects
+      Annotations:
+        - '@Target': ProcessorService.Components
+          Annotation:
+            - '@Term': UI.LineItem
+              '@Qualifier': i18nComponents
+              Collection:
+                Record:
+                  - '@Type': UI.DataField
+                    PropertyValue:
+                      - '@Property': Value
+                        '@Path': Project/Components/Name
+                      - '@Property': Label
+                        '@String': Name
+                  - '@Type': UI.DataField
+                    PropertyValue:
+                      - '@Property': Value
+                        '@Path': Project/Components/Description
+                      - '@Property': Label
+                        '@String': Description
+                  - '@Type': UI.DataField
+                    PropertyValue:
+                      - '@Property': Value
+                        '@Path': Activity
+                      - '@Property': Label
+                        '@String': Activity
+                  - '@Type': UI.DataField
+                    PropertyValue:
+                      - '@Property': Value
+                        '@Path': Item
+                      - '@Property': Label
+                        '@String': Item
+                  - '@Type': UI.DataField
+                    PropertyValue:
+                      - '@Property': Value
+                        '@Path': ItemCategroy
+                      - '@Property': Label
+                        '@String': ItemCategroy
+                  - '@Type': UI.DataField
+                    PropertyValue:
+                      - '@Property': Value
+                        '@Path': Plant
+                      - '@Property': Label
+                        '@String': Plant
+                  - '@Type': UI.DataField
+                    PropertyValue:
+                      - '@Property': Value
+                        '@Path': Quantity
+                      - '@Property': Label
+                        '@String': Quantity
+                  - '@Type': UI.DataField
+                    PropertyValue:
+                      - '@Property': Value
+                        '@Path': QuantityUnit
+                      - '@Property': Label
+                        '@String': QuantityUnit
+                  - '@Type': UI.DataField
+                    PropertyValue:
+                      - '@Property': Value
+                        '@Path': RequestedDate
+                      - '@Property': Label
+                        '@String': RequestedDate
+                  - '@Type': UI.DataField
+                    PropertyValue:
+                      - '@Property': Value
+                        '@Path': StatusLine
+                      - '@Property': Label
+                        '@String': StatusLine
+            - '@Term': UI.LineItem
+              Collection:
+                Record:
+                  - '@Type': UI.DataField
+                    PropertyValue:
+                      - '@Property': Value
+                        '@Path': Name
+                      - '@Property': Label
+                        '@String': Name
+                    Annotation:
+                      '@Term': UI.Importance
+                      '@EnumMember': UI.ImportanceType/High
+                  - '@Type': UI.DataField
+                    PropertyValue:
+                      - '@Property': Value
+                        '@Path': Description
+                      - '@Property': Label
+                        '@String': Description
+                    Annotation:
+                      '@Term': UI.Importance
+                      '@EnumMember': UI.ImportanceType/Low
+            - '@Term': UI.Facets
+              Collection:
+                Record:
+                  '@Type': UI.ReferenceFacet
+                  PropertyValue:
+                    - '@Property': Label
+                      '@String': FS1
+                    - '@Property': ID
+                      '@String': FS1
+                    - '@Property': Target
+                      '@AnnotationPath': '@UI.FieldGroup#FS1'
+            - '@Term': UI.FieldGroup
+              '@Qualifier': FS1
+              Record:
+                '@Type': UI.FieldGroupType
+                PropertyValue:
+                  '@Property': Data
+                  Collection:
+                    Record:
+                      - '@Type': UI.DataField
+                        PropertyValue:
+                          - '@Property': Value
+                            '@Path': Name
+                          - '@Property': Label
+                            '@String': Name
+                      - '@Type': UI.DataField
+                        PropertyValue:
+                          - '@Property': Value
+                            '@Path': Description
+                          - '@Property': Label
+                            '@String': Description
+                      - '@Type': UI.DataField
+                        PropertyValue:
+                          - '@Property': Value
+                            '@Path': Project_ID
+                          - '@Property': Label
+                            '@String': Project_ID
+                          - '@Property': Criticality
+                            '@Path': Project/Status/criticality
+                      - '@Type': UI.DataField
+                        PropertyValue:
+                          - '@Property': Value
+                            '@Path': ItemCategroy
+                          - '@Property': Label
+                            '@String': ItemCategroy
+                      - '@Type': UI.DataField
+                        PropertyValue:
+                          - '@Property': Value
+                            '@Path': Plant
+                          - '@Property': Label
+                            '@String': Plant
+                      - '@Type': UI.DataField
+                        PropertyValue:
+                          - '@Property': Value
+                            '@Path': Quantity
+                          - '@Property': Label
+                            '@String': Quantity
+                      - '@Type': UI.DataField
+                        PropertyValue:
+                          - '@Property': Value
+                            '@Path': QuantityUnit
+                          - '@Property': Label
+                            '@String': QuantityUnit
+                      - '@Type': UI.DataField
+                        PropertyValue:
+                          - '@Property': Value
+                            '@Path': RequestedDate
+                          - '@Property': Label
+                            '@String': RequestedDate
+                      - '@Type': UI.DataField
+                        PropertyValue:
+                          - '@Property': Value
+                            '@Path': StatusLine
+                          - '@Property': Label
+                            '@String': StatusLine
+            - '@Term': UI.FieldGroup
+              '@Qualifier': FSS1
+              Record:
+                '@Type': UI.FieldGroupType
+                PropertyValue:
+                  '@Property': Data
+                  Collection:
+                    Record:
+                      - '@Type': UI.DataField
+                        PropertyValue:
+                          '@Property': Value
+                          '@Path': createdAt
+                      - '@Type': UI.DataField
+                        PropertyValue:
+                          '@Property': Value
+                          '@Path': createdBy
+                      - '@Type': UI.DataField
+                        PropertyValue:
+                          '@Property': Value
+                          '@Path': modifiedAt
+                      - '@Type': UI.DataField
+                        PropertyValue:
+                          '@Property': Value
+                          '@Path': modifiedBy
+            - '@Term': UI.HeaderInfo
+              Record:
+                '@Type': UI.HeaderInfoType
+                PropertyValue:
+                  - '@Property': TypeName
+                    '@String': Component
+                  - '@Property': TypeNamePlural
+                    '@String': Components
+                  - '@Property': Title
+                    Record:
+                      '@Type': UI.DataField
+                      PropertyValue:
+                        '@Property': Value
+                        '@Path': Name
+                  - '@Property': Description
+                    Record:
+                      '@Type': UI.DataField
+                      PropertyValue:
+                        '@Property': Value
+                        '@String': Komponente
+            - '@Term': Communication.Contact
+              '@Qualifier': contact
+              Record:
+                '@Type': Communication.ContactType
+                PropertyValue:
+                  '@Property': fn
+                  '@Path': createdBy
+        - '@Target': ProcessorService.EntityContainer/Components
+          Annotation:
+            '@Term': Common.DraftRoot
+            Record:
+              '@Type': Common.DraftRootType
+              PropertyValue:
+                - '@Property': ActivationAction
+                  '@String': ProcessorService.draftActivate
+                - '@Property': EditAction
+                  '@String': ProcessorService.draftEdit
+                - '@Property': PreparationAction
+                  '@String': ProcessorService.draftPrepare
+        - '@Target': ProcessorService.Components/ID
+          Annotation:
+            - '@Term': Common.Text
+              '@Path': Title
+              Annotation:
+                '@Term': UI.TextArrangement
+                '@EnumMember': UI.TextArrangementType/TextOnly
+            - '@Term': Core.ComputedDefaultValue
+              '@Bool': 'true'
+        - '@Target': ProcessorService.Components/createdAt
+          Annotation:
+            - '@Term': UI.HiddenFilter
+              '@Bool': 'true'
+            - '@Term': UI.ExcludeFromNavigationContext
+              '@Bool': 'true'
+            - '@Term': Core.Immutable
+              '@Bool': 'true'
+            - '@Term': Core.Computed
+              '@Bool': 'true'
+            - '@Term': Common.Label
+              '@String': Created On
+        - '@Target': ProcessorService.Components/createdBy
+          Annotation:
+            - '@Term': UI.HiddenFilter
+              '@Bool': 'true'
+            - '@Term': UI.ExcludeFromNavigationContext
+              '@Bool': 'true'
+            - '@Term': Core.Immutable
+              '@Bool': 'true'
+            - '@Term': Core.Computed
+              '@Bool': 'true'
+            - '@Term': Core.Description
+              '@String': User's unique ID
+            - '@Term': Common.Label
+              '@String': Created By
+        - '@Target': ProcessorService.Components/modifiedAt
+          Annotation:
+            - '@Term': UI.HiddenFilter
+              '@Bool': 'true'
+            - '@Term': UI.ExcludeFromNavigationContext
+              '@Bool': 'true'
+            - '@Term': Core.Computed
+              '@Bool': 'true'
+            - '@Term': Common.Label
+              '@String': Changed On
+        - '@Target': ProcessorService.Components/modifiedBy
+          Annotation:
+            - '@Term': UI.HiddenFilter
+              '@Bool': 'true'
+            - '@Term': UI.ExcludeFromNavigationContext
+              '@Bool': 'true'
+            - '@Term': Core.Computed
+              '@Bool': 'true'
+            - '@Term': Core.Description
+              '@String': User's unique ID
+            - '@Term': Common.Label
+              '@String': Changed By
+        - '@Target': ProcessorService.Components/Name
+          Annotation:
+            '@Term': Common.FieldControl
+            '@EnumMember': Common.FieldControlType/ReadOnly
+        - '@Target': ProcessorService.Components/Description
+          Annotation:
+            - '@Term': UI.MultiLineText
+              '@Bool': 'true'
+            - '@Term': Common.FieldControl
+              '@EnumMember': Common.FieldControlType/ReadOnly
+        - '@Target': ProcessorService.Components/Title
+          Annotation:
+            '@Term': Core.Computed
+            '@Bool': 'true'
+        - '@Target': ProcessorService.Components/Project_ID
+          Annotation:
+            - '@Term': Common.Text
+              '@Path': Project/Title
+              Annotation:
+                '@Term': UI.TextArrangement
+                '@EnumMember': UI.TextArrangementType/TextOnly
+            - '@Term': Common.ValueList
+              Record:
+                '@Type': Common.ValueListType
+                PropertyValue:
+                  - '@Property': CollectionPath
+                    '@String': ShippingProjects
+                  - '@Property': Parameters
+                    Collection:
+                      Record:
+                        '@Type': Common.ValueListParameterInOut
+                        PropertyValue:
+                          - '@Property': LocalDataProperty
+                            '@PropertyPath': Project_ID
+                          - '@Property': ValueListProperty
+                            '@String': ID
+            - '@Term': Common.ValueListWithFixedValues
+              '@Bool': 'true'
+        - '@Target': ProcessorService.Components/ActivityID_ID
+          Annotation:
+            - '@Term': Common.Text
+              '@Path': ActivityID/Name
+              Annotation:
+                '@Term': UI.TextArrangement
+                '@EnumMember': UI.TextArrangementType/TextOnly
+            - '@Term': Common.ValueList
+              Record:
+                '@Type': Common.ValueListType
+                PropertyValue:
+                  - '@Property': CollectionPath
+                    '@String': Activities
+                  - '@Property': Parameters
+                    Collection:
+                      Record:
+                        '@Type': Common.ValueListParameterInOut
+                        PropertyValue:
+                          - '@Property': LocalDataProperty
+                            '@PropertyPath': ActivityID_ID
+                          - '@Property': ValueListProperty
+                            '@String': ID
+            - '@Term': Common.ValueListWithFixedValues
+              '@Bool': 'true'
+        - '@Target': ProcessorService.Components/IsActiveEntity
+          Annotation:
+            '@Term': UI.Hidden
+            '@Bool': 'true'
+        - '@Target': ProcessorService.Components/HasActiveEntity
+          Annotation:
+            '@Term': UI.Hidden
+            '@Bool': 'true'
+        - '@Target': ProcessorService.Components/HasDraftEntity
+          Annotation:
+            '@Term': UI.Hidden
+            '@Bool': 'true'
+        - '@Target': ProcessorService.Components/DraftAdministrativeData
+          Annotation:
+            '@Term': UI.Hidden
+            '@Bool': 'true'
+        - '@Target': ProcessorService.Packing
+          Annotation:
+            - '@Term': UI.LineItem
+              Collection:
+                Record:
+                  - '@Type': UI.DataField
+                    PropertyValue:
+                      - '@Property': Value
+                        '@Path': Name
+                      - '@Property': Label
+                        '@String': Name
+                  - '@Type': UI.DataField
+                    PropertyValue:
+                      - '@Property': Value
+                        '@Path': Description
+                      - '@Property': Label
+                        '@String': Description
+                  - '@Type': UI.DataField
+                    PropertyValue:
+                      - '@Property': Value
+                        '@Path': Components/Quantity
+                      - '@Property': Label
+                        '@String': Quantity
+            - '@Term': UI.HeaderInfo
+              Record:
+                '@Type': UI.HeaderInfoType
+                PropertyValue:
+                  - '@Property': TypeName
+                    '@String': Packing
+                  - '@Property': TypeNamePlural
+                    '@String': Packings
+                  - '@Property': Title
+                    Record:
+                      '@Type': UI.DataField
+                      PropertyValue:
+                        '@Property': Value
+                        '@Path': Name
+            - '@Term': UI.Facets
+              Collection:
+                Record:
+                  - '@Type': UI.ReferenceFacet
+                    PropertyValue:
+                      - '@Property': Label
+                        '@String': Main
+                      - '@Property': ID
+                        '@String': Main
+                      - '@Property': Target
+                        '@AnnotationPath': '@UI.FieldGroup#Main'
+                  - '@Type': UI.ReferenceFacet
+                    PropertyValue:
+                      - '@Property': Label
+                        '@String': Components
+                      - '@Property': ID
+                        '@String': Components
+                      - '@Property': Target
+                        '@AnnotationPath': Components/@UI.LineItem#Components
+            - '@Term': UI.FieldGroup
+              '@Qualifier': Main
+              Record:
+                '@Type': UI.FieldGroupType
+                PropertyValue:
+                  '@Property': Data
+                  Collection:
+                    Record:
+                      - '@Type': UI.DataField
+                        PropertyValue:
+                          - '@Property': Value
+                            '@Path': Description
+                          - '@Property': Label
+                            '@String': Description
+                      - '@Type': UI.DataField
+                        PropertyValue:
+                          - '@Property': Value
+                            '@Path': Name
+                          - '@Property': Label
+                            '@String': Name
+                      - '@Type': UI.DataField
+                        PropertyValue:
+                          - '@Property': Value
+                            '@Path': TransportID_ID
+                          - '@Property': Label
+                            '@String': TransportID_ID
+                      - '@Type': UI.DataField
+                        PropertyValue:
+                          - '@Property': Value
+                            '@Path': PackingType_ID
+                          - '@Property': Label
+                            '@String': PackingType_ID
+            - '@Term': UI.LineItem
+              '@Qualifier': Packings
+              Collection:
+                Record:
+                  - '@Type': UI.DataField
+                    PropertyValue:
+                      - '@Property': Value
+                        '@Path': Name
+                      - '@Property': Label
+                        '@String': Name
+                  - '@Type': UI.DataField
+                    PropertyValue:
+                      - '@Property': Value
+                        '@Path': PackingType
+                      - '@Property': Label
+                        '@String': PackingType
+        - '@Target': ProcessorService.EntityContainer/Packing
+          Annotation:
+            '@Term': Common.DraftRoot
+            Record:
+              '@Type': Common.DraftRootType
+              PropertyValue:
+                - '@Property': ActivationAction
+                  '@String': ProcessorService.draftActivate
+                - '@Property': EditAction
+                  '@String': ProcessorService.draftEdit
+                - '@Property': PreparationAction
+                  '@String': ProcessorService.draftPrepare
+        - '@Target': ProcessorService.Packing/ID
+          Annotation:
+            - '@Term': Common.Text
+              '@Path': Name
+              Annotation:
+                '@Term': UI.TextArrangement
+                '@EnumMember': UI.TextArrangementType/TextOnly
+            - '@Term': Core.ComputedDefaultValue
+              '@Bool': 'true'
+        - '@Target': ProcessorService.Packing/createdAt
+          Annotation:
+            - '@Term': UI.HiddenFilter
+              '@Bool': 'true'
+            - '@Term': UI.ExcludeFromNavigationContext
+              '@Bool': 'true'
+            - '@Term': Core.Immutable
+              '@Bool': 'true'
+            - '@Term': Core.Computed
+              '@Bool': 'true'
+            - '@Term': Common.Label
+              '@String': Created On
+        - '@Target': ProcessorService.Packing/createdBy
+          Annotation:
+            - '@Term': UI.HiddenFilter
+              '@Bool': 'true'
+            - '@Term': UI.ExcludeFromNavigationContext
+              '@Bool': 'true'
+            - '@Term': Core.Immutable
+              '@Bool': 'true'
+            - '@Term': Core.Computed
+              '@Bool': 'true'
+            - '@Term': Core.Description
+              '@String': User's unique ID
+            - '@Term': Common.Label
+              '@String': Created By
+        - '@Target': ProcessorService.Packing/modifiedAt
+          Annotation:
+            - '@Term': UI.HiddenFilter
+              '@Bool': 'true'
+            - '@Term': UI.ExcludeFromNavigationContext
+              '@Bool': 'true'
+            - '@Term': Core.Computed
+              '@Bool': 'true'
+            - '@Term': Common.Label
+              '@String': Changed On
+        - '@Target': ProcessorService.Packing/modifiedBy
+          Annotation:
+            - '@Term': UI.HiddenFilter
+              '@Bool': 'true'
+            - '@Term': UI.ExcludeFromNavigationContext
+              '@Bool': 'true'
+            - '@Term': Core.Computed
+              '@Bool': 'true'
+            - '@Term': Core.Description
+              '@String': User's unique ID
+            - '@Term': Common.Label
+              '@String': Changed By
+        - '@Target': ProcessorService.Packing/Title
+          Annotation:
+            - '@Term': Common.FieldControl
+              '@EnumMember': Common.FieldControlType/ReadOnly
+            - '@Term': Core.Computed
+              '@Bool': 'true'
+        - '@Target': ProcessorService.Packing/TransportID_ID
+          Annotation:
+            - '@Term': Common.Text
+              '@Path': TransportID/Name
+              Annotation:
+                '@Term': UI.TextArrangement
+                '@EnumMember': UI.TextArrangementType/TextOnly
+            - '@Term': Common.ValueList
+              Record:
+                '@Type': Common.ValueListType
+                PropertyValue:
+                  - '@Property': CollectionPath
+                    '@String': Transports
+                  - '@Property': Parameters
+                    Collection:
+                      Record:
+                        '@Type': Common.ValueListParameterInOut
+                        PropertyValue:
+                          - '@Property': LocalDataProperty
+                            '@PropertyPath': TransportID_ID
+                          - '@Property': ValueListProperty
+                            '@String': ID
+                  - '@Property': Label
+                    '@String': Transports
+            - '@Term': Common.ValueListWithFixedValues
+              '@Bool': 'true'
+        - '@Target': ProcessorService.Packing/PackingType
+          Annotation:
+            '@Term': Common.SemanticObject
+            '@String': PackingType
+        - '@Target': ProcessorService.Packing/PackingType_ID
+          Annotation:
+            - '@Term': Common.ValueList
+              Record:
+                '@Type': Common.ValueListType
+                PropertyValue:
+                  - '@Property': CollectionPath
+                    '@String': PackingTypes
+                  - '@Property': Parameters
+                    Collection:
+                      Record:
+                        '@Type': Common.ValueListParameterInOut
+                        PropertyValue:
+                          - '@Property': LocalDataProperty
+                            '@PropertyPath': PackingType_ID
+                          - '@Property': ValueListProperty
+                            '@String': ID
+                  - '@Property': Label
+                    '@String': Packing Types
+            - '@Term': Common.ValueListWithFixedValues
+              '@Bool': 'true'
+            - '@Term': Common.Text
+              '@Path': PackingType/Description
+              Annotation:
+                '@Term': UI.TextArrangement
+                '@EnumMember': UI.TextArrangementType/TextOnly
+            - '@Term': Common.SemanticObject
+              '@String': PackingType
+        - '@Target': ProcessorService.Packing/IsActiveEntity
+          Annotation:
+            '@Term': UI.Hidden
+            '@Bool': 'true'
+        - '@Target': ProcessorService.Packing/HasActiveEntity
+          Annotation:
+            '@Term': UI.Hidden
+            '@Bool': 'true'
+        - '@Target': ProcessorService.Packing/HasDraftEntity
+          Annotation:
+            '@Term': UI.Hidden
+            '@Bool': 'true'
+        - '@Target': ProcessorService.Packing/DraftAdministrativeData
+          Annotation:
+            '@Term': UI.Hidden
+            '@Bool': 'true'
+        - '@Target': ProcessorService.PackingComponents
+          Annotation:
+            '@Term': UI.LineItem
+            '@Qualifier': Components
+            Collection:
+              Record:
+                - '@Type': UI.DataField
+                  PropertyValue:
+                    - '@Property': Value
+                      '@Path': Quantity
+                    - '@Property': Label
+                      '@String': Quantity
+                - '@Type': UI.DataField
+                  PropertyValue:
+                    - '@Property': Value
+                      '@Path': Component_ID
+                    - '@Property': Label
+                      '@String': Component_ID
+                - '@Type': UI.DataField
+                  PropertyValue:
+                    - '@Property': Value
+                      '@Path': Component/Name
+                    - '@Property': Label
+                      '@String': Name
+                - '@Type': UI.DataField
+                  PropertyValue:
+                    - '@Property': Value
+                      '@Path': Component/Description
+                    - '@Property': Label
+                      '@String': Description
+                - '@Type': UI.DataField
+                  PropertyValue:
+                    - '@Property': Value
+                      '@Path': Packing/Title
+                    - '@Property': Label
+                      '@String': Title
+        - '@Target': ProcessorService.EntityContainer/PackingComponents
+          Annotation:
+            '@Term': Common.DraftNode
+            Record:
+              '@Type': Common.DraftNodeType
+              PropertyValue:
+                '@Property': PreparationAction
+                '@String': ProcessorService.draftPrepare
+        - '@Target': ProcessorService.PackingComponents/ID
+          Annotation:
+            '@Term': Core.ComputedDefaultValue
+            '@Bool': 'true'
+        - '@Target': ProcessorService.PackingComponents/createdAt
+          Annotation:
+            - '@Term': UI.HiddenFilter
+              '@Bool': 'true'
+            - '@Term': UI.ExcludeFromNavigationContext
+              '@Bool': 'true'
+            - '@Term': Core.Immutable
+              '@Bool': 'true'
+            - '@Term': Core.Computed
+              '@Bool': 'true'
+            - '@Term': Common.Label
+              '@String': Created On
+        - '@Target': ProcessorService.PackingComponents/createdBy
+          Annotation:
+            - '@Term': UI.HiddenFilter
+              '@Bool': 'true'
+            - '@Term': UI.ExcludeFromNavigationContext
+              '@Bool': 'true'
+            - '@Term': Core.Immutable
+              '@Bool': 'true'
+            - '@Term': Core.Computed
+              '@Bool': 'true'
+            - '@Term': Core.Description
+              '@String': User's unique ID
+            - '@Term': Common.Label
+              '@String': Created By
+        - '@Target': ProcessorService.PackingComponents/modifiedAt
+          Annotation:
+            - '@Term': UI.HiddenFilter
+              '@Bool': 'true'
+            - '@Term': UI.ExcludeFromNavigationContext
+              '@Bool': 'true'
+            - '@Term': Core.Computed
+              '@Bool': 'true'
+            - '@Term': Common.Label
+              '@String': Changed On
+        - '@Target': ProcessorService.PackingComponents/modifiedBy
+          Annotation:
+            - '@Term': UI.HiddenFilter
+              '@Bool': 'true'
+            - '@Term': UI.ExcludeFromNavigationContext
+              '@Bool': 'true'
+            - '@Term': Core.Computed
+              '@Bool': 'true'
+            - '@Term': Core.Description
+              '@String': User's unique ID
+            - '@Term': Common.Label
+              '@String': Changed By
+        - '@Target': ProcessorService.PackingComponents/Component
+          Annotation:
+            '@Term': Common.SemanticObject
+            '@String': Component
+        - '@Target': ProcessorService.PackingComponents/Component_ID
+          Annotation:
+            - '@Term': Common.Text
+              '@Path': Component/Title
+              Annotation:
+                '@Term': UI.TextArrangement
+                '@EnumMember': UI.TextArrangementType/TextOnly
+            - '@Term': Common.ValueList
+              Record:
+                '@Type': Common.ValueListType
+                PropertyValue:
+                  - '@Property': CollectionPath
+                    '@String': Components
+                  - '@Property': Parameters
+                    Collection:
+                      Record:
+                        '@Type': Common.ValueListParameterInOut
+                        PropertyValue:
+                          - '@Property': LocalDataProperty
+                            '@PropertyPath': Component_ID
+                          - '@Property': ValueListProperty
+                            '@String': ID
+            - '@Term': Common.ValueListWithFixedValues
+              '@Bool': 'true'
+            - '@Term': Common.FieldControl
+              '@EnumMember': Common.FieldControlType/Mandatory
+            - '@Term': Common.SemanticObject
+              '@String': Component
+            - '@Term': Common.SemanticObjectMapping
+              Collection:
+                Record:
+                  '@Type': Common.SemanticObjectMappingType
+                  PropertyValue:
+                    - '@Property': LocalProperty
+                      '@PropertyPath': Component_ID
+                    - '@Property': SemanticObjectProperty
+                      '@String': ID
+        - '@Target': ProcessorService.PackingComponents/IsActiveEntity
+          Annotation:
+            '@Term': UI.Hidden
+            '@Bool': 'true'
+        - '@Target': ProcessorService.PackingComponents/HasActiveEntity
+          Annotation:
+            '@Term': UI.Hidden
+            '@Bool': 'true'
+        - '@Target': ProcessorService.PackingComponents/HasDraftEntity
+          Annotation:
+            '@Term': UI.Hidden
+            '@Bool': 'true'
+        - '@Target': ProcessorService.PackingComponents/DraftAdministrativeData
+          Annotation:
+            '@Term': UI.Hidden
+            '@Bool': 'true'
+        - '@Target': ProcessorService.Transports
+          Annotation:
+            - '@Term': UI.LineItem
+              Collection:
+                Record:
+                  '@Type': UI.DataField
+                  PropertyValue:
+                    - '@Property': Value
+                      '@Path': Name
+                    - '@Property': Label
+                      '@String': Name
+                  Annotation:
+                    '@Term': UI.Importance
+                    '@EnumMember': UI.ImportanceType/High
+            - '@Term': UI.Facets
+              Collection:
+                Record:
+                  - '@Type': UI.ReferenceFacet
+                    PropertyValue:
+                      - '@Property': Label
+                        '@String': Main Data
+                      - '@Property': ID
+                        '@String': MainData
+                      - '@Property': Target
+                        '@AnnotationPath': '@UI.FieldGroup#MainData'
+                  - '@Type': UI.ReferenceFacet
+                    PropertyValue:
+                      - '@Property': Label
+                        '@String': Packings
+                      - '@Property': ID
+                        '@String': Packings
+                      - '@Property': Target
+                        '@AnnotationPath': Packings/@UI.LineItem#Packings
+            - '@Term': UI.FieldGroup
+              '@Qualifier': MainData
+              Record:
+                '@Type': UI.FieldGroupType
+                PropertyValue:
+                  '@Property': Data
+                  Collection:
+                    Record:
+                      - '@Type': UI.DataField
+                        PropertyValue:
+                          - '@Property': Value
+                            '@Path': Name
+                          - '@Property': Label
+                            '@String': Name
+                      - '@Type': UI.DataField
+                        PropertyValue:
+                          - '@Property': Value
+                            '@Path': Description
+                          - '@Property': Label
+                            '@String': Description
+                      - '@Type': UI.DataField
+                        PropertyValue:
+                          - '@Property': Value
+                            '@Path': TransportType
+                          - '@Property': Label
+                            '@String': TransportType
+        - '@Target': ProcessorService.EntityContainer/Transports
+          Annotation:
+            '@Term': Common.DraftRoot
+            Record:
+              '@Type': Common.DraftRootType
+              PropertyValue:
+                - '@Property': ActivationAction
+                  '@String': ProcessorService.draftActivate
+                - '@Property': EditAction
+                  '@String': ProcessorService.draftEdit
+                - '@Property': PreparationAction
+                  '@String': ProcessorService.draftPrepare
+        - '@Target': ProcessorService.Transports/ID
+          Annotation:
+            - '@Term': Common.Text
+              '@Path': Name
+              Annotation:
+                '@Term': UI.TextArrangement
+                '@EnumMember': UI.TextArrangementType/TextOnly
+            - '@Term': Core.ComputedDefaultValue
+              '@Bool': 'true'
+        - '@Target': ProcessorService.Transports/createdAt
+          Annotation:
+            - '@Term': UI.HiddenFilter
+              '@Bool': 'true'
+            - '@Term': UI.ExcludeFromNavigationContext
+              '@Bool': 'true'
+            - '@Term': Core.Immutable
+              '@Bool': 'true'
+            - '@Term': Core.Computed
+              '@Bool': 'true'
+            - '@Term': Common.Label
+              '@String': Created On
+        - '@Target': ProcessorService.Transports/createdBy
+          Annotation:
+            - '@Term': UI.HiddenFilter
+              '@Bool': 'true'
+            - '@Term': UI.ExcludeFromNavigationContext
+              '@Bool': 'true'
+            - '@Term': Core.Immutable
+              '@Bool': 'true'
+            - '@Term': Core.Computed
+              '@Bool': 'true'
+            - '@Term': Core.Description
+              '@String': User's unique ID
+            - '@Term': Common.Label
+              '@String': Created By
+        - '@Target': ProcessorService.Transports/modifiedAt
+          Annotation:
+            - '@Term': UI.HiddenFilter
+              '@Bool': 'true'
+            - '@Term': UI.ExcludeFromNavigationContext
+              '@Bool': 'true'
+            - '@Term': Core.Computed
+              '@Bool': 'true'
+            - '@Term': Common.Label
+              '@String': Changed On
+        - '@Target': ProcessorService.Transports/modifiedBy
+          Annotation:
+            - '@Term': UI.HiddenFilter
+              '@Bool': 'true'
+            - '@Term': UI.ExcludeFromNavigationContext
+              '@Bool': 'true'
+            - '@Term': Core.Computed
+              '@Bool': 'true'
+            - '@Term': Core.Description
+              '@String': User's unique ID
+            - '@Term': Common.Label
+              '@String': Changed By
+        - '@Target': ProcessorService.Transports/Title
+          Annotation:
+            '@Term': Core.Computed
+            '@Bool': 'true'
+        - '@Target': ProcessorService.Transports/IsActiveEntity
+          Annotation:
+            '@Term': UI.Hidden
+            '@Bool': 'true'
+        - '@Target': ProcessorService.Transports/HasActiveEntity
+          Annotation:
+            '@Term': UI.Hidden
+            '@Bool': 'true'
+        - '@Target': ProcessorService.Transports/HasDraftEntity
+          Annotation:
+            '@Term': UI.Hidden
+            '@Bool': 'true'
+        - '@Target': ProcessorService.Transports/DraftAdministrativeData
+          Annotation:
+            '@Term': UI.Hidden
+            '@Bool': 'true'
+        - '@Target': ProcessorService.EntityContainer/PackingTypes
+          Annotation:
+            '@Term': Common.DraftRoot
+            Record:
+              '@Type': Common.DraftRootType
+              PropertyValue:
+                - '@Property': ActivationAction
+                  '@String': ProcessorService.draftActivate
+                - '@Property': EditAction
+                  '@String': ProcessorService.draftEdit
+                - '@Property': PreparationAction
+                  '@String': ProcessorService.draftPrepare
+        - '@Target': ProcessorService.PackingTypes/ID
+          Annotation:
+            - '@Term': Common.Text
+              '@Path': Description
+              Annotation:
+                '@Term': UI.TextArrangement
+                '@EnumMember': UI.TextArrangementType/TextOnly
+            - '@Term': Core.ComputedDefaultValue
+              '@Bool': 'true'
+        - '@Target': ProcessorService.PackingTypes/createdAt
+          Annotation:
+            - '@Term': UI.HiddenFilter
+              '@Bool': 'true'
+            - '@Term': UI.ExcludeFromNavigationContext
+              '@Bool': 'true'
+            - '@Term': Core.Immutable
+              '@Bool': 'true'
+            - '@Term': Core.Computed
+              '@Bool': 'true'
+            - '@Term': Common.Label
+              '@String': Created On
+        - '@Target': ProcessorService.PackingTypes/createdBy
+          Annotation:
+            - '@Term': UI.HiddenFilter
+              '@Bool': 'true'
+            - '@Term': UI.ExcludeFromNavigationContext
+              '@Bool': 'true'
+            - '@Term': Core.Immutable
+              '@Bool': 'true'
+            - '@Term': Core.Computed
+              '@Bool': 'true'
+            - '@Term': Core.Description
+              '@String': User's unique ID
+            - '@Term': Common.Label
+              '@String': Created By
+        - '@Target': ProcessorService.PackingTypes/modifiedAt
+          Annotation:
+            - '@Term': UI.HiddenFilter
+              '@Bool': 'true'
+            - '@Term': UI.ExcludeFromNavigationContext
+              '@Bool': 'true'
+            - '@Term': Core.Computed
+              '@Bool': 'true'
+            - '@Term': Common.Label
+              '@String': Changed On
+        - '@Target': ProcessorService.PackingTypes/modifiedBy
+          Annotation:
+            - '@Term': UI.HiddenFilter
+              '@Bool': 'true'
+            - '@Term': UI.ExcludeFromNavigationContext
+              '@Bool': 'true'
+            - '@Term': Core.Computed
+              '@Bool': 'true'
+            - '@Term': Core.Description
+              '@String': User's unique ID
+            - '@Term': Common.Label
+              '@String': Changed By
+        - '@Target': ProcessorService.PackingTypes/IsActiveEntity
+          Annotation:
+            '@Term': UI.Hidden
+            '@Bool': 'true'
+        - '@Target': ProcessorService.PackingTypes/HasActiveEntity
+          Annotation:
+            '@Term': UI.Hidden
+            '@Bool': 'true'
+        - '@Target': ProcessorService.PackingTypes/HasDraftEntity
+          Annotation:
+            '@Term': UI.Hidden
+            '@Bool': 'true'
+        - '@Target': ProcessorService.PackingTypes/DraftAdministrativeData
+          Annotation:
+            '@Term': UI.Hidden
+            '@Bool': 'true'
+        - '@Target': ProcessorService.EntityContainer/TransportTypes
+          Annotation:
+            '@Term': Common.DraftRoot
+            Record:
+              '@Type': Common.DraftRootType
+              PropertyValue:
+                - '@Property': ActivationAction
+                  '@String': ProcessorService.draftActivate
+                - '@Property': EditAction
+                  '@String': ProcessorService.draftEdit
+                - '@Property': PreparationAction
+                  '@String': ProcessorService.draftPrepare
+        - '@Target': ProcessorService.TransportTypes/ID
+          Annotation:
+            '@Term': Core.ComputedDefaultValue
+            '@Bool': 'true'
+        - '@Target': ProcessorService.TransportTypes/createdAt
+          Annotation:
+            - '@Term': UI.HiddenFilter
+              '@Bool': 'true'
+            - '@Term': UI.ExcludeFromNavigationContext
+              '@Bool': 'true'
+            - '@Term': Core.Immutable
+              '@Bool': 'true'
+            - '@Term': Core.Computed
+              '@Bool': 'true'
+            - '@Term': Common.Label
+              '@String': Created On
+        - '@Target': ProcessorService.TransportTypes/createdBy
+          Annotation:
+            - '@Term': UI.HiddenFilter
+              '@Bool': 'true'
+            - '@Term': UI.ExcludeFromNavigationContext
+              '@Bool': 'true'
+            - '@Term': Core.Immutable
+              '@Bool': 'true'
+            - '@Term': Core.Computed
+              '@Bool': 'true'
+            - '@Term': Core.Description
+              '@String': User's unique ID
+            - '@Term': Common.Label
+              '@String': Created By
+        - '@Target': ProcessorService.TransportTypes/modifiedAt
+          Annotation:
+            - '@Term': UI.HiddenFilter
+              '@Bool': 'true'
+            - '@Term': UI.ExcludeFromNavigationContext
+              '@Bool': 'true'
+            - '@Term': Core.Computed
+              '@Bool': 'true'
+            - '@Term': Common.Label
+              '@String': Changed On
+        - '@Target': ProcessorService.TransportTypes/modifiedBy
+          Annotation:
+            - '@Term': UI.HiddenFilter
+              '@Bool': 'true'
+            - '@Term': UI.ExcludeFromNavigationContext
+              '@Bool': 'true'
+            - '@Term': Core.Computed
+              '@Bool': 'true'
+            - '@Term': Core.Description
+              '@String': User's unique ID
+            - '@Term': Common.Label
+              '@String': Changed By
+        - '@Target': ProcessorService.TransportTypes/IsActiveEntity
+          Annotation:
+            '@Term': UI.Hidden
+            '@Bool': 'true'
+        - '@Target': ProcessorService.TransportTypes/HasActiveEntity
+          Annotation:
+            '@Term': UI.Hidden
+            '@Bool': 'true'
+        - '@Target': ProcessorService.TransportTypes/HasDraftEntity
+          Annotation:
+            '@Term': UI.Hidden
+            '@Bool': 'true'
+        - '@Target': ProcessorService.TransportTypes/DraftAdministrativeData
+          Annotation:
+            '@Term': UI.Hidden
+            '@Bool': 'true'
+        - '@Target': ProcessorService.ShippingProjects
+          Annotation:
+            - '@Term': UI.LineItem
+              Collection:
+                Record:
+                  - '@Type': UI.DataField
+                    PropertyValue:
+                      - '@Property': Value
+                        '@Path': Description
+                      - '@Property': Label
+                        '@String': Description
+                  - '@Type': UI.DataField
+                    PropertyValue:
+                      - '@Property': Value
+                        '@Path': Name
+                      - '@Property': Label
+                        '@String': Name
+                  - '@Type': UI.DataField
+                    PropertyValue:
+                      - '@Property': Value
+                        '@Path': Status_code
+                      - '@Property': Label
+                        '@String': Status
+                      - '@Property': Criticality
+                        '@Path': Status/criticality
+            - '@Term': UI.SelectionPresentationVariant
+              '@Qualifier': tableView
+              Record:
+                '@Type': UI.SelectionPresentationVariantType
+                PropertyValue:
+                  - '@Property': PresentationVariant
+                    Record:
+                      '@Type': UI.PresentationVariantType
+                      PropertyValue:
+                        '@Property': Visualizations
+                        Collection:
+                          AnnotationPath: '@UI.LineItem'
+                  - '@Property': SelectionVariant
+                    Record:
+                      '@Type': UI.SelectionVariantType
+                      PropertyValue:
+                        '@Property': SelectOptions
+                        Collection: null
+                  - '@Property': Text
+                    '@String': Table View
+            - '@Term': UI.LineItem
+              '@Qualifier': tableView
+              Collection:
+                Record:
+                  - '@Type': UI.DataField
+                    PropertyValue:
+                      - '@Property': Value
+                        '@Path': Description
+                      - '@Property': Label
+                        '@String': Description
+                  - '@Type': UI.DataField
+                    PropertyValue:
+                      '@Property': Value
+                      '@Path': createdAt
+                  - '@Type': UI.DataField
+                    PropertyValue:
+                      '@Property': Value
+                      '@Path': createdBy
+                  - '@Type': UI.DataField
+                    PropertyValue:
+                      '@Property': Value
+                      '@Path': modifiedAt
+                  - '@Type': UI.DataField
+                    PropertyValue:
+                      '@Property': Value
+                      '@Path': modifiedBy
+                  - '@Type': UI.DataField
+                    PropertyValue:
+                      - '@Property': Value
+                        '@Path': Name
+                      - '@Property': Label
+                        '@String': Name
+            - '@Term': UI.SelectionPresentationVariant
+              '@Qualifier': tableView1
+              Record:
+                '@Type': UI.SelectionPresentationVariantType
+                PropertyValue:
+                  - '@Property': PresentationVariant
+                    Record:
+                      '@Type': UI.PresentationVariantType
+                      PropertyValue:
+                        '@Property': Visualizations
+                        Collection:
+                          AnnotationPath: '@UI.LineItem#tableView'
+                  - '@Property': SelectionVariant
+                    Record:
+                      '@Type': UI.SelectionVariantType
+                      PropertyValue:
+                        '@Property': SelectOptions
+                        Collection: null
+                  - '@Property': Text
+                    '@String': Table View 1
+            - '@Term': UI.Facets
+              Collection:
+                Record:
+                  - '@Type': UI.ReferenceFacet
+                    PropertyValue:
+                      - '@Property': Label
+                        '@String': Main
+                      - '@Property': ID
+                        '@String': Main
+                      - '@Property': Target
+                        '@AnnotationPath': '@UI.FieldGroup#Main'
+                  - '@Type': UI.ReferenceFacet
+                    PropertyValue:
+                      - '@Property': Label
+                        '@String': Components
+                      - '@Property': ID
+                        '@String': i18nComponents
+                      - '@Property': Target
+                        '@AnnotationPath': Components/@UI.LineItem#i18nComponents
+            - '@Term': UI.FieldGroup
+              '@Qualifier': Main
+              Record:
+                '@Type': UI.FieldGroupType
+                PropertyValue:
+                  '@Property': Data
+                  Collection:
+                    Record:
+                      - '@Type': UI.DataField
+                        PropertyValue:
+                          - '@Property': Value
+                            '@Path': Name
+                          - '@Property': Label
+                            '@String': Name
+                      - '@Type': UI.DataField
+                        PropertyValue:
+                          - '@Property': Value
+                            '@Path': Description
+                          - '@Property': Label
+                            '@String': Description
+                      - '@Type': UI.DataField
+                        PropertyValue:
+                          - '@Property': Value
+                            '@Path': Status_code
+                          - '@Property': Label
+                            '@String': Status_code
+            - '@Term': UI.HeaderInfo
+              Record:
+                '@Type': UI.HeaderInfoType
+                PropertyValue:
+                  - '@Property': TypeName
+                    '@String': Shipping Project
+                  - '@Property': TypeNamePlural
+                    '@String': Shipping Projects
+                  - '@Property': Title
+                    Record:
+                      '@Type': UI.DataField
+                      PropertyValue:
+                        '@Property': Value
+                        '@Path': Name
+                  - '@Property': Description
+                    Record:
+                      '@Type': UI.DataField
+                      PropertyValue:
+                        '@Property': Value
+                        '@Path': Description
+        - '@Target': ProcessorService.EntityContainer/ShippingProjects
+          Annotation:
+            - '@Term': UI.SelectionPresentationVariant
+              '@Qualifier': tableView
+              Record:
+                '@Type': UI.SelectionPresentationVariantType
+                PropertyValue:
+                  - '@Property': PresentationVariant
+                    Record:
+                      '@Type': UI.PresentationVariantType
+                      PropertyValue:
+                        '@Property': Visualizations
+                        Collection:
+                          AnnotationPath: '@UI.LineItem'
+                  - '@Property': SelectionVariant
+                    Record:
+                      '@Type': UI.SelectionVariantType
+                      PropertyValue:
+                        '@Property': SelectOptions
+                        Collection: null
+                  - '@Property': Text
+                    '@String': Table View
+            - '@Term': UI.SelectionPresentationVariant
+              '@Qualifier': tableView1
+              Record:
+                '@Type': UI.SelectionPresentationVariantType
+                PropertyValue:
+                  - '@Property': PresentationVariant
+                    Record:
+                      '@Type': UI.PresentationVariantType
+                      PropertyValue:
+                        '@Property': Visualizations
+                        Collection:
+                          AnnotationPath: '@UI.LineItem#tableView'
+                  - '@Property': SelectionVariant
+                    Record:
+                      '@Type': UI.SelectionVariantType
+                      PropertyValue:
+                        '@Property': SelectOptions
+                        Collection: null
+                  - '@Property': Text
+                    '@String': Table View 1
+            - '@Term': Common.DraftRoot
+              Record:
+                '@Type': Common.DraftRootType
+                PropertyValue:
+                  - '@Property': ActivationAction
+                    '@String': ProcessorService.draftActivate
+                  - '@Property': EditAction
+                    '@String': ProcessorService.draftEdit
+                  - '@Property': PreparationAction
+                    '@String': ProcessorService.draftPrepare
+        - '@Target': ProcessorService.ShippingProjects/ID
+          Annotation:
+            - '@Term': Common.Text
+              '@Path': Title
+              Annotation:
+                '@Term': UI.TextArrangement
+                '@EnumMember': UI.TextArrangementType/TextOnly
+            - '@Term': Core.ComputedDefaultValue
+              '@Bool': 'true'
+        - '@Target': ProcessorService.ShippingProjects/createdAt
+          Annotation:
+            - '@Term': UI.HiddenFilter
+              '@Bool': 'true'
+            - '@Term': UI.ExcludeFromNavigationContext
+              '@Bool': 'true'
+            - '@Term': Core.Immutable
+              '@Bool': 'true'
+            - '@Term': Core.Computed
+              '@Bool': 'true'
+            - '@Term': Common.Label
+              '@String': Created On
+        - '@Target': ProcessorService.ShippingProjects/createdBy
+          Annotation:
+            - '@Term': UI.HiddenFilter
+              '@Bool': 'true'
+            - '@Term': UI.ExcludeFromNavigationContext
+              '@Bool': 'true'
+            - '@Term': Core.Immutable
+              '@Bool': 'true'
+            - '@Term': Core.Computed
+              '@Bool': 'true'
+            - '@Term': Core.Description
+              '@String': User's unique ID
+            - '@Term': Common.Label
+              '@String': Created By
+        - '@Target': ProcessorService.ShippingProjects/modifiedAt
+          Annotation:
+            - '@Term': UI.HiddenFilter
+              '@Bool': 'true'
+            - '@Term': UI.ExcludeFromNavigationContext
+              '@Bool': 'true'
+            - '@Term': Core.Computed
+              '@Bool': 'true'
+            - '@Term': Common.Label
+              '@String': Changed On
+        - '@Target': ProcessorService.ShippingProjects/modifiedBy
+          Annotation:
+            - '@Term': UI.HiddenFilter
+              '@Bool': 'true'
+            - '@Term': UI.ExcludeFromNavigationContext
+              '@Bool': 'true'
+            - '@Term': Core.Computed
+              '@Bool': 'true'
+            - '@Term': Core.Description
+              '@String': User's unique ID
+            - '@Term': Common.Label
+              '@String': Changed By
+        - '@Target': ProcessorService.ShippingProjects/Title
+          Annotation:
+            '@Term': Core.Computed
+            '@Bool': 'true'
+        - '@Target': ProcessorService.ShippingProjects/Status_code
+          Annotation:
+            - '@Term': Common.Text
+              '@Path': Status/descr
+              Annotation:
+                '@Term': UI.TextArrangement
+                '@EnumMember': UI.TextArrangementType/TextFirst
+            - '@Term': Common.ValueListWithFixedValues
+              '@Bool': 'true'
+            - '@Term': Common.ValueList
+              Record:
+                '@Type': Common.ValueListType
+                PropertyValue:
+                  - '@Property': Label
+                    '@String': Status
+                  - '@Property': CollectionPath
+                    '@String': Status
+                  - '@Property': Parameters
+                    Collection:
+                      Record:
+                        - '@Type': Common.ValueListParameterInOut
+                          PropertyValue:
+                            - '@Property': LocalDataProperty
+                              '@PropertyPath': Status_code
+                            - '@Property': ValueListProperty
+                              '@String': code
+                        - '@Type': Common.ValueListParameterDisplayOnly
+                          PropertyValue:
+                            '@Property': ValueListProperty
+                            '@String': name
+        - '@Target': ProcessorService.ShippingProjects/IsActiveEntity
+          Annotation:
+            '@Term': UI.Hidden
+            '@Bool': 'true'
+        - '@Target': ProcessorService.ShippingProjects/HasActiveEntity
+          Annotation:
+            '@Term': UI.Hidden
+            '@Bool': 'true'
+        - '@Target': ProcessorService.ShippingProjects/HasDraftEntity
+          Annotation:
+            '@Term': UI.Hidden
+            '@Bool': 'true'
+        - '@Target': ProcessorService.ShippingProjects/DraftAdministrativeData
+          Annotation:
+            '@Term': UI.Hidden
+            '@Bool': 'true'
+        - '@Target': ProcessorService.ComponentUsage/ID
+          Annotation:
+            '@Term': Core.ComputedDefaultValue
+            '@Bool': 'true'
+        - '@Target': ProcessorService.ComponentUsage/UsedQuantity
+          Annotation:
+            '@Term': Core.Computed
+            '@Bool': 'true'
+        - '@Target': ProcessorService.ComponentsUnpacked
+          Annotation:
+            '@Term': UI.LineItem
+            Collection:
+              Record:
+                - '@Type': UI.DataField
+                  PropertyValue:
+                    - '@Property': Value
+                      '@Path': Quantity
+                    - '@Property': Label
+                      '@String': Quantity
+                - '@Type': UI.DataField
+                  PropertyValue:
+                    - '@Property': Value
+                      '@Path': UsedQuantity
+                    - '@Property': Label
+                      '@String': UsedQuantity
+                - '@Type': UI.DataField
+                  PropertyValue:
+                    - '@Property': Value
+                      '@Path': Component/Title
+                    - '@Property': Label
+                      '@String': Title
+                - '@Type': UI.DataField
+                  PropertyValue:
+                    - '@Property': Value
+                      '@Path': Component/StatusLine
+                    - '@Property': Label
+                      '@String': StatusLine
+        - '@Target': ProcessorService.ComponentsUnpacked/ID
+          Annotation:
+            '@Term': Core.ComputedDefaultValue
+            '@Bool': 'true'
+        - '@Target': ProcessorService.ComponentsUnpacked/UsedQuantity
+          Annotation:
+            '@Term': Core.Computed
+            '@Bool': 'true'
+        - '@Target': ProcessorService.Activities
+          Annotation:
+            '@Term': UI.LineItem
+            '@Qualifier': Activities
+            Collection:
+              Record:
+                - '@Type': UI.DataField
+                  PropertyValue:
+                    - '@Property': Value
+                      '@Path': Activity
+                    - '@Property': Label
+                      '@String': Activity
+                - '@Type': UI.DataField
+                  PropertyValue:
+                    - '@Property': Value
+                      '@Path': Description
+                    - '@Property': Label
+                      '@String': Description
+                - '@Type': UI.DataField
+                  PropertyValue:
+                    - '@Property': Value
+                      '@Path': Duration
+                    - '@Property': Label
+                      '@String': Duration
+                - '@Type': UI.DataField
+                  PropertyValue:
+                    - '@Property': Value
+                      '@Path': DurationUnit
+                    - '@Property': Label
+                      '@String': DurationUnit
+                - '@Type': UI.DataField
+                  PropertyValue:
+                    - '@Property': Value
+                      '@Path': EarlyStart
+                    - '@Property': Label
+                      '@String': EarlyStart
+                  Annotation:
+                    '@Term': UI.Importance
+                    '@EnumMember': UI.ImportanceType/Low
+                - '@Type': UI.DataField
+                  PropertyValue:
+                    - '@Property': Value
+                      '@Path': EarlyFinish
+                    - '@Property': Label
+                      '@String': EarlyFinish
+                - '@Type': UI.DataField
+                  PropertyValue:
+                    - '@Property': Value
+                      '@Path': LateFinish
+                    - '@Property': Label
+                      '@String': LateFinish
+                - '@Type': UI.DataField
+                  PropertyValue:
+                    - '@Property': Value
+                      '@Path': LateStart
+                    - '@Property': Label
+                      '@String': LateStart
+                - '@Type': UI.DataField
+                  PropertyValue:
+                    - '@Property': Value
+                      '@Path': Name
+                    - '@Property': Label
+                      '@String': Name
+                - '@Type': UI.DataField
+                  PropertyValue:
+                    - '@Property': Value
+                      '@Path': ObjectClass
+                    - '@Property': Label
+                      '@String': ObjectClass
+                - '@Type': UI.DataField
+                  PropertyValue:
+                    - '@Property': Value
+                      '@Path': Plant
+                    - '@Property': Label
+                      '@String': Plant
+                - '@Type': UI.DataField
+                  PropertyValue:
+                    - '@Property': Value
+                      '@Path': Components/Material
+                    - '@Property': Label
+                      '@String': Material
+        - '@Target': ProcessorService.Activities/ID
+          Annotation:
+            '@Term': Core.ComputedDefaultValue
+            '@Bool': 'true'
+        - '@Target': ProcessorService.Activities/createdAt
+          Annotation:
+            - '@Term': UI.HiddenFilter
+              '@Bool': 'true'
+            - '@Term': UI.ExcludeFromNavigationContext
+              '@Bool': 'true'
+            - '@Term': Core.Immutable
+              '@Bool': 'true'
+            - '@Term': Core.Computed
+              '@Bool': 'true'
+            - '@Term': Common.Label
+              '@String': Created On
+        - '@Target': ProcessorService.Activities/createdBy
+          Annotation:
+            - '@Term': UI.HiddenFilter
+              '@Bool': 'true'
+            - '@Term': UI.ExcludeFromNavigationContext
+              '@Bool': 'true'
+            - '@Term': Core.Immutable
+              '@Bool': 'true'
+            - '@Term': Core.Computed
+              '@Bool': 'true'
+            - '@Term': Core.Description
+              '@String': User's unique ID
+            - '@Term': Common.Label
+              '@String': Created By
+        - '@Target': ProcessorService.Activities/modifiedAt
+          Annotation:
+            - '@Term': UI.HiddenFilter
+              '@Bool': 'true'
+            - '@Term': UI.ExcludeFromNavigationContext
+              '@Bool': 'true'
+            - '@Term': Core.Computed
+              '@Bool': 'true'
+            - '@Term': Common.Label
+              '@String': Changed On
+        - '@Target': ProcessorService.Activities/modifiedBy
+          Annotation:
+            - '@Term': UI.HiddenFilter
+              '@Bool': 'true'
+            - '@Term': UI.ExcludeFromNavigationContext
+              '@Bool': 'true'
+            - '@Term': Core.Computed
+              '@Bool': 'true'
+            - '@Term': Core.Description
+              '@String': User's unique ID
+            - '@Term': Common.Label
+              '@String': Changed By
+        - '@Target': ProcessorService.Activities/Title
+          Annotation:
+            '@Term': Core.Computed
+            '@Bool': 'true'
+        - '@Target': ProcessorService.Activities/DurationUnit
+          Annotation:
+            '@Term': Core.Computed
+            '@Bool': 'true'
+        - '@Target': ProcessorService.Activities/DurationScheduled
+          Annotation:
+            '@Term': Core.Computed
+            '@Bool': 'true'
+        - '@Target': ProcessorService.WBSElements
+          Annotation:
+            - '@Term': UI.LineItem
+              Collection:
+                Record:
+                  - '@Type': UI.DataField
+                    PropertyValue:
+                      - '@Property': Value
+                        '@Path': Name
+                      - '@Property': Label
+                        '@String': Name
+                  - '@Type': UI.DataField
+                    PropertyValue:
+                      - '@Property': Value
+                        '@Path': Description
+                      - '@Property': Label
+                        '@String': Description
+            - '@Term': UI.Facets
+              Collection:
+                Record:
+                  - '@Type': UI.ReferenceFacet
+                    PropertyValue:
+                      - '@Property': Label
+                        '@String': Main
+                      - '@Property': ID
+                        '@String': Main
+                      - '@Property': Target
+                        '@AnnotationPath': '@UI.FieldGroup#Main'
+                  - '@Type': UI.ReferenceFacet
+                    PropertyValue:
+                      - '@Property': Label
+                        '@String': Activities
+                      - '@Property': ID
+                        '@String': Activities
+                      - '@Property': Target
+                        '@AnnotationPath': Activities/@UI.LineItem#Activities
+            - '@Term': UI.FieldGroup
+              '@Qualifier': Main
+              Record:
+                '@Type': UI.FieldGroupType
+                PropertyValue:
+                  '@Property': Data
+                  Collection:
+                    Record:
+                      - '@Type': UI.DataField
+                        PropertyValue:
+                          - '@Property': Value
+                            '@Path': Name
+                          - '@Property': Label
+                            '@String': Name
+                      - '@Type': UI.DataField
+                        PropertyValue:
+                          - '@Property': Value
+                            '@Path': Description
+                          - '@Property': Label
+                            '@String': Description
+                      - '@Type': UI.DataField
+                        PropertyValue:
+                          '@Property': Value
+                          '@Path': createdAt
+                      - '@Type': UI.DataField
+                        PropertyValue:
+                          '@Property': Value
+                          '@Path': createdBy
+                      - '@Type': UI.DataField
+                        PropertyValue:
+                          '@Property': Value
+                          '@Path': modifiedAt
+                      - '@Type': UI.DataField
+                        PropertyValue:
+                          '@Property': Value
+                          '@Path': modifiedBy
+        - '@Target': ProcessorService.WBSElements/ID
+          Annotation:
+            '@Term': Core.ComputedDefaultValue
+            '@Bool': 'true'
+        - '@Target': ProcessorService.WBSElements/createdAt
+          Annotation:
+            - '@Term': UI.HiddenFilter
+              '@Bool': 'true'
+            - '@Term': UI.ExcludeFromNavigationContext
+              '@Bool': 'true'
+            - '@Term': Core.Immutable
+              '@Bool': 'true'
+            - '@Term': Core.Computed
+              '@Bool': 'true'
+            - '@Term': Common.Label
+              '@String': Created On
+        - '@Target': ProcessorService.WBSElements/createdBy
+          Annotation:
+            - '@Term': UI.HiddenFilter
+              '@Bool': 'true'
+            - '@Term': UI.ExcludeFromNavigationContext
+              '@Bool': 'true'
+            - '@Term': Core.Immutable
+              '@Bool': 'true'
+            - '@Term': Core.Computed
+              '@Bool': 'true'
+            - '@Term': Core.Description
+              '@String': User's unique ID
+            - '@Term': Common.Label
+              '@String': Created By
+        - '@Target': ProcessorService.WBSElements/modifiedAt
+          Annotation:
+            - '@Term': UI.HiddenFilter
+              '@Bool': 'true'
+            - '@Term': UI.ExcludeFromNavigationContext
+              '@Bool': 'true'
+            - '@Term': Core.Computed
+              '@Bool': 'true'
+            - '@Term': Common.Label
+              '@String': Changed On
+        - '@Target': ProcessorService.WBSElements/modifiedBy
+          Annotation:
+            - '@Term': UI.HiddenFilter
+              '@Bool': 'true'
+            - '@Term': UI.ExcludeFromNavigationContext
+              '@Bool': 'true'
+            - '@Term': Core.Computed
+              '@Bool': 'true'
+            - '@Term': Core.Description
+              '@String': User's unique ID
+            - '@Term': Common.Label
+              '@String': Changed By
+        - '@Target': ProcessorService.WBSElements/Title
+          Annotation:
+            '@Term': Core.Computed
+            '@Bool': 'true'
+        - '@Target': ProcessorService.Status
+          Annotation:
+            - '@Term': UI.DataPoint
+              '@Qualifier': criticality
+              Record:
+                '@Type': UI.DataPointType
+                PropertyValue:
+                  - '@Property': Value
+                    '@Path': criticality
+                  - '@Property': Visualization
+                    '@EnumMember': UI.VisualizationType/Progress
+                  - '@Property': TargetValue
+                    '@Int': '100'
+            - '@Term': UI.Identification
+              Collection:
+                Record:
+                  '@Type': UI.DataField
+                  PropertyValue:
+                    '@Property': Value
+                    '@Path': name
+        - '@Target': ProcessorService.Status/name
+          Annotation:
+            '@Term': Common.Label
+            '@String': Name
+        - '@Target': ProcessorService.Status/descr
+          Annotation:
+            '@Term': Common.Label
+            '@String': Description
+        - '@Target': ProcessorService.Status/code
+          Annotation:
+            - '@Term': Common.Text
+              '@Path': descr
+            - '@Term': Validation.AllowedValues
+              Collection:
+                Record:
+                  - '@Type': Validation.AllowedValue
+                    Annotation:
+                      '@Term': Core.SymbolicName
+                      '@String': new
+                    PropertyValue:
+                      '@Property': Value
+                      '@String': N
+                  - '@Type': Validation.AllowedValue
+                    Annotation:
+                      '@Term': Core.SymbolicName
+                      '@String': assigned
+                    PropertyValue:
+                      '@Property': Value
+                      '@String': A
+                  - '@Type': Validation.AllowedValue
+                    Annotation:
+                      '@Term': Core.SymbolicName
+                      '@String': in_process
+                    PropertyValue:
+                      '@Property': Value
+                      '@String': I
+                  - '@Type': Validation.AllowedValue
+                    Annotation:
+                      '@Term': Core.SymbolicName
+                      '@String': on_hold
+                    PropertyValue:
+                      '@Property': Value
+                      '@String': H
+                  - '@Type': Validation.AllowedValue
+                    Annotation:
+                      '@Term': Core.SymbolicName
+                      '@String': completed
+                    PropertyValue:
+                      '@Property': Value
+                      '@String': R
+                  - '@Type': Validation.AllowedValue
+                    Annotation:
+                      '@Term': Core.SymbolicName
+                      '@String': closed
+                    PropertyValue:
+                      '@Property': Value
+                      '@String': C
+        - '@Target': ProcessorService.DraftAdministrativeData
+          Annotation:
+            '@Term': Common.Label
+            '@String': Draft Administrative Data
+        - '@Target': ProcessorService.DraftAdministrativeData/DraftUUID
+          Annotation:
+            - '@Term': UI.Hidden
+              '@Bool': 'true'
+            - '@Term': Common.Label
+              '@String': Draft (Technical ID)
+            - '@Term': Core.ComputedDefaultValue
+              '@Bool': 'true'
+        - '@Target': ProcessorService.DraftAdministrativeData/CreationDateTime
+          Annotation:
+            '@Term': Common.Label
+            '@String': Draft Created On
+        - '@Target': ProcessorService.DraftAdministrativeData/CreatedByUser
+          Annotation:
+            '@Term': Common.Label
+            '@String': Draft Created By
+        - '@Target': ProcessorService.DraftAdministrativeData/DraftIsCreatedByMe
+          Annotation:
+            - '@Term': UI.Hidden
+              '@Bool': 'true'
+            - '@Term': Common.Label
+              '@String': Draft Created By Me
+        - '@Target': ProcessorService.DraftAdministrativeData/LastChangeDateTime
+          Annotation:
+            '@Term': Common.Label
+            '@String': Draft Last Changed On
+        - '@Target': ProcessorService.DraftAdministrativeData/LastChangedByUser
+          Annotation:
+            '@Term': Common.Label
+            '@String': Draft Last Changed By
+        - '@Target': ProcessorService.DraftAdministrativeData/InProcessByUser
+          Annotation:
+            '@Term': Common.Label
+            '@String': Draft In Process By
+        - '@Target': ProcessorService.DraftAdministrativeData/DraftIsProcessedByMe
+          Annotation:
+            - '@Term': UI.Hidden
+              '@Bool': 'true'
+            - '@Term': Common.Label
+              '@String': Draft In Process By Me
+        - '@Target': ProcessorService.Status_texts/locale
+          Annotation:
+            '@Term': Common.Label
+            '@String': Language Code
+        - '@Target': ProcessorService.Status_texts/name
+          Annotation:
+            '@Term': Common.Label
+            '@String': Name
+        - '@Target': ProcessorService.Status_texts/descr
+          Annotation:
+            '@Term': Common.Label
+            '@String': Description
+        - '@Target': ProcessorService.Status_texts/code
+          Annotation:
+            '@Term': Validation.AllowedValues
+            Collection:
+              Record:
+                - '@Type': Validation.AllowedValue
+                  Annotation:
+                    '@Term': Core.SymbolicName
+                    '@String': new
+                  PropertyValue:
+                    '@Property': Value
+                    '@String': N
+                - '@Type': Validation.AllowedValue
+                  Annotation:
+                    '@Term': Core.SymbolicName
+                    '@String': assigned
+                  PropertyValue:
+                    '@Property': Value
+                    '@String': A
+                - '@Type': Validation.AllowedValue
+                  Annotation:
+                    '@Term': Core.SymbolicName
+                    '@String': in_process
+                  PropertyValue:
+                    '@Property': Value
+                    '@String': I
+                - '@Type': Validation.AllowedValue
+                  Annotation:
+                    '@Term': Core.SymbolicName
+                    '@String': on_hold
+                  PropertyValue:
+                    '@Property': Value
+                    '@String': H
+                - '@Type': Validation.AllowedValue
+                  Annotation:
+                    '@Term': Core.SymbolicName
+                    '@String': completed
+                  PropertyValue:
+                    '@Property': Value
+                    '@String': R
+                - '@Type': Validation.AllowedValue
+                  Annotation:
+                    '@Term': Core.SymbolicName
+                    '@String': closed
+                  PropertyValue:
+                    '@Property': Value
+                    '@String': C

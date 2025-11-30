@@ -31,7 +31,9 @@ async fn main() {
         .route("/apiv4/{*path}", patch(odatav4::entity_patch))
         // Serve static files
         .with_state(state.clone())
-        .nest_service("/static", ServeDir::new("webapp"));
+        .nest_service("/static", ServeDir::new("webapp"))
+        .fallback_service(ServeDir::new("fiori"));
+        
     state.set_router(app.clone());
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     axum::serve(listener, app.clone()).await.unwrap();

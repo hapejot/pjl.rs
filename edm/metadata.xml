@@ -1,337 +1,1838 @@
 <?xml version="1.0" encoding="utf-8"?>
-<edmx:Edmx Version="4.0"
-    xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
-    <edmx:DataServices>
-        <Schema Namespace="Microsoft.OData.SampleService.Models.TripPin"
-            xmlns="http://docs.oasis-open.org/odata/ns/edm">
-            <EnumType Name="PersonGender">
-                <Member Name="Male" Value="0" />
-                <Member Name="Female" Value="1" />
-                <Member Name="Unknown" Value="2" />
-            </EnumType>
-            <ComplexType Name="City">
-                <Property Name="CountryRegion" Type="Edm.String" Nullable="false" />
-                <Property Name="Name" Type="Edm.String" Nullable="false" />
-                <Property Name="Region" Type="Edm.String" Nullable="false" />
-            </ComplexType>
-            <ComplexType Name="Location" OpenType="true">
-                <Property Name="Address" Type="Edm.String" Nullable="false" />
-                <Property Name="City" Type="Microsoft.OData.SampleService.Models.TripPin.City" Nullable="false" />
-            </ComplexType>
-            <ComplexType Name="EventLocation" BaseType="Microsoft.OData.SampleService.Models.TripPin.Location" OpenType="true">
-                <Property Name="BuildingInfo" Type="Edm.String" />
-            </ComplexType>
-            <ComplexType Name="AirportLocation" BaseType="Microsoft.OData.SampleService.Models.TripPin.Location" OpenType="true">
-                <Property Name="Loc" Type="Edm.GeographyPoint" Nullable="false" SRID="4326" />
-            </ComplexType>
-            <EntityType Name="Photo" HasStream="true">
-                <Key>
-                    <PropertyRef Name="Id" />
-                </Key>
-                <Property Name="Id" Type="Edm.Int64" Nullable="false">
-                    <Annotation Term="Org.OData.Core.V1.Permissions">
-                        <EnumMember>Org.OData.Core.V1.Permission/Read</EnumMember>
-                    </Annotation>
-                </Property>
-                <Property Name="Name" Type="Edm.String" />
-                <Annotation Term="Org.OData.Core.V1.AcceptableMediaTypes">
-                    <Collection>
-                        <String>image/jpeg</String>
-                    </Collection>
-                </Annotation>
-            </EntityType>
-            <EntityType Name="Person" OpenType="true">
-                <Key>
-                    <PropertyRef Name="UserName" />
-                </Key>
-                <Property Name="UserName" Type="Edm.String" Nullable="false">
-                    <Annotation Term="Org.OData.Core.V1.Permissions">
-                        <EnumMember>Org.OData.Core.V1.Permission/Read</EnumMember>
-                    </Annotation>
-                </Property>
-                <Property Name="FirstName" Type="Edm.String" Nullable="false" />
-                <Property Name="LastName" Type="Edm.String" Nullable="false" />
-                <Property Name="Emails" Type="Collection(Edm.String)" />
-                <Property Name="AddressInfo" Type="Collection(Microsoft.OData.SampleService.Models.TripPin.Location)" />
-                <Property Name="Gender" Type="Microsoft.OData.SampleService.Models.TripPin.PersonGender" />
-                <Property Name="Concurrency" Type="Edm.Int64" Nullable="false">
-                    <Annotation Term="Org.OData.Core.V1.Computed" Bool="true" />
-                </Property>
-                <NavigationProperty Name="Friends" Type="Collection(Microsoft.OData.SampleService.Models.TripPin.Person)" />
-                <NavigationProperty Name="Trips" Type="Collection(Microsoft.OData.SampleService.Models.TripPin.Trip)" ContainsTarget="true" />
-                <NavigationProperty Name="Photo" Type="Microsoft.OData.SampleService.Models.TripPin.Photo" />
-            </EntityType>
-            <EntityType Name="Airline">
-                <Key>
-                    <PropertyRef Name="AirlineCode" />
-                </Key>
-                <Property Name="AirlineCode" Type="Edm.String" Nullable="false">
-                    <Annotation Term="Org.OData.Core.V1.Permissions">
-                        <EnumMember>Org.OData.Core.V1.Permission/Read</EnumMember>
-                    </Annotation>
-                </Property>
-                <Property Name="Name" Type="Edm.String" Nullable="false" />
-            </EntityType>
-            <EntityType Name="Airport">
-                <Key>
-                    <PropertyRef Name="IcaoCode" />
-                </Key>
-                <Property Name="IcaoCode" Type="Edm.String" Nullable="false">
-                    <Annotation Term="Org.OData.Core.V1.Permissions">
-                        <EnumMember>Org.OData.Core.V1.Permission/Read</EnumMember>
-                    </Annotation>
-                </Property>
-                <Property Name="Name" Type="Edm.String" Nullable="false" />
-                <Property Name="IataCode" Type="Edm.String" Nullable="false">
-                    <Annotation Term="Org.OData.Core.V1.Immutable" Bool="true" />
-                </Property>
-                <Property Name="Location" Type="Microsoft.OData.SampleService.Models.TripPin.AirportLocation" Nullable="false" />
-            </EntityType>
-            <EntityType Name="PlanItem">
-                <Key>
-                    <PropertyRef Name="PlanItemId" />
-                </Key>
-                <Property Name="PlanItemId" Type="Edm.Int32" Nullable="false">
-                    <Annotation Term="Org.OData.Core.V1.Permissions">
-                        <EnumMember>Org.OData.Core.V1.Permission/Read</EnumMember>
-                    </Annotation>
-                </Property>
-                <Property Name="ConfirmationCode" Type="Edm.String" />
-                <Property Name="StartsAt" Type="Edm.DateTimeOffset" />
-                <Property Name="EndsAt" Type="Edm.DateTimeOffset" />
-                <Property Name="Duration" Type="Edm.Duration" />
-            </EntityType>
-            <EntityType Name="PublicTransportation" BaseType="Microsoft.OData.SampleService.Models.TripPin.PlanItem">
-                <Property Name="SeatNumber" Type="Edm.String" />
-            </EntityType>
-            <EntityType Name="Flight" BaseType="Microsoft.OData.SampleService.Models.TripPin.PublicTransportation">
-                <Property Name="FlightNumber" Type="Edm.String" Nullable="false" />
-                <NavigationProperty Name="From" Type="Microsoft.OData.SampleService.Models.TripPin.Airport" Nullable="false" />
-                <NavigationProperty Name="To" Type="Microsoft.OData.SampleService.Models.TripPin.Airport" Nullable="false" />
-                <NavigationProperty Name="Airline" Type="Microsoft.OData.SampleService.Models.TripPin.Airline" Nullable="false" />
-            </EntityType>
-            <EntityType Name="Event" BaseType="Microsoft.OData.SampleService.Models.TripPin.PlanItem" OpenType="true">
-                <Property Name="Description" Type="Edm.String" />
-                <Property Name="OccursAt" Type="Microsoft.OData.SampleService.Models.TripPin.EventLocation" Nullable="false" />
-            </EntityType>
-            <EntityType Name="Trip">
-                <Key>
-                    <PropertyRef Name="TripId" />
-                </Key>
-                <Property Name="TripId" Type="Edm.Int32" Nullable="false">
-                    <Annotation Term="Org.OData.Core.V1.Permissions">
-                        <EnumMember>Org.OData.Core.V1.Permission/Read</EnumMember>
-                    </Annotation>
-                </Property>
-                <Property Name="ShareId" Type="Edm.Guid" />
-                <Property Name="Description" Type="Edm.String" />
-                <Property Name="Name" Type="Edm.String" Nullable="false" />
-                <Property Name="Budget" Type="Edm.Single" Nullable="false">
-                    <Annotation Term="Org.OData.Measures.V1.ISOCurrency" String="USD" />
-                    <Annotation Term="Org.OData.Measures.V1.Scale" Int="2" />
-                </Property>
-                <Property Name="StartsAt" Type="Edm.DateTimeOffset" Nullable="false" />
-                <Property Name="EndsAt" Type="Edm.DateTimeOffset" Nullable="false" />
-                <Property Name="Tags" Type="Collection(Edm.String)" Nullable="false" />
-                <NavigationProperty Name="Photos" Type="Collection(Microsoft.OData.SampleService.Models.TripPin.Photo)" />
-                <NavigationProperty Name="PlanItems" Type="Collection(Microsoft.OData.SampleService.Models.TripPin.PlanItem)" ContainsTarget="true" />
-            </EntityType>
-            <Function Name="GetFavoriteAirline" IsBound="true" EntitySetPath="person/Trips/PlanItems/Microsoft.OData.SampleService.Models.TripPin.Flight/Airline" IsComposable="true">
-                <Parameter Name="person" Type="Microsoft.OData.SampleService.Models.TripPin.Person" Nullable="false" />
-                <ReturnType Type="Microsoft.OData.SampleService.Models.TripPin.Airline" Nullable="false" />
-            </Function>
-            <Function Name="GetInvolvedPeople" IsBound="true" IsComposable="true">
-                <Parameter Name="trip" Type="Microsoft.OData.SampleService.Models.TripPin.Trip" Nullable="false" />
-                <ReturnType Type="Collection(Microsoft.OData.SampleService.Models.TripPin.Person)" Nullable="false" />
-            </Function>
-            <Function Name="GetFriendsTrips" IsBound="true" EntitySetPath="person/Friends/Trips" IsComposable="true">
-                <Parameter Name="person" Type="Microsoft.OData.SampleService.Models.TripPin.Person" Nullable="false" />
-                <Parameter Name="userName" Type="Edm.String" Nullable="false" />
-                <ReturnType Type="Collection(Microsoft.OData.SampleService.Models.TripPin.Trip)" Nullable="false" />
-            </Function>
-            <Function Name="GetNearestAirport" IsComposable="true">
-                <Parameter Name="lat" Type="Edm.Double" Nullable="false" />
-                <Parameter Name="lon" Type="Edm.Double" Nullable="false" />
-                <ReturnType Type="Microsoft.OData.SampleService.Models.TripPin.Airport" Nullable="false" />
-            </Function>
-            <Action Name="ResetDataSource" />
-            <Action Name="ShareTrip" IsBound="true">
-                <Parameter Name="person" Type="Microsoft.OData.SampleService.Models.TripPin.Person" Nullable="false" />
-                <Parameter Name="userName" Type="Edm.String" Nullable="false" />
-                <Parameter Name="tripId" Type="Edm.Int32" Nullable="false" />
-            </Action>
-            <EntityContainer Name="DefaultContainer">
-                <EntitySet Name="Photos" EntityType="Microsoft.OData.SampleService.Models.TripPin.Photo">
-                    <Annotation Term="Org.OData.Core.V1.ResourcePath" String="Photos" />
-                    <Annotation Term="Org.OData.Capabilities.V1.SearchRestrictions">
-                        <Record>
-                            <PropertyValue Property="Searchable" Bool="true" />
-                            <PropertyValue Property="UnsupportedExpressions">
-                                <EnumMember>Org.OData.Capabilities.V1.SearchExpressions/none</EnumMember>
-                            </PropertyValue>
-                        </Record>
-                    </Annotation>
-                    <Annotation Term="Org.OData.Capabilities.V1.InsertRestrictions">
-                        <Record>
-                            <PropertyValue Property="Insertable" Bool="true" />
-                            <PropertyValue Property="NonInsertableNavigationProperties">
-                                <Collection />
-                            </PropertyValue>
-                        </Record>
-                    </Annotation>
-                </EntitySet>
-                <EntitySet Name="People" EntityType="Microsoft.OData.SampleService.Models.TripPin.Person">
-                    <NavigationPropertyBinding Path="Friends" Target="People" />
-                    <NavigationPropertyBinding Path="Microsoft.OData.SampleService.Models.TripPin.Flight/Airline" Target="Airlines" />
-                    <NavigationPropertyBinding Path="Microsoft.OData.SampleService.Models.TripPin.Flight/From" Target="Airports" />
-                    <NavigationPropertyBinding Path="Microsoft.OData.SampleService.Models.TripPin.Flight/To" Target="Airports" />
-                    <NavigationPropertyBinding Path="Photo" Target="Photos" />
-                    <NavigationPropertyBinding Path="Microsoft.OData.SampleService.Models.TripPin.Trip/Photos" Target="Photos" />
-                    <Annotation Term="Org.OData.Core.V1.OptimisticConcurrency">
-                        <Collection>
-                            <PropertyPath>Concurrency</PropertyPath>
-                        </Collection>
-                    </Annotation>
-                    <Annotation Term="Org.OData.Core.V1.ResourcePath" String="People" />
-                    <Annotation Term="Org.OData.Capabilities.V1.NavigationRestrictions">
-                        <Record>
-                            <PropertyValue Property="Navigability">
-                                <EnumMember>Org.OData.Capabilities.V1.NavigationType/None</EnumMember>
-                            </PropertyValue>
-                            <PropertyValue Property="RestrictedProperties">
-                                <Collection>
-                                    <Record>
-                                        <PropertyValue Property="NavigationProperty" NavigationPropertyPath="Friends" />
-                                        <PropertyValue Property="Navigability">
-                                            <EnumMember>Org.OData.Capabilities.V1.NavigationType/Recursive</EnumMember>
-                                        </PropertyValue>
-                                    </Record>
-                                </Collection>
-                            </PropertyValue>
-                        </Record>
-                    </Annotation>
-                    <Annotation Term="Org.OData.Capabilities.V1.SearchRestrictions">
-                        <Record>
-                            <PropertyValue Property="Searchable" Bool="true" />
-                            <PropertyValue Property="UnsupportedExpressions">
-                                <EnumMember>Org.OData.Capabilities.V1.SearchExpressions/none</EnumMember>
-                            </PropertyValue>
-                        </Record>
-                    </Annotation>
-                    <Annotation Term="Org.OData.Capabilities.V1.InsertRestrictions">
-                        <Record>
-                            <PropertyValue Property="Insertable" Bool="true" />
-                            <PropertyValue Property="NonInsertableNavigationProperties">
-                                <Collection>
-                                    <NavigationPropertyPath>Trips</NavigationPropertyPath>
-                                    <NavigationPropertyPath>Friends</NavigationPropertyPath>
-                                </Collection>
-                            </PropertyValue>
-                        </Record>
-                    </Annotation>
-                </EntitySet>
-                <EntitySet Name="Airlines" EntityType="Microsoft.OData.SampleService.Models.TripPin.Airline">
-                    <Annotation Term="Org.OData.Core.V1.ResourcePath" String="Airlines" />
-                    <Annotation Term="Org.OData.Capabilities.V1.SearchRestrictions">
-                        <Record>
-                            <PropertyValue Property="Searchable" Bool="true" />
-                            <PropertyValue Property="UnsupportedExpressions">
-                                <EnumMember>Org.OData.Capabilities.V1.SearchExpressions/none</EnumMember>
-                            </PropertyValue>
-                        </Record>
-                    </Annotation>
-                    <Annotation Term="Org.OData.Capabilities.V1.InsertRestrictions">
-                        <Record>
-                            <PropertyValue Property="Insertable" Bool="true" />
-                            <PropertyValue Property="NonInsertableNavigationProperties">
-                                <Collection />
-                            </PropertyValue>
-                        </Record>
-                    </Annotation>
-                </EntitySet>
-                <EntitySet Name="Airports" EntityType="Microsoft.OData.SampleService.Models.TripPin.Airport">
-                    <Annotation Term="Org.OData.Core.V1.ResourcePath" String="Airports" />
-                    <Annotation Term="Org.OData.Capabilities.V1.SearchRestrictions">
-                        <Record>
-                            <PropertyValue Property="Searchable" Bool="true" />
-                            <PropertyValue Property="UnsupportedExpressions">
-                                <EnumMember>Org.OData.Capabilities.V1.SearchExpressions/none</EnumMember>
-                            </PropertyValue>
-                        </Record>
-                    </Annotation>
-                    <Annotation Term="Org.OData.Capabilities.V1.InsertRestrictions">
-                        <Record>
-                            <PropertyValue Property="Insertable" Bool="false" />
-                            <PropertyValue Property="NonInsertableNavigationProperties">
-                                <Collection />
-                            </PropertyValue>
-                        </Record>
-                    </Annotation>
-                    <Annotation Term="Org.OData.Capabilities.V1.DeleteRestrictions">
-                        <Record>
-                            <PropertyValue Property="Deletable" Bool="false" />
-                            <PropertyValue Property="NonDeletableNavigationProperties">
-                                <Collection />
-                            </PropertyValue>
-                        </Record>
-                    </Annotation>
-                </EntitySet>
-                <Singleton Name="Me" Type="Microsoft.OData.SampleService.Models.TripPin.Person">
-                    <NavigationPropertyBinding Path="Friends" Target="People" />
-                    <NavigationPropertyBinding Path="Microsoft.OData.SampleService.Models.TripPin.Flight/Airline" Target="Airlines" />
-                    <NavigationPropertyBinding Path="Microsoft.OData.SampleService.Models.TripPin.Flight/From" Target="Airports" />
-                    <NavigationPropertyBinding Path="Microsoft.OData.SampleService.Models.TripPin.Flight/To" Target="Airports" />
-                    <NavigationPropertyBinding Path="Photo" Target="Photos" />
-                    <NavigationPropertyBinding Path="Microsoft.OData.SampleService.Models.TripPin.Trip/Photos" Target="Photos" />
-                    <Annotation Term="Org.OData.Core.V1.ResourcePath" String="Me" />
-                </Singleton>
-                <FunctionImport Name="GetNearestAirport" Function="Microsoft.OData.SampleService.Models.TripPin.GetNearestAirport" EntitySet="Airports" IncludeInServiceDocument="true">
-                    <Annotation Term="Org.OData.Core.V1.ResourcePath" String="Microsoft.OData.SampleService.Models.TripPin.GetNearestAirport" />
-                </FunctionImport>
-                <ActionImport Name="ResetDataSource" Action="Microsoft.OData.SampleService.Models.TripPin.ResetDataSource" />
-                <Annotation Term="Org.OData.Core.V1.Description" String="TripPin service is a sample service for OData V4." />
-            </EntityContainer>
-            <Annotations Target="Microsoft.OData.SampleService.Models.TripPin.DefaultContainer">
-                <Annotation Term="Org.OData.Core.V1.DereferenceableIDs" Bool="true" />
-                <Annotation Term="Org.OData.Core.V1.ConventionalIDs" Bool="true" />
-                <Annotation Term="Org.OData.Capabilities.V1.ConformanceLevel">
-                    <EnumMember>Org.OData.Capabilities.V1.ConformanceLevelType/Advanced</EnumMember>
-                </Annotation>
-                <Annotation Term="Org.OData.Capabilities.V1.SupportedFormats">
-                    <Collection>
-                        <String>application/json;odata.metadata=full;IEEE754Compatible=false;odata.streaming=true</String>
-                        <String>application/json;odata.metadata=minimal;IEEE754Compatible=false;odata.streaming=true</String>
-                        <String>application/json;odata.metadata=none;IEEE754Compatible=false;odata.streaming=true</String>
-                    </Collection>
-                </Annotation>
-                <Annotation Term="Org.OData.Capabilities.V1.AsynchronousRequestsSupported" Bool="true" />
-                <Annotation Term="Org.OData.Capabilities.V1.BatchContinueOnErrorSupported" Bool="false" />
-                <Annotation Term="Org.OData.Capabilities.V1.FilterFunctions">
-                    <Collection>
-                        <String>contains</String>
-                        <String>endswith</String>
-                        <String>startswith</String>
-                        <String>length</String>
-                        <String>indexof</String>
-                        <String>substring</String>
-                        <String>tolower</String>
-                        <String>toupper</String>
-                        <String>trim</String>
-                        <String>concat</String>
-                        <String>year</String>
-                        <String>month</String>
-                        <String>day</String>
-                        <String>hour</String>
-                        <String>minute</String>
-                        <String>second</String>
-                        <String>round</String>
-                        <String>floor</String>
-                        <String>ceiling</String>
-                        <String>cast</String>
-                        <String>isof</String>
-                    </Collection>
-                </Annotation>
-            </Annotations>
-        </Schema>
-    </edmx:DataServices>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:Reference Uri="https://sap.github.io/odata-vocabularies/vocabularies/Common.xml">
+    <edmx:Include Alias="Common" Namespace="com.sap.vocabularies.Common.v1"/>
+  </edmx:Reference>
+  <edmx:Reference Uri="https://sap.github.io/odata-vocabularies/vocabularies/Communication.xml">
+    <edmx:Include Alias="Communication" Namespace="com.sap.vocabularies.Communication.v1"/>
+  </edmx:Reference>
+  <edmx:Reference Uri="https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Core.V1.xml">
+    <edmx:Include Alias="Core" Namespace="Org.OData.Core.V1"/>
+  </edmx:Reference>
+  <edmx:Reference Uri="https://sap.github.io/odata-vocabularies/vocabularies/UI.xml">
+    <edmx:Include Alias="UI" Namespace="com.sap.vocabularies.UI.v1"/>
+  </edmx:Reference>
+  <edmx:Reference Uri="https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Validation.V1.xml">
+    <edmx:Include Alias="Validation" Namespace="Org.OData.Validation.V1"/>
+  </edmx:Reference>
+  <edmx:DataServices>
+    <Schema Namespace="ProcessorService" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <Annotation Term="Core.Links">
+        <Collection>
+          <Record>
+            <PropertyValue Property="rel" String="author"/>
+            <PropertyValue Property="href" String="https://cap.cloud.sap"/>
+          </Record>
+        </Collection>
+      </Annotation>
+      <EntityContainer Name="EntityContainer">
+        <EntitySet Name="Components" EntityType="ProcessorService.Components">
+          <NavigationPropertyBinding Path="Project" Target="ShippingProjects"/>
+          <NavigationPropertyBinding Path="ActivityID" Target="Activities"/>
+          <NavigationPropertyBinding Path="SiblingEntity" Target="Components"/>
+        </EntitySet>
+        <EntitySet Name="Packing" EntityType="ProcessorService.Packing">
+          <NavigationPropertyBinding Path="TransportID" Target="Transports"/>
+          <NavigationPropertyBinding Path="PackingType" Target="PackingTypes"/>
+          <NavigationPropertyBinding Path="Components" Target="PackingComponents"/>
+          <NavigationPropertyBinding Path="Project" Target="ShippingProjects"/>
+          <NavigationPropertyBinding Path="SiblingEntity" Target="Packing"/>
+        </EntitySet>
+        <EntitySet Name="PackingComponents" EntityType="ProcessorService.PackingComponents">
+          <NavigationPropertyBinding Path="Packing" Target="Packing"/>
+          <NavigationPropertyBinding Path="Component" Target="Components"/>
+          <NavigationPropertyBinding Path="SiblingEntity" Target="PackingComponents"/>
+        </EntitySet>
+        <EntitySet Name="Transports" EntityType="ProcessorService.Transports">
+          <NavigationPropertyBinding Path="TransportType" Target="TransportTypes"/>
+          <NavigationPropertyBinding Path="Packings" Target="Packing"/>
+          <NavigationPropertyBinding Path="Project" Target="ShippingProjects"/>
+          <NavigationPropertyBinding Path="SiblingEntity" Target="Transports"/>
+        </EntitySet>
+        <EntitySet Name="PackingTypes" EntityType="ProcessorService.PackingTypes">
+          <NavigationPropertyBinding Path="Packings" Target="Packing"/>
+          <NavigationPropertyBinding Path="SiblingEntity" Target="PackingTypes"/>
+        </EntitySet>
+        <EntitySet Name="TransportTypes" EntityType="ProcessorService.TransportTypes">
+          <NavigationPropertyBinding Path="Transports" Target="Transports"/>
+          <NavigationPropertyBinding Path="SiblingEntity" Target="TransportTypes"/>
+        </EntitySet>
+        <EntitySet Name="ShippingProjects" EntityType="ProcessorService.ShippingProjects">
+          <NavigationPropertyBinding Path="Status" Target="Status"/>
+          <NavigationPropertyBinding Path="Components" Target="Components"/>
+          <NavigationPropertyBinding Path="Packings" Target="Packing"/>
+          <NavigationPropertyBinding Path="Transports" Target="Transports"/>
+          <NavigationPropertyBinding Path="SiblingEntity" Target="ShippingProjects"/>
+        </EntitySet>
+        <EntitySet Name="ComponentUsage" EntityType="ProcessorService.ComponentUsage">
+          <NavigationPropertyBinding Path="Component" Target="Components"/>
+        </EntitySet>
+        <EntitySet Name="ComponentsUnpacked" EntityType="ProcessorService.ComponentsUnpacked">
+          <NavigationPropertyBinding Path="Component" Target="Components"/>
+        </EntitySet>
+        <EntitySet Name="Activities" EntityType="ProcessorService.Activities">
+          <NavigationPropertyBinding Path="WBSID" Target="WBSElements"/>
+          <NavigationPropertyBinding Path="Project" Target="ShippingProjects"/>
+          <NavigationPropertyBinding Path="Components" Target="Components"/>
+        </EntitySet>
+        <EntitySet Name="WBSElements" EntityType="ProcessorService.WBSElements">
+          <NavigationPropertyBinding Path="Project" Target="ShippingProjects"/>
+          <NavigationPropertyBinding Path="Activities" Target="Activities"/>
+        </EntitySet>
+        <EntitySet Name="Status" EntityType="ProcessorService.Status">
+          <NavigationPropertyBinding Path="texts" Target="Status_texts"/>
+          <NavigationPropertyBinding Path="localized" Target="Status_texts"/>
+        </EntitySet>
+        <EntitySet Name="Status_texts" EntityType="ProcessorService.Status_texts"/>
+      </EntityContainer>
+      <EntityType Name="Components">
+        <Key>
+          <PropertyRef Name="ID"/>
+          <PropertyRef Name="IsActiveEntity"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Guid" Nullable="false"/>
+        <Property Name="createdAt" Type="Edm.DateTimeOffset" Precision="7"/>
+        <Property Name="createdBy" Type="Edm.String" MaxLength="255"/>
+        <Property Name="modifiedAt" Type="Edm.DateTimeOffset" Precision="7"/>
+        <Property Name="modifiedBy" Type="Edm.String" MaxLength="255"/>
+        <Property Name="Name" Type="Edm.String"/>
+        <Property Name="Description" Type="Edm.String"/>
+        <Property Name="Title" Type="Edm.String"/>
+        <NavigationProperty Name="Project" Type="ProcessorService.ShippingProjects" Partner="Components">
+          <ReferentialConstraint Property="Project_ID" ReferencedProperty="ID"/>
+        </NavigationProperty>
+        <Property Name="Project_ID" Type="Edm.Guid"/>
+        <Property Name="ComponentDBID" Type="Edm.String"/>
+        <Property Name="Activity" Type="Edm.String"/>
+        <NavigationProperty Name="ActivityID" Type="ProcessorService.Activities" Partner="Components">
+          <ReferentialConstraint Property="ActivityID_ID" ReferencedProperty="ID"/>
+        </NavigationProperty>
+        <Property Name="ActivityID_ID" Type="Edm.Guid"/>
+        <Property Name="Item" Type="Edm.String"/>
+        <Property Name="Material" Type="Edm.String"/>
+        <Property Name="MaterialDescription" Type="Edm.String"/>
+        <Property Name="Plant" Type="Edm.String"/>
+        <Property Name="StatusLine" Type="Edm.String"/>
+        <Property Name="Quantity" Type="Edm.Decimal" Precision="10" Scale="3"/>
+        <Property Name="QuantityUnit" Type="Edm.String"/>
+        <Property Name="ItemCategroy" Type="Edm.String"/>
+        <Property Name="ItemText" Type="Edm.String"/>
+        <Property Name="RequestedDate" Type="Edm.Date"/>
+        <Property Name="IsActiveEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="true"/>
+        <Property Name="HasActiveEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="false"/>
+        <Property Name="HasDraftEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="false"/>
+        <NavigationProperty Name="DraftAdministrativeData" Type="ProcessorService.DraftAdministrativeData" ContainsTarget="true"/>
+        <NavigationProperty Name="SiblingEntity" Type="ProcessorService.Components"/>
+      </EntityType>
+      <EntityType Name="Packing">
+        <Key>
+          <PropertyRef Name="ID"/>
+          <PropertyRef Name="IsActiveEntity"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Guid" Nullable="false"/>
+        <Property Name="createdAt" Type="Edm.DateTimeOffset" Precision="7"/>
+        <Property Name="createdBy" Type="Edm.String" MaxLength="255"/>
+        <Property Name="modifiedAt" Type="Edm.DateTimeOffset" Precision="7"/>
+        <Property Name="modifiedBy" Type="Edm.String" MaxLength="255"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="100"/>
+        <Property Name="Description" Type="Edm.String" MaxLength="500"/>
+        <Property Name="Title" Type="Edm.String"/>
+        <NavigationProperty Name="TransportID" Type="ProcessorService.Transports" Partner="Packings">
+          <ReferentialConstraint Property="TransportID_ID" ReferencedProperty="ID"/>
+        </NavigationProperty>
+        <Property Name="TransportID_ID" Type="Edm.Guid"/>
+        <NavigationProperty Name="PackingType" Type="ProcessorService.PackingTypes" Partner="Packings">
+          <ReferentialConstraint Property="PackingType_ID" ReferencedProperty="ID"/>
+        </NavigationProperty>
+        <Property Name="PackingType_ID" Type="Edm.Guid"/>
+        <NavigationProperty Name="Components" Type="Collection(ProcessorService.PackingComponents)" Partner="Packing">
+          <OnDelete Action="Cascade"/>
+        </NavigationProperty>
+        <NavigationProperty Name="Project" Type="ProcessorService.ShippingProjects" Partner="Packings">
+          <ReferentialConstraint Property="Project_ID" ReferencedProperty="ID"/>
+        </NavigationProperty>
+        <Property Name="Project_ID" Type="Edm.Guid"/>
+        <Property Name="IsActiveEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="true"/>
+        <Property Name="HasActiveEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="false"/>
+        <Property Name="HasDraftEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="false"/>
+        <NavigationProperty Name="DraftAdministrativeData" Type="ProcessorService.DraftAdministrativeData" ContainsTarget="true"/>
+        <NavigationProperty Name="SiblingEntity" Type="ProcessorService.Packing"/>
+      </EntityType>
+      <EntityType Name="PackingComponents">
+        <Key>
+          <PropertyRef Name="ID"/>
+          <PropertyRef Name="IsActiveEntity"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Guid" Nullable="false"/>
+        <Property Name="createdAt" Type="Edm.DateTimeOffset" Precision="7"/>
+        <Property Name="createdBy" Type="Edm.String" MaxLength="255"/>
+        <Property Name="modifiedAt" Type="Edm.DateTimeOffset" Precision="7"/>
+        <Property Name="modifiedBy" Type="Edm.String" MaxLength="255"/>
+        <NavigationProperty Name="Packing" Type="ProcessorService.Packing" Partner="Components">
+          <ReferentialConstraint Property="Packing_ID" ReferencedProperty="ID"/>
+        </NavigationProperty>
+        <Property Name="Packing_ID" Type="Edm.Guid"/>
+        <NavigationProperty Name="Component" Type="ProcessorService.Components">
+          <ReferentialConstraint Property="Component_ID" ReferencedProperty="ID"/>
+        </NavigationProperty>
+        <Property Name="Component_ID" Type="Edm.Guid"/>
+        <Property Name="Quantity" Type="Edm.Int32"/>
+        <Property Name="IsActiveEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="true"/>
+        <Property Name="HasActiveEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="false"/>
+        <Property Name="HasDraftEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="false"/>
+        <NavigationProperty Name="DraftAdministrativeData" Type="ProcessorService.DraftAdministrativeData" ContainsTarget="true"/>
+        <NavigationProperty Name="SiblingEntity" Type="ProcessorService.PackingComponents"/>
+      </EntityType>
+      <EntityType Name="Transports">
+        <Key>
+          <PropertyRef Name="ID"/>
+          <PropertyRef Name="IsActiveEntity"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Guid" Nullable="false"/>
+        <Property Name="createdAt" Type="Edm.DateTimeOffset" Precision="7"/>
+        <Property Name="createdBy" Type="Edm.String" MaxLength="255"/>
+        <Property Name="modifiedAt" Type="Edm.DateTimeOffset" Precision="7"/>
+        <Property Name="modifiedBy" Type="Edm.String" MaxLength="255"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="100"/>
+        <Property Name="Description" Type="Edm.String" MaxLength="500"/>
+        <Property Name="Title" Type="Edm.String"/>
+        <NavigationProperty Name="TransportType" Type="ProcessorService.TransportTypes" Partner="Transports">
+          <ReferentialConstraint Property="TransportType_ID" ReferencedProperty="ID"/>
+        </NavigationProperty>
+        <Property Name="TransportType_ID" Type="Edm.Guid"/>
+        <NavigationProperty Name="Packings" Type="Collection(ProcessorService.Packing)" Partner="TransportID"/>
+        <NavigationProperty Name="Project" Type="ProcessorService.ShippingProjects" Partner="Transports">
+          <ReferentialConstraint Property="Project_ID" ReferencedProperty="ID"/>
+        </NavigationProperty>
+        <Property Name="Project_ID" Type="Edm.Guid"/>
+        <Property Name="IsActiveEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="true"/>
+        <Property Name="HasActiveEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="false"/>
+        <Property Name="HasDraftEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="false"/>
+        <NavigationProperty Name="DraftAdministrativeData" Type="ProcessorService.DraftAdministrativeData" ContainsTarget="true"/>
+        <NavigationProperty Name="SiblingEntity" Type="ProcessorService.Transports"/>
+      </EntityType>
+      <EntityType Name="PackingTypes">
+        <Key>
+          <PropertyRef Name="ID"/>
+          <PropertyRef Name="IsActiveEntity"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Guid" Nullable="false"/>
+        <Property Name="createdAt" Type="Edm.DateTimeOffset" Precision="7"/>
+        <Property Name="createdBy" Type="Edm.String" MaxLength="255"/>
+        <Property Name="modifiedAt" Type="Edm.DateTimeOffset" Precision="7"/>
+        <Property Name="modifiedBy" Type="Edm.String" MaxLength="255"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="100"/>
+        <Property Name="Description" Type="Edm.String" MaxLength="500"/>
+        <NavigationProperty Name="Packings" Type="Collection(ProcessorService.Packing)" Partner="PackingType"/>
+        <Property Name="IsActiveEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="true"/>
+        <Property Name="HasActiveEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="false"/>
+        <Property Name="HasDraftEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="false"/>
+        <NavigationProperty Name="DraftAdministrativeData" Type="ProcessorService.DraftAdministrativeData" ContainsTarget="true"/>
+        <NavigationProperty Name="SiblingEntity" Type="ProcessorService.PackingTypes"/>
+      </EntityType>
+      <EntityType Name="TransportTypes">
+        <Key>
+          <PropertyRef Name="ID"/>
+          <PropertyRef Name="IsActiveEntity"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Guid" Nullable="false"/>
+        <Property Name="createdAt" Type="Edm.DateTimeOffset" Precision="7"/>
+        <Property Name="createdBy" Type="Edm.String" MaxLength="255"/>
+        <Property Name="modifiedAt" Type="Edm.DateTimeOffset" Precision="7"/>
+        <Property Name="modifiedBy" Type="Edm.String" MaxLength="255"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="100"/>
+        <Property Name="Description" Type="Edm.String" MaxLength="500"/>
+        <NavigationProperty Name="Transports" Type="Collection(ProcessorService.Transports)" Partner="TransportType"/>
+        <Property Name="IsActiveEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="true"/>
+        <Property Name="HasActiveEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="false"/>
+        <Property Name="HasDraftEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="false"/>
+        <NavigationProperty Name="DraftAdministrativeData" Type="ProcessorService.DraftAdministrativeData" ContainsTarget="true"/>
+        <NavigationProperty Name="SiblingEntity" Type="ProcessorService.TransportTypes"/>
+      </EntityType>
+      <EntityType Name="ShippingProjects">
+        <Key>
+          <PropertyRef Name="ID"/>
+          <PropertyRef Name="IsActiveEntity"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Guid" Nullable="false"/>
+        <Property Name="createdAt" Type="Edm.DateTimeOffset" Precision="7"/>
+        <Property Name="createdBy" Type="Edm.String" MaxLength="255"/>
+        <Property Name="modifiedAt" Type="Edm.DateTimeOffset" Precision="7"/>
+        <Property Name="modifiedBy" Type="Edm.String" MaxLength="255"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="100"/>
+        <Property Name="Description" Type="Edm.String" MaxLength="500"/>
+        <Property Name="Title" Type="Edm.String"/>
+        <NavigationProperty Name="Status" Type="ProcessorService.Status">
+          <ReferentialConstraint Property="Status_code" ReferencedProperty="code"/>
+        </NavigationProperty>
+        <Property Name="Status_code" Type="Edm.String" DefaultValue="N"/>
+        <NavigationProperty Name="Components" Type="Collection(ProcessorService.Components)" Partner="Project"/>
+        <NavigationProperty Name="Packings" Type="Collection(ProcessorService.Packing)" Partner="Project"/>
+        <NavigationProperty Name="Transports" Type="Collection(ProcessorService.Transports)" Partner="Project"/>
+        <Property Name="IsActiveEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="true"/>
+        <Property Name="HasActiveEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="false"/>
+        <Property Name="HasDraftEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="false"/>
+        <NavigationProperty Name="DraftAdministrativeData" Type="ProcessorService.DraftAdministrativeData" ContainsTarget="true"/>
+        <NavigationProperty Name="SiblingEntity" Type="ProcessorService.ShippingProjects"/>
+      </EntityType>
+      <EntityType Name="ComponentUsage">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Guid" Nullable="false"/>
+        <NavigationProperty Name="Component" Type="ProcessorService.Components">
+          <ReferentialConstraint Property="ID" ReferencedProperty="ID"/>
+        </NavigationProperty>
+        <Property Name="Quantity" Type="Edm.Decimal" Precision="10" Scale="3"/>
+        <Property Name="UsedQuantity" Type="Edm.Decimal" Precision="10" Scale="3"/>
+      </EntityType>
+      <EntityType Name="ComponentsUnpacked">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Guid" Nullable="false"/>
+        <NavigationProperty Name="Component" Type="ProcessorService.Components">
+          <ReferentialConstraint Property="ID" ReferencedProperty="ID"/>
+        </NavigationProperty>
+        <Property Name="Quantity" Type="Edm.Decimal" Precision="10" Scale="3"/>
+        <Property Name="UsedQuantity" Type="Edm.Decimal" Precision="10" Scale="3"/>
+      </EntityType>
+      <EntityType Name="Activities">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Guid" Nullable="false"/>
+        <Property Name="createdAt" Type="Edm.DateTimeOffset" Precision="7"/>
+        <Property Name="createdBy" Type="Edm.String" MaxLength="255"/>
+        <Property Name="modifiedAt" Type="Edm.DateTimeOffset" Precision="7"/>
+        <Property Name="modifiedBy" Type="Edm.String" MaxLength="255"/>
+        <Property Name="Name" Type="Edm.String"/>
+        <Property Name="Description" Type="Edm.String" MaxLength="500"/>
+        <Property Name="Title" Type="Edm.String"/>
+        <Property Name="Activity" Type="Edm.String"/>
+        <Property Name="Duration" Type="Edm.Decimal" Precision="10" Scale="2"/>
+        <Property Name="DurationUnit" Type="Edm.String"/>
+        <Property Name="DurationScheduled" Type="Edm.Decimal" Precision="10" Scale="2"/>
+        <Property Name="EarlyFinish" Type="Edm.DateTimeOffset"/>
+        <Property Name="EarlyStart" Type="Edm.DateTimeOffset"/>
+        <Property Name="LateFinish" Type="Edm.DateTimeOffset"/>
+        <Property Name="LateStart" Type="Edm.DateTimeOffset"/>
+        <Property Name="ObjectClass" Type="Edm.String"/>
+        <Property Name="Plant" Type="Edm.String"/>
+        <NavigationProperty Name="WBSID" Type="ProcessorService.WBSElements" Partner="Activities">
+          <ReferentialConstraint Property="WBSID_ID" ReferencedProperty="ID"/>
+        </NavigationProperty>
+        <Property Name="WBSID_ID" Type="Edm.Guid"/>
+        <Property Name="WBS" Type="Edm.String"/>
+        <NavigationProperty Name="Project" Type="ProcessorService.ShippingProjects">
+          <ReferentialConstraint Property="Project_ID" ReferencedProperty="ID"/>
+        </NavigationProperty>
+        <Property Name="Project_ID" Type="Edm.Guid"/>
+        <NavigationProperty Name="Components" Type="Collection(ProcessorService.Components)" Partner="ActivityID"/>
+      </EntityType>
+      <EntityType Name="WBSElements">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Guid" Nullable="false"/>
+        <Property Name="createdAt" Type="Edm.DateTimeOffset" Precision="7"/>
+        <Property Name="createdBy" Type="Edm.String" MaxLength="255"/>
+        <Property Name="modifiedAt" Type="Edm.DateTimeOffset" Precision="7"/>
+        <Property Name="modifiedBy" Type="Edm.String" MaxLength="255"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="100"/>
+        <Property Name="Description" Type="Edm.String" MaxLength="500"/>
+        <Property Name="Title" Type="Edm.String"/>
+        <NavigationProperty Name="Project" Type="ProcessorService.ShippingProjects">
+          <ReferentialConstraint Property="Project_ID" ReferencedProperty="ID"/>
+        </NavigationProperty>
+        <Property Name="Project_ID" Type="Edm.Guid"/>
+        <NavigationProperty Name="Activities" Type="Collection(ProcessorService.Activities)" Partner="WBSID"/>
+      </EntityType>
+      <EntityType Name="Status">
+        <Key>
+          <PropertyRef Name="code"/>
+        </Key>
+        <Property Name="name" Type="Edm.String" MaxLength="255"/>
+        <Property Name="descr" Type="Edm.String" MaxLength="1000"/>
+        <Property Name="code" Type="Edm.String" Nullable="false"/>
+        <Property Name="criticality" Type="Edm.Int32"/>
+        <NavigationProperty Name="texts" Type="Collection(ProcessorService.Status_texts)">
+          <OnDelete Action="Cascade"/>
+        </NavigationProperty>
+        <NavigationProperty Name="localized" Type="ProcessorService.Status_texts">
+          <ReferentialConstraint Property="code" ReferencedProperty="code"/>
+        </NavigationProperty>
+      </EntityType>
+      <EntityType Name="DraftAdministrativeData">
+        <Key>
+          <PropertyRef Name="DraftUUID"/>
+        </Key>
+        <Property Name="DraftUUID" Type="Edm.Guid" Nullable="false"/>
+        <Property Name="CreationDateTime" Type="Edm.DateTimeOffset" Precision="7"/>
+        <Property Name="CreatedByUser" Type="Edm.String" MaxLength="256"/>
+        <Property Name="DraftIsCreatedByMe" Type="Edm.Boolean"/>
+        <Property Name="LastChangeDateTime" Type="Edm.DateTimeOffset" Precision="7"/>
+        <Property Name="LastChangedByUser" Type="Edm.String" MaxLength="256"/>
+        <Property Name="InProcessByUser" Type="Edm.String" MaxLength="256"/>
+        <Property Name="DraftIsProcessedByMe" Type="Edm.Boolean"/>
+      </EntityType>
+      <EntityType Name="Status_texts">
+        <Key>
+          <PropertyRef Name="locale"/>
+          <PropertyRef Name="code"/>
+        </Key>
+        <Property Name="locale" Type="Edm.String" MaxLength="14" Nullable="false"/>
+        <Property Name="name" Type="Edm.String" MaxLength="255"/>
+        <Property Name="descr" Type="Edm.String" MaxLength="1000"/>
+        <Property Name="code" Type="Edm.String" Nullable="false"/>
+      </EntityType>
+      <Action Name="draftPrepare" IsBound="true" EntitySetPath="in">
+        <Parameter Name="in" Type="ProcessorService.Components"/>
+        <Parameter Name="SideEffectsQualifier" Type="Edm.String"/>
+        <ReturnType Type="ProcessorService.Components"/>
+      </Action>
+      <Action Name="draftPrepare" IsBound="true" EntitySetPath="in">
+        <Parameter Name="in" Type="ProcessorService.Packing"/>
+        <Parameter Name="SideEffectsQualifier" Type="Edm.String"/>
+        <ReturnType Type="ProcessorService.Packing"/>
+      </Action>
+      <Action Name="draftPrepare" IsBound="true" EntitySetPath="in">
+        <Parameter Name="in" Type="ProcessorService.PackingComponents"/>
+        <Parameter Name="SideEffectsQualifier" Type="Edm.String"/>
+        <ReturnType Type="ProcessorService.PackingComponents"/>
+      </Action>
+      <Action Name="draftPrepare" IsBound="true" EntitySetPath="in">
+        <Parameter Name="in" Type="ProcessorService.Transports"/>
+        <Parameter Name="SideEffectsQualifier" Type="Edm.String"/>
+        <ReturnType Type="ProcessorService.Transports"/>
+      </Action>
+      <Action Name="draftPrepare" IsBound="true" EntitySetPath="in">
+        <Parameter Name="in" Type="ProcessorService.PackingTypes"/>
+        <Parameter Name="SideEffectsQualifier" Type="Edm.String"/>
+        <ReturnType Type="ProcessorService.PackingTypes"/>
+      </Action>
+      <Action Name="draftPrepare" IsBound="true" EntitySetPath="in">
+        <Parameter Name="in" Type="ProcessorService.TransportTypes"/>
+        <Parameter Name="SideEffectsQualifier" Type="Edm.String"/>
+        <ReturnType Type="ProcessorService.TransportTypes"/>
+      </Action>
+      <Action Name="draftPrepare" IsBound="true" EntitySetPath="in">
+        <Parameter Name="in" Type="ProcessorService.ShippingProjects"/>
+        <Parameter Name="SideEffectsQualifier" Type="Edm.String"/>
+        <ReturnType Type="ProcessorService.ShippingProjects"/>
+      </Action>
+      <Action Name="draftActivate" IsBound="true" EntitySetPath="in">
+        <Parameter Name="in" Type="ProcessorService.Components"/>
+        <ReturnType Type="ProcessorService.Components"/>
+      </Action>
+      <Action Name="draftActivate" IsBound="true" EntitySetPath="in">
+        <Parameter Name="in" Type="ProcessorService.Packing"/>
+        <ReturnType Type="ProcessorService.Packing"/>
+      </Action>
+      <Action Name="draftActivate" IsBound="true" EntitySetPath="in">
+        <Parameter Name="in" Type="ProcessorService.Transports"/>
+        <ReturnType Type="ProcessorService.Transports"/>
+      </Action>
+      <Action Name="draftActivate" IsBound="true" EntitySetPath="in">
+        <Parameter Name="in" Type="ProcessorService.PackingTypes"/>
+        <ReturnType Type="ProcessorService.PackingTypes"/>
+      </Action>
+      <Action Name="draftActivate" IsBound="true" EntitySetPath="in">
+        <Parameter Name="in" Type="ProcessorService.TransportTypes"/>
+        <ReturnType Type="ProcessorService.TransportTypes"/>
+      </Action>
+      <Action Name="draftActivate" IsBound="true" EntitySetPath="in">
+        <Parameter Name="in" Type="ProcessorService.ShippingProjects"/>
+        <ReturnType Type="ProcessorService.ShippingProjects"/>
+      </Action>
+      <Action Name="draftEdit" IsBound="true" EntitySetPath="in">
+        <Parameter Name="in" Type="ProcessorService.Components"/>
+        <Parameter Name="PreserveChanges" Type="Edm.Boolean"/>
+        <ReturnType Type="ProcessorService.Components"/>
+      </Action>
+      <Action Name="draftEdit" IsBound="true" EntitySetPath="in">
+        <Parameter Name="in" Type="ProcessorService.Packing"/>
+        <Parameter Name="PreserveChanges" Type="Edm.Boolean"/>
+        <ReturnType Type="ProcessorService.Packing"/>
+      </Action>
+      <Action Name="draftEdit" IsBound="true" EntitySetPath="in">
+        <Parameter Name="in" Type="ProcessorService.Transports"/>
+        <Parameter Name="PreserveChanges" Type="Edm.Boolean"/>
+        <ReturnType Type="ProcessorService.Transports"/>
+      </Action>
+      <Action Name="draftEdit" IsBound="true" EntitySetPath="in">
+        <Parameter Name="in" Type="ProcessorService.PackingTypes"/>
+        <Parameter Name="PreserveChanges" Type="Edm.Boolean"/>
+        <ReturnType Type="ProcessorService.PackingTypes"/>
+      </Action>
+      <Action Name="draftEdit" IsBound="true" EntitySetPath="in">
+        <Parameter Name="in" Type="ProcessorService.TransportTypes"/>
+        <Parameter Name="PreserveChanges" Type="Edm.Boolean"/>
+        <ReturnType Type="ProcessorService.TransportTypes"/>
+      </Action>
+      <Action Name="draftEdit" IsBound="true" EntitySetPath="in">
+        <Parameter Name="in" Type="ProcessorService.ShippingProjects"/>
+        <Parameter Name="PreserveChanges" Type="Edm.Boolean"/>
+        <ReturnType Type="ProcessorService.ShippingProjects"/>
+      </Action>
+      <Annotations Target="ProcessorService.Components">
+        <Annotation Term="UI.LineItem" Qualifier="i18nComponents">
+          <Collection>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="Project/Components/Name"/>
+              <PropertyValue Property="Label" String="Name"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="Project/Components/Description"/>
+              <PropertyValue Property="Label" String="Description"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="Activity"/>
+              <PropertyValue Property="Label" String="Activity"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="Item"/>
+              <PropertyValue Property="Label" String="Item"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="ItemCategroy"/>
+              <PropertyValue Property="Label" String="ItemCategroy"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="Plant"/>
+              <PropertyValue Property="Label" String="Plant"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="Quantity"/>
+              <PropertyValue Property="Label" String="Quantity"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="QuantityUnit"/>
+              <PropertyValue Property="Label" String="QuantityUnit"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="RequestedDate"/>
+              <PropertyValue Property="Label" String="RequestedDate"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="StatusLine"/>
+              <PropertyValue Property="Label" String="StatusLine"/>
+            </Record>
+          </Collection>
+        </Annotation>
+        <Annotation Term="UI.LineItem">
+          <Collection>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="Name"/>
+              <PropertyValue Property="Label" String="Name"/>
+              <Annotation Term="UI.Importance" EnumMember="UI.ImportanceType/High"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="Description"/>
+              <PropertyValue Property="Label" String="Description"/>
+              <Annotation Term="UI.Importance" EnumMember="UI.ImportanceType/Low"/>
+            </Record>
+          </Collection>
+        </Annotation>
+        <Annotation Term="UI.Facets">
+          <Collection>
+            <Record Type="UI.ReferenceFacet">
+              <PropertyValue Property="Label" String="FS1"/>
+              <PropertyValue Property="ID" String="FS1"/>
+              <PropertyValue Property="Target" AnnotationPath="@UI.FieldGroup#FS1"/>
+            </Record>
+          </Collection>
+        </Annotation>
+        <Annotation Term="UI.FieldGroup" Qualifier="FS1">
+          <Record Type="UI.FieldGroupType">
+            <PropertyValue Property="Data">
+              <Collection>
+                <Record Type="UI.DataField">
+                  <PropertyValue Property="Value" Path="Name"/>
+                  <PropertyValue Property="Label" String="Name"/>
+                </Record>
+                <Record Type="UI.DataField">
+                  <PropertyValue Property="Value" Path="Description"/>
+                  <PropertyValue Property="Label" String="Description"/>
+                </Record>
+                <Record Type="UI.DataField">
+                  <PropertyValue Property="Value" Path="Project_ID"/>
+                  <PropertyValue Property="Label" String="Project_ID"/>
+                  <PropertyValue Property="Criticality" Path="Project/Status/criticality"/>
+                </Record>
+                <Record Type="UI.DataField">
+                  <PropertyValue Property="Value" Path="ItemCategroy"/>
+                  <PropertyValue Property="Label" String="ItemCategroy"/>
+                </Record>
+                <Record Type="UI.DataField">
+                  <PropertyValue Property="Value" Path="Plant"/>
+                  <PropertyValue Property="Label" String="Plant"/>
+                </Record>
+                <Record Type="UI.DataField">
+                  <PropertyValue Property="Value" Path="Quantity"/>
+                  <PropertyValue Property="Label" String="Quantity"/>
+                </Record>
+                <Record Type="UI.DataField">
+                  <PropertyValue Property="Value" Path="QuantityUnit"/>
+                  <PropertyValue Property="Label" String="QuantityUnit"/>
+                </Record>
+                <Record Type="UI.DataField">
+                  <PropertyValue Property="Value" Path="RequestedDate"/>
+                  <PropertyValue Property="Label" String="RequestedDate"/>
+                </Record>
+                <Record Type="UI.DataField">
+                  <PropertyValue Property="Value" Path="StatusLine"/>
+                  <PropertyValue Property="Label" String="StatusLine"/>
+                </Record>
+              </Collection>
+            </PropertyValue>
+          </Record>
+        </Annotation>
+        <Annotation Term="UI.FieldGroup" Qualifier="FSS1">
+          <Record Type="UI.FieldGroupType">
+            <PropertyValue Property="Data">
+              <Collection>
+                <Record Type="UI.DataField">
+                  <PropertyValue Property="Value" Path="createdAt"/>
+                </Record>
+                <Record Type="UI.DataField">
+                  <PropertyValue Property="Value" Path="createdBy"/>
+                </Record>
+                <Record Type="UI.DataField">
+                  <PropertyValue Property="Value" Path="modifiedAt"/>
+                </Record>
+                <Record Type="UI.DataField">
+                  <PropertyValue Property="Value" Path="modifiedBy"/>
+                </Record>
+              </Collection>
+            </PropertyValue>
+          </Record>
+        </Annotation>
+        <Annotation Term="UI.HeaderInfo">
+          <Record Type="UI.HeaderInfoType">
+            <PropertyValue Property="TypeName" String="Component"/>
+            <PropertyValue Property="TypeNamePlural" String="Components"/>
+            <PropertyValue Property="Title">
+              <Record Type="UI.DataField">
+                <PropertyValue Property="Value" Path="Name"/>
+              </Record>
+            </PropertyValue>
+            <PropertyValue Property="Description">
+              <Record Type="UI.DataField">
+                <PropertyValue Property="Value" String="Komponente"/>
+              </Record>
+            </PropertyValue>
+          </Record>
+        </Annotation>
+        <Annotation Term="Communication.Contact" Qualifier="contact">
+          <Record Type="Communication.ContactType">
+            <PropertyValue Property="fn" Path="createdBy"/>
+          </Record>
+        </Annotation>
+      </Annotations>
+      <Annotations Target="ProcessorService.EntityContainer/Components">
+        <Annotation Term="Common.DraftRoot">
+          <Record Type="Common.DraftRootType">
+            <PropertyValue Property="ActivationAction" String="ProcessorService.draftActivate"/>
+            <PropertyValue Property="EditAction" String="ProcessorService.draftEdit"/>
+            <PropertyValue Property="PreparationAction" String="ProcessorService.draftPrepare"/>
+          </Record>
+        </Annotation>
+      </Annotations>
+      <Annotations Target="ProcessorService.Components/ID">
+        <Annotation Term="Common.Text" Path="Title">
+          <Annotation Term="UI.TextArrangement" EnumMember="UI.TextArrangementType/TextOnly"/>
+        </Annotation>
+        <Annotation Term="Core.ComputedDefaultValue" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Components/createdAt">
+        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+        <Annotation Term="UI.ExcludeFromNavigationContext" Bool="true"/>
+        <Annotation Term="Core.Immutable" Bool="true"/>
+        <Annotation Term="Core.Computed" Bool="true"/>
+        <Annotation Term="Common.Label" String="Created On"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Components/createdBy">
+        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+        <Annotation Term="UI.ExcludeFromNavigationContext" Bool="true"/>
+        <Annotation Term="Core.Immutable" Bool="true"/>
+        <Annotation Term="Core.Computed" Bool="true"/>
+        <Annotation Term="Core.Description" String="User's unique ID"/>
+        <Annotation Term="Common.Label" String="Created By"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Components/modifiedAt">
+        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+        <Annotation Term="UI.ExcludeFromNavigationContext" Bool="true"/>
+        <Annotation Term="Core.Computed" Bool="true"/>
+        <Annotation Term="Common.Label" String="Changed On"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Components/modifiedBy">
+        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+        <Annotation Term="UI.ExcludeFromNavigationContext" Bool="true"/>
+        <Annotation Term="Core.Computed" Bool="true"/>
+        <Annotation Term="Core.Description" String="User's unique ID"/>
+        <Annotation Term="Common.Label" String="Changed By"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Components/Name">
+        <Annotation Term="Common.FieldControl" EnumMember="Common.FieldControlType/ReadOnly"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Components/Description">
+        <Annotation Term="UI.MultiLineText" Bool="true"/>
+        <Annotation Term="Common.FieldControl" EnumMember="Common.FieldControlType/ReadOnly"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Components/Title">
+        <Annotation Term="Core.Computed" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Components/Project_ID">
+        <Annotation Term="Common.Text" Path="Project/Title">
+          <Annotation Term="UI.TextArrangement" EnumMember="UI.TextArrangementType/TextOnly"/>
+        </Annotation>
+        <Annotation Term="Common.ValueList">
+          <Record Type="Common.ValueListType">
+            <PropertyValue Property="CollectionPath" String="ShippingProjects"/>
+            <PropertyValue Property="Parameters">
+              <Collection>
+                <Record Type="Common.ValueListParameterInOut">
+                  <PropertyValue Property="LocalDataProperty" PropertyPath="Project_ID"/>
+                  <PropertyValue Property="ValueListProperty" String="ID"/>
+                </Record>
+              </Collection>
+            </PropertyValue>
+          </Record>
+        </Annotation>
+        <Annotation Term="Common.ValueListWithFixedValues" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Components/ActivityID_ID">
+        <Annotation Term="Common.Text" Path="ActivityID/Name">
+          <Annotation Term="UI.TextArrangement" EnumMember="UI.TextArrangementType/TextOnly"/>
+        </Annotation>
+        <Annotation Term="Common.ValueList">
+          <Record Type="Common.ValueListType">
+            <PropertyValue Property="CollectionPath" String="Activities"/>
+            <PropertyValue Property="Parameters">
+              <Collection>
+                <Record Type="Common.ValueListParameterInOut">
+                  <PropertyValue Property="LocalDataProperty" PropertyPath="ActivityID_ID"/>
+                  <PropertyValue Property="ValueListProperty" String="ID"/>
+                </Record>
+              </Collection>
+            </PropertyValue>
+          </Record>
+        </Annotation>
+        <Annotation Term="Common.ValueListWithFixedValues" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Components/IsActiveEntity">
+        <Annotation Term="UI.Hidden" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Components/HasActiveEntity">
+        <Annotation Term="UI.Hidden" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Components/HasDraftEntity">
+        <Annotation Term="UI.Hidden" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Components/DraftAdministrativeData">
+        <Annotation Term="UI.Hidden" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Packing">
+        <Annotation Term="UI.LineItem">
+          <Collection>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="Name"/>
+              <PropertyValue Property="Label" String="Name"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="Description"/>
+              <PropertyValue Property="Label" String="Description"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="Components/Quantity"/>
+              <PropertyValue Property="Label" String="Quantity"/>
+            </Record>
+          </Collection>
+        </Annotation>
+        <Annotation Term="UI.HeaderInfo">
+          <Record Type="UI.HeaderInfoType">
+            <PropertyValue Property="TypeName" String="Packing"/>
+            <PropertyValue Property="TypeNamePlural" String="Packings"/>
+            <PropertyValue Property="Title">
+              <Record Type="UI.DataField">
+                <PropertyValue Property="Value" Path="Name"/>
+              </Record>
+            </PropertyValue>
+          </Record>
+        </Annotation>
+        <Annotation Term="UI.Facets">
+          <Collection>
+            <Record Type="UI.ReferenceFacet">
+              <PropertyValue Property="Label" String="Main"/>
+              <PropertyValue Property="ID" String="Main"/>
+              <PropertyValue Property="Target" AnnotationPath="@UI.FieldGroup#Main"/>
+            </Record>
+            <Record Type="UI.ReferenceFacet">
+              <PropertyValue Property="Label" String="Components"/>
+              <PropertyValue Property="ID" String="Components"/>
+              <PropertyValue Property="Target" AnnotationPath="Components/@UI.LineItem#Components"/>
+            </Record>
+          </Collection>
+        </Annotation>
+        <Annotation Term="UI.FieldGroup" Qualifier="Main">
+          <Record Type="UI.FieldGroupType">
+            <PropertyValue Property="Data">
+              <Collection>
+                <Record Type="UI.DataField">
+                  <PropertyValue Property="Value" Path="Description"/>
+                  <PropertyValue Property="Label" String="Description"/>
+                </Record>
+                <Record Type="UI.DataField">
+                  <PropertyValue Property="Value" Path="Name"/>
+                  <PropertyValue Property="Label" String="Name"/>
+                </Record>
+                <Record Type="UI.DataField">
+                  <PropertyValue Property="Value" Path="TransportID_ID"/>
+                  <PropertyValue Property="Label" String="TransportID_ID"/>
+                </Record>
+                <Record Type="UI.DataField">
+                  <PropertyValue Property="Value" Path="PackingType_ID"/>
+                  <PropertyValue Property="Label" String="PackingType_ID"/>
+                </Record>
+              </Collection>
+            </PropertyValue>
+          </Record>
+        </Annotation>
+        <Annotation Term="UI.LineItem" Qualifier="Packings">
+          <Collection>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="Name"/>
+              <PropertyValue Property="Label" String="Name"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="PackingType"/>
+              <PropertyValue Property="Label" String="PackingType"/>
+            </Record>
+          </Collection>
+        </Annotation>
+      </Annotations>
+      <Annotations Target="ProcessorService.EntityContainer/Packing">
+        <Annotation Term="Common.DraftRoot">
+          <Record Type="Common.DraftRootType">
+            <PropertyValue Property="ActivationAction" String="ProcessorService.draftActivate"/>
+            <PropertyValue Property="EditAction" String="ProcessorService.draftEdit"/>
+            <PropertyValue Property="PreparationAction" String="ProcessorService.draftPrepare"/>
+          </Record>
+        </Annotation>
+      </Annotations>
+      <Annotations Target="ProcessorService.Packing/ID">
+        <Annotation Term="Common.Text" Path="Name">
+          <Annotation Term="UI.TextArrangement" EnumMember="UI.TextArrangementType/TextOnly"/>
+        </Annotation>
+        <Annotation Term="Core.ComputedDefaultValue" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Packing/createdAt">
+        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+        <Annotation Term="UI.ExcludeFromNavigationContext" Bool="true"/>
+        <Annotation Term="Core.Immutable" Bool="true"/>
+        <Annotation Term="Core.Computed" Bool="true"/>
+        <Annotation Term="Common.Label" String="Created On"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Packing/createdBy">
+        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+        <Annotation Term="UI.ExcludeFromNavigationContext" Bool="true"/>
+        <Annotation Term="Core.Immutable" Bool="true"/>
+        <Annotation Term="Core.Computed" Bool="true"/>
+        <Annotation Term="Core.Description" String="User's unique ID"/>
+        <Annotation Term="Common.Label" String="Created By"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Packing/modifiedAt">
+        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+        <Annotation Term="UI.ExcludeFromNavigationContext" Bool="true"/>
+        <Annotation Term="Core.Computed" Bool="true"/>
+        <Annotation Term="Common.Label" String="Changed On"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Packing/modifiedBy">
+        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+        <Annotation Term="UI.ExcludeFromNavigationContext" Bool="true"/>
+        <Annotation Term="Core.Computed" Bool="true"/>
+        <Annotation Term="Core.Description" String="User's unique ID"/>
+        <Annotation Term="Common.Label" String="Changed By"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Packing/Title">
+        <Annotation Term="Common.FieldControl" EnumMember="Common.FieldControlType/ReadOnly"/>
+        <Annotation Term="Core.Computed" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Packing/TransportID_ID">
+        <Annotation Term="Common.Text" Path="TransportID/Name">
+          <Annotation Term="UI.TextArrangement" EnumMember="UI.TextArrangementType/TextOnly"/>
+        </Annotation>
+        <Annotation Term="Common.ValueList">
+          <Record Type="Common.ValueListType">
+            <PropertyValue Property="CollectionPath" String="Transports"/>
+            <PropertyValue Property="Parameters">
+              <Collection>
+                <Record Type="Common.ValueListParameterInOut">
+                  <PropertyValue Property="LocalDataProperty" PropertyPath="TransportID_ID"/>
+                  <PropertyValue Property="ValueListProperty" String="ID"/>
+                </Record>
+              </Collection>
+            </PropertyValue>
+            <PropertyValue Property="Label" String="Transports"/>
+          </Record>
+        </Annotation>
+        <Annotation Term="Common.ValueListWithFixedValues" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Packing/PackingType">
+        <Annotation Term="Common.SemanticObject" String="PackingType"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Packing/PackingType_ID">
+        <Annotation Term="Common.ValueList">
+          <Record Type="Common.ValueListType">
+            <PropertyValue Property="CollectionPath" String="PackingTypes"/>
+            <PropertyValue Property="Parameters">
+              <Collection>
+                <Record Type="Common.ValueListParameterInOut">
+                  <PropertyValue Property="LocalDataProperty" PropertyPath="PackingType_ID"/>
+                  <PropertyValue Property="ValueListProperty" String="ID"/>
+                </Record>
+              </Collection>
+            </PropertyValue>
+            <PropertyValue Property="Label" String="Packing Types"/>
+          </Record>
+        </Annotation>
+        <Annotation Term="Common.ValueListWithFixedValues" Bool="true"/>
+        <Annotation Term="Common.Text" Path="PackingType/Description">
+          <Annotation Term="UI.TextArrangement" EnumMember="UI.TextArrangementType/TextOnly"/>
+        </Annotation>
+        <Annotation Term="Common.SemanticObject" String="PackingType"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Packing/IsActiveEntity">
+        <Annotation Term="UI.Hidden" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Packing/HasActiveEntity">
+        <Annotation Term="UI.Hidden" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Packing/HasDraftEntity">
+        <Annotation Term="UI.Hidden" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Packing/DraftAdministrativeData">
+        <Annotation Term="UI.Hidden" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.PackingComponents">
+        <Annotation Term="UI.LineItem" Qualifier="Components">
+          <Collection>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="Quantity"/>
+              <PropertyValue Property="Label" String="Quantity"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="Component_ID"/>
+              <PropertyValue Property="Label" String="Component_ID"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="Component/Name"/>
+              <PropertyValue Property="Label" String="Name"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="Component/Description"/>
+              <PropertyValue Property="Label" String="Description"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="Packing/Title"/>
+              <PropertyValue Property="Label" String="Title"/>
+            </Record>
+          </Collection>
+        </Annotation>
+      </Annotations>
+      <Annotations Target="ProcessorService.EntityContainer/PackingComponents">
+        <Annotation Term="Common.DraftNode">
+          <Record Type="Common.DraftNodeType">
+            <PropertyValue Property="PreparationAction" String="ProcessorService.draftPrepare"/>
+          </Record>
+        </Annotation>
+      </Annotations>
+      <Annotations Target="ProcessorService.PackingComponents/ID">
+        <Annotation Term="Core.ComputedDefaultValue" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.PackingComponents/createdAt">
+        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+        <Annotation Term="UI.ExcludeFromNavigationContext" Bool="true"/>
+        <Annotation Term="Core.Immutable" Bool="true"/>
+        <Annotation Term="Core.Computed" Bool="true"/>
+        <Annotation Term="Common.Label" String="Created On"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.PackingComponents/createdBy">
+        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+        <Annotation Term="UI.ExcludeFromNavigationContext" Bool="true"/>
+        <Annotation Term="Core.Immutable" Bool="true"/>
+        <Annotation Term="Core.Computed" Bool="true"/>
+        <Annotation Term="Core.Description" String="User's unique ID"/>
+        <Annotation Term="Common.Label" String="Created By"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.PackingComponents/modifiedAt">
+        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+        <Annotation Term="UI.ExcludeFromNavigationContext" Bool="true"/>
+        <Annotation Term="Core.Computed" Bool="true"/>
+        <Annotation Term="Common.Label" String="Changed On"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.PackingComponents/modifiedBy">
+        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+        <Annotation Term="UI.ExcludeFromNavigationContext" Bool="true"/>
+        <Annotation Term="Core.Computed" Bool="true"/>
+        <Annotation Term="Core.Description" String="User's unique ID"/>
+        <Annotation Term="Common.Label" String="Changed By"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.PackingComponents/Component">
+        <Annotation Term="Common.SemanticObject" String="Component"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.PackingComponents/Component_ID">
+        <Annotation Term="Common.Text" Path="Component/Title">
+          <Annotation Term="UI.TextArrangement" EnumMember="UI.TextArrangementType/TextOnly"/>
+        </Annotation>
+        <Annotation Term="Common.ValueList">
+          <Record Type="Common.ValueListType">
+            <PropertyValue Property="CollectionPath" String="Components"/>
+            <PropertyValue Property="Parameters">
+              <Collection>
+                <Record Type="Common.ValueListParameterInOut">
+                  <PropertyValue Property="LocalDataProperty" PropertyPath="Component_ID"/>
+                  <PropertyValue Property="ValueListProperty" String="ID"/>
+                </Record>
+              </Collection>
+            </PropertyValue>
+          </Record>
+        </Annotation>
+        <Annotation Term="Common.ValueListWithFixedValues" Bool="true"/>
+        <Annotation Term="Common.FieldControl" EnumMember="Common.FieldControlType/Mandatory"/>
+        <Annotation Term="Common.SemanticObject" String="Component"/>
+        <Annotation Term="Common.SemanticObjectMapping">
+          <Collection>
+            <Record Type="Common.SemanticObjectMappingType">
+              <PropertyValue Property="LocalProperty" PropertyPath="Component_ID"/>
+              <PropertyValue Property="SemanticObjectProperty" String="ID"/>
+            </Record>
+          </Collection>
+        </Annotation>
+      </Annotations>
+      <Annotations Target="ProcessorService.PackingComponents/IsActiveEntity">
+        <Annotation Term="UI.Hidden" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.PackingComponents/HasActiveEntity">
+        <Annotation Term="UI.Hidden" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.PackingComponents/HasDraftEntity">
+        <Annotation Term="UI.Hidden" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.PackingComponents/DraftAdministrativeData">
+        <Annotation Term="UI.Hidden" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Transports">
+        <Annotation Term="UI.LineItem">
+          <Collection>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="Name"/>
+              <PropertyValue Property="Label" String="Name"/>
+              <Annotation Term="UI.Importance" EnumMember="UI.ImportanceType/High"/>
+            </Record>
+          </Collection>
+        </Annotation>
+        <Annotation Term="UI.Facets">
+          <Collection>
+            <Record Type="UI.ReferenceFacet">
+              <PropertyValue Property="Label" String="Main Data"/>
+              <PropertyValue Property="ID" String="MainData"/>
+              <PropertyValue Property="Target" AnnotationPath="@UI.FieldGroup#MainData"/>
+            </Record>
+            <Record Type="UI.ReferenceFacet">
+              <PropertyValue Property="Label" String="Packings"/>
+              <PropertyValue Property="ID" String="Packings"/>
+              <PropertyValue Property="Target" AnnotationPath="Packings/@UI.LineItem#Packings"/>
+            </Record>
+          </Collection>
+        </Annotation>
+        <Annotation Term="UI.FieldGroup" Qualifier="MainData">
+          <Record Type="UI.FieldGroupType">
+            <PropertyValue Property="Data">
+              <Collection>
+                <Record Type="UI.DataField">
+                  <PropertyValue Property="Value" Path="Name"/>
+                  <PropertyValue Property="Label" String="Name"/>
+                </Record>
+                <Record Type="UI.DataField">
+                  <PropertyValue Property="Value" Path="Description"/>
+                  <PropertyValue Property="Label" String="Description"/>
+                </Record>
+                <Record Type="UI.DataField">
+                  <PropertyValue Property="Value" Path="TransportType"/>
+                  <PropertyValue Property="Label" String="TransportType"/>
+                </Record>
+              </Collection>
+            </PropertyValue>
+          </Record>
+        </Annotation>
+      </Annotations>
+      <Annotations Target="ProcessorService.EntityContainer/Transports">
+        <Annotation Term="Common.DraftRoot">
+          <Record Type="Common.DraftRootType">
+            <PropertyValue Property="ActivationAction" String="ProcessorService.draftActivate"/>
+            <PropertyValue Property="EditAction" String="ProcessorService.draftEdit"/>
+            <PropertyValue Property="PreparationAction" String="ProcessorService.draftPrepare"/>
+          </Record>
+        </Annotation>
+      </Annotations>
+      <Annotations Target="ProcessorService.Transports/ID">
+        <Annotation Term="Common.Text" Path="Name">
+          <Annotation Term="UI.TextArrangement" EnumMember="UI.TextArrangementType/TextOnly"/>
+        </Annotation>
+        <Annotation Term="Core.ComputedDefaultValue" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Transports/createdAt">
+        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+        <Annotation Term="UI.ExcludeFromNavigationContext" Bool="true"/>
+        <Annotation Term="Core.Immutable" Bool="true"/>
+        <Annotation Term="Core.Computed" Bool="true"/>
+        <Annotation Term="Common.Label" String="Created On"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Transports/createdBy">
+        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+        <Annotation Term="UI.ExcludeFromNavigationContext" Bool="true"/>
+        <Annotation Term="Core.Immutable" Bool="true"/>
+        <Annotation Term="Core.Computed" Bool="true"/>
+        <Annotation Term="Core.Description" String="User's unique ID"/>
+        <Annotation Term="Common.Label" String="Created By"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Transports/modifiedAt">
+        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+        <Annotation Term="UI.ExcludeFromNavigationContext" Bool="true"/>
+        <Annotation Term="Core.Computed" Bool="true"/>
+        <Annotation Term="Common.Label" String="Changed On"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Transports/modifiedBy">
+        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+        <Annotation Term="UI.ExcludeFromNavigationContext" Bool="true"/>
+        <Annotation Term="Core.Computed" Bool="true"/>
+        <Annotation Term="Core.Description" String="User's unique ID"/>
+        <Annotation Term="Common.Label" String="Changed By"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Transports/Title">
+        <Annotation Term="Core.Computed" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Transports/IsActiveEntity">
+        <Annotation Term="UI.Hidden" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Transports/HasActiveEntity">
+        <Annotation Term="UI.Hidden" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Transports/HasDraftEntity">
+        <Annotation Term="UI.Hidden" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Transports/DraftAdministrativeData">
+        <Annotation Term="UI.Hidden" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.EntityContainer/PackingTypes">
+        <Annotation Term="Common.DraftRoot">
+          <Record Type="Common.DraftRootType">
+            <PropertyValue Property="ActivationAction" String="ProcessorService.draftActivate"/>
+            <PropertyValue Property="EditAction" String="ProcessorService.draftEdit"/>
+            <PropertyValue Property="PreparationAction" String="ProcessorService.draftPrepare"/>
+          </Record>
+        </Annotation>
+      </Annotations>
+      <Annotations Target="ProcessorService.PackingTypes/ID">
+        <Annotation Term="Common.Text" Path="Description">
+          <Annotation Term="UI.TextArrangement" EnumMember="UI.TextArrangementType/TextOnly"/>
+        </Annotation>
+        <Annotation Term="Core.ComputedDefaultValue" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.PackingTypes/createdAt">
+        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+        <Annotation Term="UI.ExcludeFromNavigationContext" Bool="true"/>
+        <Annotation Term="Core.Immutable" Bool="true"/>
+        <Annotation Term="Core.Computed" Bool="true"/>
+        <Annotation Term="Common.Label" String="Created On"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.PackingTypes/createdBy">
+        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+        <Annotation Term="UI.ExcludeFromNavigationContext" Bool="true"/>
+        <Annotation Term="Core.Immutable" Bool="true"/>
+        <Annotation Term="Core.Computed" Bool="true"/>
+        <Annotation Term="Core.Description" String="User's unique ID"/>
+        <Annotation Term="Common.Label" String="Created By"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.PackingTypes/modifiedAt">
+        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+        <Annotation Term="UI.ExcludeFromNavigationContext" Bool="true"/>
+        <Annotation Term="Core.Computed" Bool="true"/>
+        <Annotation Term="Common.Label" String="Changed On"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.PackingTypes/modifiedBy">
+        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+        <Annotation Term="UI.ExcludeFromNavigationContext" Bool="true"/>
+        <Annotation Term="Core.Computed" Bool="true"/>
+        <Annotation Term="Core.Description" String="User's unique ID"/>
+        <Annotation Term="Common.Label" String="Changed By"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.PackingTypes/IsActiveEntity">
+        <Annotation Term="UI.Hidden" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.PackingTypes/HasActiveEntity">
+        <Annotation Term="UI.Hidden" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.PackingTypes/HasDraftEntity">
+        <Annotation Term="UI.Hidden" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.PackingTypes/DraftAdministrativeData">
+        <Annotation Term="UI.Hidden" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.EntityContainer/TransportTypes">
+        <Annotation Term="Common.DraftRoot">
+          <Record Type="Common.DraftRootType">
+            <PropertyValue Property="ActivationAction" String="ProcessorService.draftActivate"/>
+            <PropertyValue Property="EditAction" String="ProcessorService.draftEdit"/>
+            <PropertyValue Property="PreparationAction" String="ProcessorService.draftPrepare"/>
+          </Record>
+        </Annotation>
+      </Annotations>
+      <Annotations Target="ProcessorService.TransportTypes/ID">
+        <Annotation Term="Core.ComputedDefaultValue" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.TransportTypes/createdAt">
+        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+        <Annotation Term="UI.ExcludeFromNavigationContext" Bool="true"/>
+        <Annotation Term="Core.Immutable" Bool="true"/>
+        <Annotation Term="Core.Computed" Bool="true"/>
+        <Annotation Term="Common.Label" String="Created On"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.TransportTypes/createdBy">
+        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+        <Annotation Term="UI.ExcludeFromNavigationContext" Bool="true"/>
+        <Annotation Term="Core.Immutable" Bool="true"/>
+        <Annotation Term="Core.Computed" Bool="true"/>
+        <Annotation Term="Core.Description" String="User's unique ID"/>
+        <Annotation Term="Common.Label" String="Created By"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.TransportTypes/modifiedAt">
+        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+        <Annotation Term="UI.ExcludeFromNavigationContext" Bool="true"/>
+        <Annotation Term="Core.Computed" Bool="true"/>
+        <Annotation Term="Common.Label" String="Changed On"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.TransportTypes/modifiedBy">
+        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+        <Annotation Term="UI.ExcludeFromNavigationContext" Bool="true"/>
+        <Annotation Term="Core.Computed" Bool="true"/>
+        <Annotation Term="Core.Description" String="User's unique ID"/>
+        <Annotation Term="Common.Label" String="Changed By"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.TransportTypes/IsActiveEntity">
+        <Annotation Term="UI.Hidden" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.TransportTypes/HasActiveEntity">
+        <Annotation Term="UI.Hidden" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.TransportTypes/HasDraftEntity">
+        <Annotation Term="UI.Hidden" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.TransportTypes/DraftAdministrativeData">
+        <Annotation Term="UI.Hidden" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.ShippingProjects">
+        <Annotation Term="UI.LineItem">
+          <Collection>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="Description"/>
+              <PropertyValue Property="Label" String="Description"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="Name"/>
+              <PropertyValue Property="Label" String="Name"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="Status_code"/>
+              <PropertyValue Property="Label" String="Status"/>
+              <PropertyValue Property="Criticality" Path="Status/criticality"/>
+            </Record>
+          </Collection>
+        </Annotation>
+        <Annotation Term="UI.SelectionPresentationVariant" Qualifier="tableView">
+          <Record Type="UI.SelectionPresentationVariantType">
+            <PropertyValue Property="PresentationVariant">
+              <Record Type="UI.PresentationVariantType">
+                <PropertyValue Property="Visualizations">
+                  <Collection>
+                    <AnnotationPath>@UI.LineItem</AnnotationPath>
+                  </Collection>
+                </PropertyValue>
+              </Record>
+            </PropertyValue>
+            <PropertyValue Property="SelectionVariant">
+              <Record Type="UI.SelectionVariantType">
+                <PropertyValue Property="SelectOptions">
+                  <Collection/>
+                </PropertyValue>
+              </Record>
+            </PropertyValue>
+            <PropertyValue Property="Text" String="Table View"/>
+          </Record>
+        </Annotation>
+        <Annotation Term="UI.LineItem" Qualifier="tableView">
+          <Collection>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="Description"/>
+              <PropertyValue Property="Label" String="Description"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="createdAt"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="createdBy"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="modifiedAt"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="modifiedBy"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="Name"/>
+              <PropertyValue Property="Label" String="Name"/>
+            </Record>
+          </Collection>
+        </Annotation>
+        <Annotation Term="UI.SelectionPresentationVariant" Qualifier="tableView1">
+          <Record Type="UI.SelectionPresentationVariantType">
+            <PropertyValue Property="PresentationVariant">
+              <Record Type="UI.PresentationVariantType">
+                <PropertyValue Property="Visualizations">
+                  <Collection>
+                    <AnnotationPath>@UI.LineItem#tableView</AnnotationPath>
+                  </Collection>
+                </PropertyValue>
+              </Record>
+            </PropertyValue>
+            <PropertyValue Property="SelectionVariant">
+              <Record Type="UI.SelectionVariantType">
+                <PropertyValue Property="SelectOptions">
+                  <Collection/>
+                </PropertyValue>
+              </Record>
+            </PropertyValue>
+            <PropertyValue Property="Text" String="Table View 1"/>
+          </Record>
+        </Annotation>
+        <Annotation Term="UI.Facets">
+          <Collection>
+            <Record Type="UI.ReferenceFacet">
+              <PropertyValue Property="Label" String="Main"/>
+              <PropertyValue Property="ID" String="Main"/>
+              <PropertyValue Property="Target" AnnotationPath="@UI.FieldGroup#Main"/>
+            </Record>
+            <Record Type="UI.ReferenceFacet">
+              <PropertyValue Property="Label" String="Components"/>
+              <PropertyValue Property="ID" String="i18nComponents"/>
+              <PropertyValue Property="Target" AnnotationPath="Components/@UI.LineItem#i18nComponents"/>
+            </Record>
+          </Collection>
+        </Annotation>
+        <Annotation Term="UI.FieldGroup" Qualifier="Main">
+          <Record Type="UI.FieldGroupType">
+            <PropertyValue Property="Data">
+              <Collection>
+                <Record Type="UI.DataField">
+                  <PropertyValue Property="Value" Path="Name"/>
+                  <PropertyValue Property="Label" String="Name"/>
+                </Record>
+                <Record Type="UI.DataField">
+                  <PropertyValue Property="Value" Path="Description"/>
+                  <PropertyValue Property="Label" String="Description"/>
+                </Record>
+                <Record Type="UI.DataField">
+                  <PropertyValue Property="Value" Path="Status_code"/>
+                  <PropertyValue Property="Label" String="Status_code"/>
+                </Record>
+              </Collection>
+            </PropertyValue>
+          </Record>
+        </Annotation>
+        <Annotation Term="UI.HeaderInfo">
+          <Record Type="UI.HeaderInfoType">
+            <PropertyValue Property="TypeName" String="Shipping Project"/>
+            <PropertyValue Property="TypeNamePlural" String="Shipping Projects"/>
+            <PropertyValue Property="Title">
+              <Record Type="UI.DataField">
+                <PropertyValue Property="Value" Path="Name"/>
+              </Record>
+            </PropertyValue>
+            <PropertyValue Property="Description">
+              <Record Type="UI.DataField">
+                <PropertyValue Property="Value" Path="Description"/>
+              </Record>
+            </PropertyValue>
+          </Record>
+        </Annotation>
+      </Annotations>
+      <Annotations Target="ProcessorService.EntityContainer/ShippingProjects">
+        <Annotation Term="UI.SelectionPresentationVariant" Qualifier="tableView">
+          <Record Type="UI.SelectionPresentationVariantType">
+            <PropertyValue Property="PresentationVariant">
+              <Record Type="UI.PresentationVariantType">
+                <PropertyValue Property="Visualizations">
+                  <Collection>
+                    <AnnotationPath>@UI.LineItem</AnnotationPath>
+                  </Collection>
+                </PropertyValue>
+              </Record>
+            </PropertyValue>
+            <PropertyValue Property="SelectionVariant">
+              <Record Type="UI.SelectionVariantType">
+                <PropertyValue Property="SelectOptions">
+                  <Collection/>
+                </PropertyValue>
+              </Record>
+            </PropertyValue>
+            <PropertyValue Property="Text" String="Table View"/>
+          </Record>
+        </Annotation>
+        <Annotation Term="UI.SelectionPresentationVariant" Qualifier="tableView1">
+          <Record Type="UI.SelectionPresentationVariantType">
+            <PropertyValue Property="PresentationVariant">
+              <Record Type="UI.PresentationVariantType">
+                <PropertyValue Property="Visualizations">
+                  <Collection>
+                    <AnnotationPath>@UI.LineItem#tableView</AnnotationPath>
+                  </Collection>
+                </PropertyValue>
+              </Record>
+            </PropertyValue>
+            <PropertyValue Property="SelectionVariant">
+              <Record Type="UI.SelectionVariantType">
+                <PropertyValue Property="SelectOptions">
+                  <Collection/>
+                </PropertyValue>
+              </Record>
+            </PropertyValue>
+            <PropertyValue Property="Text" String="Table View 1"/>
+          </Record>
+        </Annotation>
+        <Annotation Term="Common.DraftRoot">
+          <Record Type="Common.DraftRootType">
+            <PropertyValue Property="ActivationAction" String="ProcessorService.draftActivate"/>
+            <PropertyValue Property="EditAction" String="ProcessorService.draftEdit"/>
+            <PropertyValue Property="PreparationAction" String="ProcessorService.draftPrepare"/>
+          </Record>
+        </Annotation>
+      </Annotations>
+      <Annotations Target="ProcessorService.ShippingProjects/ID">
+        <Annotation Term="Common.Text" Path="Title">
+          <Annotation Term="UI.TextArrangement" EnumMember="UI.TextArrangementType/TextOnly"/>
+        </Annotation>
+        <Annotation Term="Core.ComputedDefaultValue" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.ShippingProjects/createdAt">
+        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+        <Annotation Term="UI.ExcludeFromNavigationContext" Bool="true"/>
+        <Annotation Term="Core.Immutable" Bool="true"/>
+        <Annotation Term="Core.Computed" Bool="true"/>
+        <Annotation Term="Common.Label" String="Created On"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.ShippingProjects/createdBy">
+        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+        <Annotation Term="UI.ExcludeFromNavigationContext" Bool="true"/>
+        <Annotation Term="Core.Immutable" Bool="true"/>
+        <Annotation Term="Core.Computed" Bool="true"/>
+        <Annotation Term="Core.Description" String="User's unique ID"/>
+        <Annotation Term="Common.Label" String="Created By"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.ShippingProjects/modifiedAt">
+        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+        <Annotation Term="UI.ExcludeFromNavigationContext" Bool="true"/>
+        <Annotation Term="Core.Computed" Bool="true"/>
+        <Annotation Term="Common.Label" String="Changed On"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.ShippingProjects/modifiedBy">
+        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+        <Annotation Term="UI.ExcludeFromNavigationContext" Bool="true"/>
+        <Annotation Term="Core.Computed" Bool="true"/>
+        <Annotation Term="Core.Description" String="User's unique ID"/>
+        <Annotation Term="Common.Label" String="Changed By"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.ShippingProjects/Title">
+        <Annotation Term="Core.Computed" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.ShippingProjects/Status_code">
+        <Annotation Term="Common.Text" Path="Status/descr">
+          <Annotation Term="UI.TextArrangement" EnumMember="UI.TextArrangementType/TextFirst"/>
+        </Annotation>
+        <Annotation Term="Common.ValueListWithFixedValues" Bool="true"/>
+        <Annotation Term="Common.ValueList">
+          <Record Type="Common.ValueListType">
+            <PropertyValue Property="Label" String="Status"/>
+            <PropertyValue Property="CollectionPath" String="Status"/>
+            <PropertyValue Property="Parameters">
+              <Collection>
+                <Record Type="Common.ValueListParameterInOut">
+                  <PropertyValue Property="LocalDataProperty" PropertyPath="Status_code"/>
+                  <PropertyValue Property="ValueListProperty" String="code"/>
+                </Record>
+                <Record Type="Common.ValueListParameterDisplayOnly">
+                  <PropertyValue Property="ValueListProperty" String="name"/>
+                </Record>
+              </Collection>
+            </PropertyValue>
+          </Record>
+        </Annotation>
+      </Annotations>
+      <Annotations Target="ProcessorService.ShippingProjects/IsActiveEntity">
+        <Annotation Term="UI.Hidden" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.ShippingProjects/HasActiveEntity">
+        <Annotation Term="UI.Hidden" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.ShippingProjects/HasDraftEntity">
+        <Annotation Term="UI.Hidden" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.ShippingProjects/DraftAdministrativeData">
+        <Annotation Term="UI.Hidden" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.ComponentUsage/ID">
+        <Annotation Term="Core.ComputedDefaultValue" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.ComponentUsage/UsedQuantity">
+        <Annotation Term="Core.Computed" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.ComponentsUnpacked">
+        <Annotation Term="UI.LineItem">
+          <Collection>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="Quantity"/>
+              <PropertyValue Property="Label" String="Quantity"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="UsedQuantity"/>
+              <PropertyValue Property="Label" String="UsedQuantity"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="Component/Title"/>
+              <PropertyValue Property="Label" String="Title"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="Component/StatusLine"/>
+              <PropertyValue Property="Label" String="StatusLine"/>
+            </Record>
+          </Collection>
+        </Annotation>
+      </Annotations>
+      <Annotations Target="ProcessorService.ComponentsUnpacked/ID">
+        <Annotation Term="Core.ComputedDefaultValue" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.ComponentsUnpacked/UsedQuantity">
+        <Annotation Term="Core.Computed" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Activities">
+        <Annotation Term="UI.LineItem" Qualifier="Activities">
+          <Collection>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="Activity"/>
+              <PropertyValue Property="Label" String="Activity"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="Description"/>
+              <PropertyValue Property="Label" String="Description"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="Duration"/>
+              <PropertyValue Property="Label" String="Duration"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="DurationUnit"/>
+              <PropertyValue Property="Label" String="DurationUnit"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="EarlyStart"/>
+              <PropertyValue Property="Label" String="EarlyStart"/>
+              <Annotation Term="UI.Importance" EnumMember="UI.ImportanceType/Low"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="EarlyFinish"/>
+              <PropertyValue Property="Label" String="EarlyFinish"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="LateFinish"/>
+              <PropertyValue Property="Label" String="LateFinish"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="LateStart"/>
+              <PropertyValue Property="Label" String="LateStart"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="Name"/>
+              <PropertyValue Property="Label" String="Name"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="ObjectClass"/>
+              <PropertyValue Property="Label" String="ObjectClass"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="Plant"/>
+              <PropertyValue Property="Label" String="Plant"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="Components/Material"/>
+              <PropertyValue Property="Label" String="Material"/>
+            </Record>
+          </Collection>
+        </Annotation>
+      </Annotations>
+      <Annotations Target="ProcessorService.Activities/ID">
+        <Annotation Term="Core.ComputedDefaultValue" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Activities/createdAt">
+        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+        <Annotation Term="UI.ExcludeFromNavigationContext" Bool="true"/>
+        <Annotation Term="Core.Immutable" Bool="true"/>
+        <Annotation Term="Core.Computed" Bool="true"/>
+        <Annotation Term="Common.Label" String="Created On"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Activities/createdBy">
+        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+        <Annotation Term="UI.ExcludeFromNavigationContext" Bool="true"/>
+        <Annotation Term="Core.Immutable" Bool="true"/>
+        <Annotation Term="Core.Computed" Bool="true"/>
+        <Annotation Term="Core.Description" String="User's unique ID"/>
+        <Annotation Term="Common.Label" String="Created By"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Activities/modifiedAt">
+        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+        <Annotation Term="UI.ExcludeFromNavigationContext" Bool="true"/>
+        <Annotation Term="Core.Computed" Bool="true"/>
+        <Annotation Term="Common.Label" String="Changed On"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Activities/modifiedBy">
+        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+        <Annotation Term="UI.ExcludeFromNavigationContext" Bool="true"/>
+        <Annotation Term="Core.Computed" Bool="true"/>
+        <Annotation Term="Core.Description" String="User's unique ID"/>
+        <Annotation Term="Common.Label" String="Changed By"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Activities/Title">
+        <Annotation Term="Core.Computed" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Activities/DurationUnit">
+        <Annotation Term="Core.Computed" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Activities/DurationScheduled">
+        <Annotation Term="Core.Computed" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.WBSElements">
+        <Annotation Term="UI.LineItem">
+          <Collection>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="Name"/>
+              <PropertyValue Property="Label" String="Name"/>
+            </Record>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="Description"/>
+              <PropertyValue Property="Label" String="Description"/>
+            </Record>
+          </Collection>
+        </Annotation>
+        <Annotation Term="UI.Facets">
+          <Collection>
+            <Record Type="UI.ReferenceFacet">
+              <PropertyValue Property="Label" String="Main"/>
+              <PropertyValue Property="ID" String="Main"/>
+              <PropertyValue Property="Target" AnnotationPath="@UI.FieldGroup#Main"/>
+            </Record>
+            <Record Type="UI.ReferenceFacet">
+              <PropertyValue Property="Label" String="Activities"/>
+              <PropertyValue Property="ID" String="Activities"/>
+              <PropertyValue Property="Target" AnnotationPath="Activities/@UI.LineItem#Activities"/>
+            </Record>
+          </Collection>
+        </Annotation>
+        <Annotation Term="UI.FieldGroup" Qualifier="Main">
+          <Record Type="UI.FieldGroupType">
+            <PropertyValue Property="Data">
+              <Collection>
+                <Record Type="UI.DataField">
+                  <PropertyValue Property="Value" Path="Name"/>
+                  <PropertyValue Property="Label" String="Name"/>
+                </Record>
+                <Record Type="UI.DataField">
+                  <PropertyValue Property="Value" Path="Description"/>
+                  <PropertyValue Property="Label" String="Description"/>
+                </Record>
+                <Record Type="UI.DataField">
+                  <PropertyValue Property="Value" Path="createdAt"/>
+                </Record>
+                <Record Type="UI.DataField">
+                  <PropertyValue Property="Value" Path="createdBy"/>
+                </Record>
+                <Record Type="UI.DataField">
+                  <PropertyValue Property="Value" Path="modifiedAt"/>
+                </Record>
+                <Record Type="UI.DataField">
+                  <PropertyValue Property="Value" Path="modifiedBy"/>
+                </Record>
+              </Collection>
+            </PropertyValue>
+          </Record>
+        </Annotation>
+      </Annotations>
+      <Annotations Target="ProcessorService.WBSElements/ID">
+        <Annotation Term="Core.ComputedDefaultValue" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.WBSElements/createdAt">
+        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+        <Annotation Term="UI.ExcludeFromNavigationContext" Bool="true"/>
+        <Annotation Term="Core.Immutable" Bool="true"/>
+        <Annotation Term="Core.Computed" Bool="true"/>
+        <Annotation Term="Common.Label" String="Created On"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.WBSElements/createdBy">
+        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+        <Annotation Term="UI.ExcludeFromNavigationContext" Bool="true"/>
+        <Annotation Term="Core.Immutable" Bool="true"/>
+        <Annotation Term="Core.Computed" Bool="true"/>
+        <Annotation Term="Core.Description" String="User's unique ID"/>
+        <Annotation Term="Common.Label" String="Created By"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.WBSElements/modifiedAt">
+        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+        <Annotation Term="UI.ExcludeFromNavigationContext" Bool="true"/>
+        <Annotation Term="Core.Computed" Bool="true"/>
+        <Annotation Term="Common.Label" String="Changed On"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.WBSElements/modifiedBy">
+        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+        <Annotation Term="UI.ExcludeFromNavigationContext" Bool="true"/>
+        <Annotation Term="Core.Computed" Bool="true"/>
+        <Annotation Term="Core.Description" String="User's unique ID"/>
+        <Annotation Term="Common.Label" String="Changed By"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.WBSElements/Title">
+        <Annotation Term="Core.Computed" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Status">
+        <Annotation Term="UI.DataPoint" Qualifier="criticality">
+          <Record Type="UI.DataPointType">
+            <PropertyValue Property="Value" Path="criticality"/>
+            <PropertyValue Property="Visualization" EnumMember="UI.VisualizationType/Progress"/>
+            <PropertyValue Property="TargetValue" Int="100"/>
+          </Record>
+        </Annotation>
+        <Annotation Term="UI.Identification">
+          <Collection>
+            <Record Type="UI.DataField">
+              <PropertyValue Property="Value" Path="name"/>
+            </Record>
+          </Collection>
+        </Annotation>
+      </Annotations>
+      <Annotations Target="ProcessorService.Status/name">
+        <Annotation Term="Common.Label" String="Name"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Status/descr">
+        <Annotation Term="Common.Label" String="Description"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Status/code">
+        <Annotation Term="Common.Text" Path="descr"/>
+        <Annotation Term="Validation.AllowedValues">
+          <Collection>
+            <Record Type="Validation.AllowedValue">
+              <Annotation Term="Core.SymbolicName" String="new"/>
+              <PropertyValue Property="Value" String="N"/>
+            </Record>
+            <Record Type="Validation.AllowedValue">
+              <Annotation Term="Core.SymbolicName" String="assigned"/>
+              <PropertyValue Property="Value" String="A"/>
+            </Record>
+            <Record Type="Validation.AllowedValue">
+              <Annotation Term="Core.SymbolicName" String="in_process"/>
+              <PropertyValue Property="Value" String="I"/>
+            </Record>
+            <Record Type="Validation.AllowedValue">
+              <Annotation Term="Core.SymbolicName" String="on_hold"/>
+              <PropertyValue Property="Value" String="H"/>
+            </Record>
+            <Record Type="Validation.AllowedValue">
+              <Annotation Term="Core.SymbolicName" String="completed"/>
+              <PropertyValue Property="Value" String="R"/>
+            </Record>
+            <Record Type="Validation.AllowedValue">
+              <Annotation Term="Core.SymbolicName" String="closed"/>
+              <PropertyValue Property="Value" String="C"/>
+            </Record>
+          </Collection>
+        </Annotation>
+      </Annotations>
+      <Annotations Target="ProcessorService.DraftAdministrativeData">
+        <Annotation Term="Common.Label" String="Draft Administrative Data"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.DraftAdministrativeData/DraftUUID">
+        <Annotation Term="UI.Hidden" Bool="true"/>
+        <Annotation Term="Common.Label" String="Draft (Technical ID)"/>
+        <Annotation Term="Core.ComputedDefaultValue" Bool="true"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.DraftAdministrativeData/CreationDateTime">
+        <Annotation Term="Common.Label" String="Draft Created On"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.DraftAdministrativeData/CreatedByUser">
+        <Annotation Term="Common.Label" String="Draft Created By"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.DraftAdministrativeData/DraftIsCreatedByMe">
+        <Annotation Term="UI.Hidden" Bool="true"/>
+        <Annotation Term="Common.Label" String="Draft Created By Me"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.DraftAdministrativeData/LastChangeDateTime">
+        <Annotation Term="Common.Label" String="Draft Last Changed On"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.DraftAdministrativeData/LastChangedByUser">
+        <Annotation Term="Common.Label" String="Draft Last Changed By"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.DraftAdministrativeData/InProcessByUser">
+        <Annotation Term="Common.Label" String="Draft In Process By"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.DraftAdministrativeData/DraftIsProcessedByMe">
+        <Annotation Term="UI.Hidden" Bool="true"/>
+        <Annotation Term="Common.Label" String="Draft In Process By Me"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Status_texts/locale">
+        <Annotation Term="Common.Label" String="Language Code"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Status_texts/name">
+        <Annotation Term="Common.Label" String="Name"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Status_texts/descr">
+        <Annotation Term="Common.Label" String="Description"/>
+      </Annotations>
+      <Annotations Target="ProcessorService.Status_texts/code">
+        <Annotation Term="Validation.AllowedValues">
+          <Collection>
+            <Record Type="Validation.AllowedValue">
+              <Annotation Term="Core.SymbolicName" String="new"/>
+              <PropertyValue Property="Value" String="N"/>
+            </Record>
+            <Record Type="Validation.AllowedValue">
+              <Annotation Term="Core.SymbolicName" String="assigned"/>
+              <PropertyValue Property="Value" String="A"/>
+            </Record>
+            <Record Type="Validation.AllowedValue">
+              <Annotation Term="Core.SymbolicName" String="in_process"/>
+              <PropertyValue Property="Value" String="I"/>
+            </Record>
+            <Record Type="Validation.AllowedValue">
+              <Annotation Term="Core.SymbolicName" String="on_hold"/>
+              <PropertyValue Property="Value" String="H"/>
+            </Record>
+            <Record Type="Validation.AllowedValue">
+              <Annotation Term="Core.SymbolicName" String="completed"/>
+              <PropertyValue Property="Value" String="R"/>
+            </Record>
+            <Record Type="Validation.AllowedValue">
+              <Annotation Term="Core.SymbolicName" String="closed"/>
+              <PropertyValue Property="Value" String="C"/>
+            </Record>
+          </Collection>
+        </Annotation>
+      </Annotations>
+    </Schema>
+  </edmx:DataServices>
 </edmx:Edmx>

@@ -197,7 +197,7 @@ impl EntityModel {
     pub fn relations(&self) -> &Vec<Relation> {
         &self.relations
     }
-    
+
     pub fn title_attribute(&self) -> &str {
         &self.title_attribute
     }
@@ -399,7 +399,8 @@ impl AppState {
         //         "etag": etag_from_path(&PathBuf::from(&path)),
         //     }),
         // );
-        let label = obj.get(model.title_attribute())
+        let label = obj
+            .get(model.title_attribute())
             .and_then(|v| v.as_str())
             .unwrap_or_default()
             .to_string();

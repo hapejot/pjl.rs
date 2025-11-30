@@ -1,0 +1,178 @@
+//@ui5-bundle preview/Component-preload.js
+        jQuery.sap.registerPreloadedModules({
+        "version":"2.0",
+        "modules":{
+          "preview/Component.js": function(){sap.ui.define(
+    ["sap/fe/core/AppComponent"],
+    function (Component) {
+        "use strict";
+
+        return Component.extend("vp4.Component", {
+            metadata: {
+                manifest: "json"
+            }
+        });
+    }
+);
+        },
+          "preview/manifest.json":{
+  "_version": "1.65.0",
+  "sap.app": {
+    "id": "vp4",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": {
+      "version": "0.0.1"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "resources": "resources.json",
+    "sourceTemplate": {
+      "id": "@sap/generator-fiori:worklist",
+      "version": "1.17.4",
+      "toolsId": "a01de194-6d49-4e7f-8833-34403d13263d"
+    },
+    "dataSources": {
+      "mainService": {
+        "uri": "/odata/v4/processor/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "odataVersion": "4.0"
+        }
+      }
+    },
+    "crossNavigation": {
+      "inbounds": {
+        "Component-listOpen": {
+          "semanticObject": "Component",
+          "action": "listOpen",
+          "title": "{{Component-listOpen.flpTitle}}",
+          "signature": {
+            "parameters": {},
+            "additionalParameters": "allowed"
+          }
+        }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {
+      "icon": "",
+      "favIcon": "",
+      "phone": "",
+      "phone@2": "",
+      "tablet": "",
+      "tablet@2": ""
+    },
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "flexEnabled": true,
+    "dependencies": {
+      "minUI5Version": "1.138.1",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {},
+        "sap.fe.templates": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "vp4.i18n.i18n"
+        }
+      },
+      "": {
+        "dataSource": "mainService",
+        "preload": true,
+        "settings": {
+          "operationMode": "Server",
+          "autoExpandSelect": true,
+          "earlyRequests": true
+        }
+      },
+      "@i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "uri": "i18n/i18n.properties"
+      }
+    },
+    "resources": {
+      "css": [
+        {
+          "uri": "css/custom.css"
+        }
+      ]
+    },
+    "routing": {
+      "config": {},
+      "routes": [
+        {
+          "pattern": ":?query:",
+          "name": "ComponentsUnpackedList",
+          "target": "ComponentsUnpackedList"
+        },
+        {
+          "pattern": "ComponentsUnpacked({key}):?query:",
+          "name": "ComponentsUnpackedObjectPage",
+          "target": "ComponentsUnpackedObjectPage"
+        }
+      ],
+      "targets": {
+        "ComponentsUnpackedList": {
+          "type": "Component",
+          "id": "ComponentsUnpackedList",
+          "name": "sap.fe.templates.ListReport",
+          "options": {
+            "settings": {
+              "contextPath": "/ComponentsUnpacked",
+              "variantManagement": "Page",
+              "hideFilterBar": true,
+              "navigation": {
+                "ComponentsUnpacked": {
+                  "detail": {
+                    "route": "ComponentsUnpackedObjectPage"
+                  }
+                }
+              },
+              "controlConfiguration": {
+                "@com.sap.vocabularies.UI.v1.LineItem": {
+                  "tableSettings": {
+                    "type": "ResponsiveTable"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "ComponentsUnpackedObjectPage": {
+          "type": "Component",
+          "id": "ComponentsUnpackedObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "editableHeaderContent": false,
+              "contextPath": "/ComponentsUnpacked"
+            }
+          }
+        }
+      }
+    }
+  },
+  "sap.fiori": {
+    "registrationIds": [],
+    "archeType": "transactional"
+  }
+}
+
+        }});
