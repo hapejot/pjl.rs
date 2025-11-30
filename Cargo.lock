@@ -2329,10 +2329,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "pjl-file-browser"
-version = "0.1.0"
-
-[[package]]
 name = "pjl-file-server"
 version = "0.1.0"
 dependencies = [
@@ -2343,10 +2339,6 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
 ]
-
-[[package]]
-name = "pjl-macros"
-version = "0.1.0"
 
 [[package]]
 name = "pjl-odata"
