@@ -29,7 +29,7 @@ fn create() {
     t.dump(&mut buf);
 
     assert_eq!(
-        "+----+-------+\n|id  |name   |\n+----+-------+\n|Test|Müller |\n|    |Jaeckel|\n+----+-------+\n",
+        "| id   | name    |\n|------|---------|\n| Test | Müller  |\n|      | Jaeckel |\n",
         buf
     );
     eprintln!(
