@@ -22,10 +22,9 @@ members = [
     "pjl-static-strings", 
     "pjl-pandoc",
     "pjl-file-server", 
-    "pjl-macros",
 #    "thumb-node",
     "pjl-cache", "pjl-terminal-tools",
-    "excel-cell-replace",
-    "key-sim", 
-    "pjl-file-browser",
-    "sap2md"]
+#    "excel-cell-replace",
+    "key-sim", "sap2md", "yaml2json"]
+
+

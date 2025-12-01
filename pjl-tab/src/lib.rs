@@ -310,46 +310,84 @@ impl Table {
 
     pub fn dump(&self, out: &mut impl Write) {
         if let Ok(x) = self.d.try_lock() {
-            let mut w = x.columns.iter().map(|x| x.len()).collect::<Vec<_>>();
-            // calculate widths...
-            for ((_, col), val) in x.data.iter() {
-                let n = val.chars().count();
-                if w[col - 1] < n {
-                    w[col - 1] = n;
+            // Hilfsfunktion: Prüft ob ein String eine Zahl ist
+            let is_numeric = |s: &str| -> bool {
+                s.parse::<f64>().is_ok()
+            };
+
+            // Erster Durchlauf: Berechne maximale Spaltenbreiten (Unicode-aware)
+            // und erkenne ob eine Spalte numerisch ist
+            let mut col_widths: Vec<usize> = x
+                .columns
+                .iter()
+                .map(|hd| hd.chars().count())
+                .collect();
+
+            // Spalte ist numerisch, wenn ALLE nicht-leeren Werte Zahlen sind
+            let mut col_is_numeric: Vec<bool> = vec![true; x.columns.len()];
+
+            for rownum in 1..x.row_count + 1 {
+                for (idx, width) in col_widths.iter_mut().enumerate() {
+                    let k = (rownum, idx + 1);
+                    if let Some(v) = x.data.get(&k) {
+                        let char_count = v.chars().count();
+                        if char_count > *width {
+                            *width = char_count;
+                        }
+                        // Prüfe ob der Wert numerisch ist
+                        if !v.is_empty() && !is_numeric(v) {
+                            col_is_numeric[idx] = false;
+                        }
+                    }
                 }
             }
-            let mut sep = String::from("+");
-            for idx in 0..x.columns.len() {
-                let len = w[idx];
-                let s = "-".repeat(len);
-                sep.push_str(&s);
-                sep.push('+');
-            }
 
-            writeln!(out, "{sep}").unwrap();
-            // print head
+            // Markdown table header
             write!(out, "|").unwrap();
-            for idx in 0..x.columns.len() {
-                let hd = &x.columns[idx];
-                let len = w[idx];
-                write!(out, "{:1$}|", hd, len).unwrap();
+            for (idx, hd) in x.columns.iter().enumerate() {
+                let padding = col_widths[idx] - hd.chars().count();
+                if col_is_numeric[idx] {
+                    // Rechtsbündig für numerische Spalten
+                    write!(out, " {}{} |", " ".repeat(padding), hd).unwrap();
+                } else {
+                    write!(out, " {}{} |", hd, " ".repeat(padding)).unwrap();
+                }
             }
             writeln!(out).unwrap();
-            writeln!(out, "{sep}").unwrap();
+
+            // Markdown separator line mit Ausrichtungsmarkierung
+            write!(out, "|").unwrap();
+            for (idx, width) in col_widths.iter().enumerate() {
+                if col_is_numeric[idx] {
+                    // Rechtsbündig: --:
+                    write!(out, "-{}:|", "-".repeat(*width)).unwrap();
+                } else {
+                    // Linksbündig (Standard)
+                    write!(out, "-{}-|", "-".repeat(*width)).unwrap();
+                }
+            }
+            writeln!(out).unwrap();
+
+            // Data rows
             for rownum in 1..x.row_count + 1 {
                 write!(out, "|").unwrap();
-                for idx in 0..x.columns.len() {
+                for (idx, width) in col_widths.iter().enumerate() {
                     let k = (rownum, idx + 1);
-                    let len = w[idx];
                     if let Some(v) = x.data.get(&k) {
-                        write!(out, "{:1$}|", v, len).unwrap();
+                        let padding = width - v.chars().count();
+                        if col_is_numeric[idx] {
+                            // Rechtsbündig
+                            write!(out, " {}{} |", " ".repeat(padding), v).unwrap();
+                        } else {
+                            // Linksbündig
+                            write!(out, " {}{} |", v, " ".repeat(padding)).unwrap();
+                        }
                     } else {
-                        write!(out, "{:1$}|", "", len).unwrap();
+                        write!(out, " {} |", " ".repeat(*width)).unwrap();
                     }
                 }
                 writeln!(out).unwrap();
             }
-            writeln!(out, "{sep}").unwrap();
         } else {
             todo!("what if the table cannot be locked.")
         }

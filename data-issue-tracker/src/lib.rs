@@ -10,8 +10,7 @@
 
 use axum::Router;
 use chrono::{DateTime, Utc};
-use serde::{ser, Deserialize, Serialize};
-use serde_json::json;
+use serde::{Deserialize, Serialize};
 use std::fs;
 use std::sync::{Arc, Mutex};
 use std::{collections::HashMap, path::PathBuf};
@@ -292,15 +291,15 @@ impl AppState {
 
     /// Builds a map of relation options for the given entity, mapping relation names to possible values.
     #[deprecated(note = "Use `load_entity_refs` instead.")]
-    pub fn build_relation_options(&self, entity: &str) -> Result<RelationOptions, String> {
-        let mut result = HashMap::new();
-        let model = self.get_entity_model(entity)?;
-        for x in model.relations() {
-            let values = self.load_entity_values(&x.type_name);
-            result.insert(x.name.clone(), values);
-        }
-        Ok(result)
-    }
+    // pub fn build_relation_options(&self, entity: &str) -> Result<RelationOptions, String> {
+    //     let mut result = HashMap::new();
+    //     let model = self.get_entity_model(entity)?;
+    //     for x in model.relations() {
+    //         let values = self.load_entity_values(&x.type_name);
+    //         result.insert(x.name.clone(), values);
+    //     }
+    //     Ok(result)
+    // }
 
     /// Loads all records for the given list of entity references.
     pub fn get_all_records(&self, ids: Vec<EntityRef>) -> Vec<serde_json::Value> {

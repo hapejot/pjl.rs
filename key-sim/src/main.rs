@@ -13,14 +13,17 @@ mod win_focus {
     pub fn focus_window_by_title(title: &str) -> bool {
         unsafe extern "system" fn enum_windows_proc(hwnd: HWND, lparam: LPARAM) -> BOOL {
             let mut buf = [0u16; 512];
-            let len = GetWindowTextW(hwnd, &mut buf);
+            let len = unsafe { GetWindowTextW(hwnd, &mut buf) };
             if len > 0 {
                 let window_title = OsString::from_wide(&buf[..len as usize])
                     .to_string_lossy()
                     .to_string();
+                eprintln!("{}", window_title);
                 let search = unsafe { &*(lparam.0 as *const String) };
-                if window_title.contains(search) && IsWindowVisible(hwnd).as_bool() {
-                    let _ = SetForegroundWindow(hwnd);
+                let c1 = window_title.contains(search);
+                let c2 = window_title.contains("key-sim");
+                if c1 && !c2 && unsafe { IsWindowVisible(hwnd) }.as_bool() {
+                    let _ = unsafe { SetForegroundWindow(hwnd) };
                     // Store result in lparam
                     return false.into();
                 }
@@ -44,28 +47,70 @@ mod win_focus {
 struct Args {
     /// The file containing the text to type
     #[arg(value_name = "FILE")]
-    file: String,
+    files: Vec<String>,
     /// Delay between keystrokes in milliseconds
     #[arg(short, long, default_value_t = 20)]
     delay: u64,
+
+    /// Simulate typing in the window with this title
+    #[arg(short = 's')]
+    simulate: bool,
+
     /// Window title to focus before typing
     #[arg(short = 'w', long)]
     window_title: Option<String>,
 }
 
 #[cfg(target_os = "windows")]
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     use enigo::*;
     let args = Args::parse();
-    let text = fs::read_to_string(&args.file).expect("Failed to read input file");
     if let Some(ref title) = args.window_title {
         win_focus::focus_window_by_title(title);
     }
-    let mut enigo = Enigo::new();
-    for c in text.chars() {
-        enigo.key_sequence(&c.to_string());
-        sleep(Duration::from_millis(args.delay));
+    let mut enigo = Enigo::new(&Settings::default()).unwrap();
+    for file in args.files.iter() {
+        use std::io::BufRead;
+
+        let text = fs::read(file)?.lines().flatten().collect::<Vec<_>>();
+        for line in text {
+            let key = match line.as_str() {
+                "{ENTER}" => Some(Key::Return),
+                "{TAB}" => Some(Key::Tab),
+                "{ESC}" => Some(Key::Escape),
+                "{BACKSPACE}" => Some(Key::Backspace),
+                "{SPACE}" => Some(Key::Space),
+                _ => None,
+            };
+            if let Some(key) = key {
+                if args.simulate {
+                    println!("{:?}", key);
+                } else {
+                    enigo.key(key, Direction::Press)?;
+                    enigo.key(key, Direction::Release)?;
+                    sleep(Duration::from_millis(args.delay));
+                }
+                continue;
+            }
+            //     for c in line.chars() {
+            //         if args.simulate {
+            //             println!("{:?}", Key::Unicode(c));
+            //         } else {
+            //             // enigo.key(Key::Unicode(c), Direction::Press)?;
+            //             // enigo.key(Key::Unicode(c), Direction::Release)?;
+            //             // let _ = enigo.text(&c.to_string());
+            //             sleep(Duration::from_millis(args.delay));
+            //         }
+            //     }
+            if args.simulate {
+                println!("{}", line);
+            } else {
+                enigo.text(&line)?;
+                sleep(Duration::from_millis(args.delay));
+            }
+        }
     }
+    Ok(())
 }
 
 #[cfg(not(target_os = "windows"))]
