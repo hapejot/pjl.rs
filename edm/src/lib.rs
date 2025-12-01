@@ -1,11 +1,11 @@
 pub mod atom;
+pub mod csn;
 pub mod json;
 pub mod list;
 pub mod number;
 pub mod primitive;
 pub mod structure;
 pub mod value;
-pub mod csn;
 pub use csdl::Schema;
 
 pub mod csdl {
@@ -56,6 +56,16 @@ pub mod csdl {
         pub fn new_property(&mut self, entity: &str, name: &str) {
             if let Some(e) = self.entity_types.iter_mut().find(|x| x.name == entity) {
                 e.properties.push(Property::new(name));
+            }
+        }
+
+        pub fn set_property(&mut self, entity: &str, property: Property) {
+            if let Some(e) = self.entity_types.iter_mut().find(|x| x.name == entity) {
+                let index = e.properties.iter().position(|x| x.name == property.name);
+                if let Some(index) = index {
+                    e.properties.remove(index);
+                }
+                e.properties.push(property);
             }
         }
 
@@ -136,7 +146,7 @@ pub mod csdl {
         pub navigation: bool,
     }
     impl Property {
-        fn new(name: &str) -> Self {
+        pub fn new(name: &str) -> Self {
             Self {
                 name: name.to_string(),
                 ptype: String::from("string"),
@@ -144,11 +154,17 @@ pub mod csdl {
                 navigation: false,
             }
         }
-    }
-}
 
-pub trait HelloMacro {
-    fn hello();
+        pub fn with_type(mut self, ptype: String) -> Self {
+            self.ptype = ptype;
+            self
+        }
+
+        pub fn with_null(mut self) -> Self {
+            self.nullable = false;
+            self
+        }
+    }
 }
 
 #[cfg(test)]

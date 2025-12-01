@@ -1,7 +1,8 @@
 use clap::Parser;
+use edm::csdl::Property;
 use edm::csn::{CsnDefinition, CsnModel};
+use edm::Schema;
 use pjl_pg::Database;
-use std::env;
 use std::fs::File;
 use std::io::Read;
 
@@ -18,6 +19,7 @@ struct Args {
 
 #[tokio::main]
 async fn main() {
+    tracing_subscriber::fmt::init();
     let args = Args::parse();
     let filename = args.csn_file;
     let mut file = File::open(filename).expect("Failed to open file");
@@ -26,11 +28,15 @@ async fn main() {
         .expect("Failed to read file");
 
     let model: CsnModel = serde_yaml::from_str(&contents).expect("Failed to parse CSN JSON");
+    let mut s = Schema::new();
+    let key_n = args.namespace.len();
     for (key, x) in model.definitions.iter() {
         if key.starts_with(&args.namespace) {
             match x {
                 CsnDefinition::Entity(csn_entity) => {
-                    println!("\n\nEntity: {}", key);
+                    let entity_name = &key[key_n..];
+                    println!("\n\nEntity: {}", entity_name);
+                    s.new_entity(entity_name);
                     for (prop_name, prop) in csn_entity.elements.as_ref().unwrap().iter() {
                         if let Some(datatype) = &prop.datatype {
                             match datatype.as_str() {
@@ -43,6 +49,10 @@ async fn main() {
                                     );
                                 }
                                 _ => {
+                                    s.set_property(
+                                        entity_name,
+                                        Property::new(prop_name).with_type(datatype.to_string()),
+                                    );
                                     println!("  {} - {}", prop_name, datatype);
                                 }
                             }
@@ -64,5 +74,9 @@ async fn main() {
 
     if let Ok(mut db) =
         Database::new("host=localhost user=peter password=Kennwort01 dbname=blog").await
-    {}
+    {
+        // println!("{s:#?}");
+
+        db.activate(s).await.unwrap();
+    }
 }
