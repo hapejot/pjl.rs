@@ -23,6 +23,7 @@ pub enum ODataV4Result {
     Error(String),
 }
 
+#[allow(dead_code)]
 enum ParseState {
     Boundary,
     PartHeaders,
@@ -564,17 +565,18 @@ async fn api_get_record_v4(
                 return ODataV4Result::Single(record);
             }
             crate::EntityResult::Collection {
-                entity,
-                etag,
-                count,
-                next_token,
-                value,
+                entity: _entity,
+                etag: _etag,
+                count: _count,
+                next_token: _next_token,
+                value: _value,
             } => todo!(),
         },
-        Err(e) => todo!(),
+        Err(_e) => todo!(),
     }
 }
 
+#[allow(dead_code)]
 fn handle_batch_json(data: &[u8]) -> serde_json::Value {
     use serde_json::Value;
     let mut responses = Vec::new();

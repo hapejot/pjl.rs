@@ -53,7 +53,7 @@ async fn modify() {
         // row.set("id", "17");
         // row.set("name", "Karin J.");
         println!("{}", serde_yaml::to_string(&tab2).unwrap());
-        db.modify("actor", tab2).await;
+        let _ = db.modify("actor", tab2).await;
     }
 }
 

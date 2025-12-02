@@ -111,7 +111,7 @@ impl<M> App<M> {
         }
     }
 
-    pub fn model(&self) -> MutexGuard<M> {
+    pub fn model(&self) -> MutexGuard<'_, M> {
         self.model.lock().unwrap()
     }
 

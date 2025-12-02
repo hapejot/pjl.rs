@@ -15,6 +15,7 @@ use serde::{Deserialize, Serialize};
 use log::*;
 // use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
+#[allow(dead_code)]
 #[derive(Serialize, Deserialize)]
 enum Gender {
     #[serde(rename = "m")]

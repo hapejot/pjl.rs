@@ -1,5 +1,4 @@
-use std::fs::File;
-use std::io::{self, Read, Write};
+use std::io::{self, Read};
 use serde_json::Value;
 
 fn main() -> io::Result<()> {
