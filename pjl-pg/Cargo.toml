@@ -7,7 +7,7 @@ edition = "2021"
 edm = { version = "0.1.0", path = "../edm" }
 pjl-odata = { version = "0.1.0", path = "../pjl-odata" }
 pjl-tab = { version = "0.1.0", path = "../pjl-tab" }
-tokio-postgres = "0.7.12"
+tokio-postgres = { version = "0.7.12", features = ["with-uuid-1", "with-chrono-0_4"] }
 tokio = { version = "1.42.0", features = ["full"] }
 tracing = "0.1.41"
 serde_yaml = { git = "https://github.com/hapejot/serde-yaml.git", version = "0.9.35" }
@@ -15,8 +15,10 @@ serde = { version = "1.0.218", features = ["derive"] }
 mini-moka = "0.10.3"
 clap = { version = "4.5.31", features = ["derive"] }
 chrono = "0.4.40"
-postgres-types = { version = "0.2.9", features = ["with-chrono-0_4"] }
+uuid = { version = "1.0", features = ["v4"] }
+postgres-types = { version = "0.2.9", features = ["with-chrono-0_4", "with-uuid-1"] }
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
+anyhow = "1.0"
 regex = "1.11.1"
 indexmap = { version = "2.9.0", features = ["serde"] }
 

@@ -1,4 +1,4 @@
-- id: 2
+- id: F250307
   title: Konditionen
   description: |-
     Die Konditionstechnik in SAP ist sehr flexibel und basiert auf einer Reihe von Steuertabellen. 
@@ -6,4 +6,11 @@
     - Wie wird auf eine Kondition zugegriffen?
     - Wie wird die Zugriffsfolge ausgewertet? Gibt es eine API?
     - Wie wird die Selektion flexibel ausgewertet?
-    
+- id: F251217
+  program: json-to-markdown
+  description: |
+    Die Ausgabe soll abhängig von der Eingabe laufen:
+    - Wenn die Eingabe eine Tabelle ist, dann wird erwartet, dass alle Elemente ein Objekt sind,
+      die die gleiche Struktur haben
+    - Wenn die oberste Ebene ein Objekt ist, dann werden alle Elemente dieses Objekts wie eine Tabelle behandelt
+      und nacheinander mit der jeweiligen Überschrift aus dem Elementnamen ausgegeben.

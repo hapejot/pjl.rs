@@ -274,6 +274,76 @@ impl Database {
         self.primary_keys.get(&tab_name).map(|v| v.clone()).ok_or_else(|| "Primary key not found".to_string())
     }
 
+    /// Execute a raw SQL query with parameter binding
+    /// Returns a Table with the query results
+    pub async fn query_raw(
+        &mut self,
+        sql: &str,
+        params: &[&(dyn ToSql + Sync)],
+    ) -> anyhow::Result<Table> {
+        let client = &mut self.client;
+        let r = Table::new();
+
+        match timeout(Duration::from_secs(5), async {
+            let stmt = client.prepare(sql).await?;
+            let rows = client.query(&stmt, params).await?;
+            extract_result_to_table(&r, rows);
+            Ok::<_, tokio_postgres::Error>(r)
+        }).await {
+            Ok(Ok(table)) => Ok(table),
+            Ok(Err(e)) => Err(anyhow::anyhow!("Query error: {}", e)),
+            Err(_) => Err(anyhow::anyhow!("Query timeout after 5 seconds")),
+        }
+    }
+
+    /// Execute a raw SQL statement (INSERT/UPDATE/DELETE)
+    /// Returns the number of affected rows
+    pub async fn execute_raw(
+        &mut self,
+        sql: &str,
+        params: &[&(dyn ToSql + Sync)],
+    ) -> anyhow::Result<u64> {
+        let client = &mut self.client;
+
+        match timeout(Duration::from_secs(5), async {
+            let stmt = client.prepare(sql).await?;
+            let count = client.execute(&stmt, params).await?;
+            Ok::<_, tokio_postgres::Error>(count)
+        }).await {
+            Ok(Ok(count)) => Ok(count),
+            Ok(Err(e)) => Err(anyhow::anyhow!("Execute error: {}", e)),
+            Err(_) => Err(anyhow::anyhow!("Execute timeout after 5 seconds")),
+        }
+    }
+
+    /// Query that returns a single scalar value
+    pub async fn query_scalar<T>(
+        &mut self,
+        sql: &str,
+        params: &[&(dyn ToSql + Sync)],
+    ) -> anyhow::Result<Option<T>>
+    where
+        T: for<'a> tokio_postgres::types::FromSql<'a>,
+    {
+        let client = &mut self.client;
+
+        match timeout(Duration::from_secs(5), async {
+            let stmt = client.prepare(sql).await?;
+            let rows = client.query(&stmt, params).await?;
+            
+            if rows.is_empty() {
+                return Ok(None);
+            }
+            
+            let value: T = rows[0].try_get(0)?;
+            Ok::<_, tokio_postgres::Error>(Some(value))
+        }).await {
+            Ok(Ok(result)) => Ok(result),
+            Ok(Err(e)) => Err(anyhow::anyhow!("Scalar query error: {}", e)),
+            Err(_) => Err(anyhow::anyhow!("Query timeout after 5 seconds")),
+        }
+    }
+
     pub async fn select(&mut self, q: pjl_odata::ODataQuery) -> Result<Table, String> {
         debug!("query: {:#?}", q);
         let (where_clause, mut params) = q.get_where_sql_specific(PostgresQuery::new());
@@ -584,7 +654,38 @@ fn extract_result_to_table(r: &Table, rows: Vec<tokio_postgres::Row>) {
                         rrow.set(c.name(), &s);
                     }
                 }
-                _ => todo!("implement conversion of type '{}'", ty.name()),
+                "uuid" => {
+                    if let Ok(v) = row.try_get::<'_, _, uuid::Uuid>(idx) {
+                        rrow.set(c.name(), &v.to_string());
+                    }
+                }
+                "timestamptz" => {
+                    if let Ok(v) = row.try_get::<'_, _, chrono::DateTime<chrono::Utc>>(idx) {
+                        let s = v.format(DATE_TIME_FORMAT_OUT).to_string();
+                        rrow.set(c.name(), &s);
+                    }
+                }
+                "agent_status" => {
+                    // Custom enum - extract as text  
+                    debug!("Trying to extract agent_status for column {}", c.name());
+                    if let Ok(v) = row.try_get::<'_, _, String>(idx) {
+                        debug!("Successfully got agent_status: {}", v);
+                        rrow.set(c.name(), &v);
+                    } else {
+                        warn!("Failed to get agent_status as String");
+                    }
+                }
+                _ => {
+                    // Try as string for unknown types (like enums, custom types)
+                    // PostgreSQL custom enums and other types can be read as &str
+                    if let Ok(v) = row.try_get::<'_, _, &str>(idx) {
+                        rrow.set(c.name(), v);
+                    } else if let Ok(v) = row.try_get::<'_, _, String>(idx) {
+                        rrow.set(c.name(), &v);
+                    } else {
+                        warn!("Failed to extract column {} with type {}", c.name(), ty.name());
+                    }
+                }
             }
         }
     }
