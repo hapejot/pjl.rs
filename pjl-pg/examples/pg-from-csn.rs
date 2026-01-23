@@ -67,7 +67,7 @@ async fn main() {
                 CsnDefinition::Action(_csn_action) => println!("Action: {}", key),
                 CsnDefinition::Function(_csn_action) => println!("Function: {}", key),
                 CsnDefinition::Other => println!("Other: {}", key),
-                CsnDefinition::Type(csn_type) => todo!(),
+                CsnDefinition::Type(_csn_type) => todo!(),
             }
         }
     }
