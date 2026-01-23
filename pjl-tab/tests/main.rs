@@ -10,7 +10,7 @@ fn create() {
     assert_eq!(rid, 1);
     row.set("ID", "Test");
     // row["ID"] = "Test";
-    assert_eq!(row.get("ID"), Some(String::from("Test")));
+    assert_eq!(row.get("id"), Some(String::from("Test")));
 
     let cols = row.columns();
     assert_eq!(cols, vec!["id"]);
