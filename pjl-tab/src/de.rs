@@ -1,6 +1,6 @@
 use super::Table;
 use serde::{
-    de::{MapAccess, SeqAccess},
+    de::{IntoDeserializer, MapAccess, SeqAccess},
     Deserializer,
 };
 use std::{error::Error, fmt::Display};
@@ -299,12 +299,25 @@ impl<'de> Deserializer<'de> for &mut TableDeserializer<'_> {
         self,
         _name: &'static str,
         _variants: &'static [&'static str],
-        _visitor: V,
+        visitor: V,
     ) -> Result<V::Value, Self::Error>
     where
         V: serde::de::Visitor<'de>,
     {
-        todo!()
+        // Enums are deserialized as strings from the table
+        if let Some(name) = self.current_field.as_ref() {
+            let row = self.table.row(self.rowidx);
+            if let Some(v) = row.get(&name) {
+                visitor.visit_enum(v.as_str().into_deserializer())
+            } else {
+                Err(DeErr::Message(format!(
+                    "column {} invalid for getting a value",
+                    name
+                )))
+            }
+        } else {
+            Err(DeErr::Message(format!("no current field")))
+        }
     }
 
     fn deserialize_identifier<V>(self, visitor: V) -> Result<V::Value, Self::Error>

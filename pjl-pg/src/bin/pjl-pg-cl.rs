@@ -5,6 +5,7 @@ use pjl_tab::Table;
 use std::{collections::HashMap, io::Read};
 use tracing::{error, trace};
 use tracing_subscriber::filter::EnvFilter;
+use anyhow::Result;
 
 #[derive(Debug, Parser)]
 struct Params {
@@ -35,7 +36,7 @@ enum Commands {
 }
 
 #[tokio::main]
-async fn main() -> Result<(), String> {
+async fn main() -> Result<()> {
     let args = Params::parse();
     let connection_string = format!(
         "host=localhost user=postgres password=Kennwort01 dbname={}",
@@ -87,7 +88,7 @@ async fn main() -> Result<(), String> {
         }
         Commands::Describe => {
             if let Ok(mut db) = Database::new(&connection_string).await {
-                let desc = db.describe(&args.table_name).await;
+                let desc = db.describe(&args.table_name).await?;
                 let out = serde_yaml::to_string(&desc).unwrap();
                 // let out = desc;
                 println!("{out}");

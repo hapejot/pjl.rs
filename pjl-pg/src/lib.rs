@@ -1,3 +1,6 @@
+use anyhow::anyhow;
+use anyhow::Context;
+use anyhow::Result;
 use edm::{primitive::PrimitiveValue, value::Value, Schema};
 use indexmap::IndexMap;
 use mini_moka::sync::Cache;
@@ -143,7 +146,7 @@ struct ColInfo {
 }
 
 impl Database {
-    pub async fn new(connection: &str) -> Result<Self, String> {
+    pub async fn new(connection: &str) -> Result<Self> {
         match connect(connection, NoTls).await {
             Ok((client, conn)) => {
                 tokio::spawn(async move {
@@ -158,7 +161,7 @@ impl Database {
                     mapping: types::postgres_to_standard_sql_type_mapping(),
                 })
             }
-            Err(e) => Err(format!("{e}")),
+            Err(e) => Err(anyhow!("Failed to connect to database: {}", e).context(e)),
         }
     }
 
@@ -166,7 +169,7 @@ impl Database {
         true
     }
 
-    async fn read_table_metadata(&mut self, tab_name: &str) -> Result<(), String> {
+    async fn read_table_metadata(&mut self, tab_name: &str) -> Result<()> {
         let client = &mut self.client;
         let _r = Table::new();
 
@@ -185,26 +188,20 @@ impl Database {
                             where  a.attrelid = to_regclass($1)
                               and a.attnum > 0 order by attnum"#
             );
-            let stmt = t.prepare(&query).await.map_err(|e| e.to_string())?;
-            let rows = t
-                .query(&stmt, &[&*Box::new(tab_name)])
-                .await
-                .map_err(|e| e.to_string())?;
+            let stmt = t.prepare(&query).await?;
+            let rows = t.query(&stmt, &[&*Box::new(tab_name)]).await?;
             let r = Table::new();
             extract_result_to_table(&r, rows);
-            let colspecs: Vec<Decl> = pjl_tab::de::extract_from_table(&r).map_err(|e| e.to_string())?;
+            let colspecs: Vec<Decl> = pjl_tab::de::extract_from_table(&r)?;
             debug!("colspecs: {colspecs:#?}");
 
             let query = format!(
                 r#"select indexrelid::regclass::text, indkey from pg_index as i 
                         where  i.indrelid = to_regclass($1)"#
             );
-            let stmt = t.prepare(&query).await.map_err(|e| e.to_string())?;
+            let stmt = t.prepare(&query).await?;
             let mut r_keys = HashMap::new();
-            let rows = t
-                .query(&stmt, &[&*Box::new(tab_name)])
-                .await
-                .map_err(|e| e.to_string())?;
+            let rows = t.query(&stmt, &[&*Box::new(tab_name)]).await?;
             let mut out = String::new();
             r.dump(&mut out);
             debug!("{out}");
@@ -230,19 +227,24 @@ impl Database {
             );
             Ok(())
         } else {
-            Err("Failed to start transaction or timeout".to_string())
+            Err(anyhow!("Failed to start transaction or timeout")
+                .context("read_table_metadata")
+                .into())
         }
     }
 
-    async fn get_table_metadata(&mut self, tab_name: &str) -> Result<TableMetadata, String> {
+    async fn get_table_metadata(&mut self, tab_name: &str) -> Result<TableMetadata> {
         let tab_name = tab_name.to_string();
         if !self.table_meta.contains_key(&tab_name) {
             self.read_table_metadata(&tab_name).await?;
         }
-        self.table_meta.get(&tab_name).map(|v| v.clone()).ok_or_else(|| "Table metadata not found".to_string())
+        self.table_meta
+            .get(&tab_name)
+            .map(|v| v.clone())
+            .ok_or_else(|| anyhow!("Table metadata not found"))
     }
 
-    pub async fn read_primary_key(&mut self, tab_name: &str) -> Result<Vec<KeyPart>, String> {
+    pub async fn read_primary_key(&mut self, tab_name: &str) -> Result<Vec<KeyPart>> {
         let tab_name = tab_name.to_string();
         if !self.primary_keys.contains_key(&tab_name) {
             let client = &mut self.client;
@@ -257,21 +259,23 @@ impl Database {
                     WHERE  i.indrelid = to_regclass($1)
                     AND    i.indisprimary;"#
                 );
-                let stmt = t.prepare(&query).await.map_err(|e| e.to_string())?;
+                let stmt = t.prepare(&query).await?;
                 let rows = t
                     .query(&stmt, &[&*Box::new(tab_name.clone())])
-                    .await
-                    .map_err(|e| e.to_string())?;
+                    .await?;
                 extract_result_to_table(&r, rows);
                 self.primary_keys.insert(
                     tab_name.clone(),
-                    pjl_tab::de::extract_from_table(&r).map_err(|e| e.to_string())?,
+                    pjl_tab::de::extract_from_table(&r)?,
                 );
             } else {
-                return Err("Failed to start transaction or timeout".to_string());
+                return Err(anyhow!("Failed to start transaction or timeout"));
             }
         }
-        self.primary_keys.get(&tab_name).map(|v| v.clone()).ok_or_else(|| "Primary key not found".to_string())
+        self.primary_keys
+            .get(&tab_name)
+            .map(|v| v.clone())
+            .ok_or_else(|| anyhow!("Primary key not found"))
     }
 
     /// Execute a raw SQL query with parameter binding
@@ -289,10 +293,19 @@ impl Database {
             let rows = client.query(&stmt, params).await?;
             extract_result_to_table(&r, rows);
             Ok::<_, tokio_postgres::Error>(r)
-        }).await {
+        })
+        .await
+        {
             Ok(Ok(table)) => Ok(table),
-            Ok(Err(e)) => Err(anyhow::anyhow!("Query error: {}", e)),
-            Err(_) => Err(anyhow::anyhow!("Query timeout after 5 seconds")),
+            Ok(Err(e)) => Err(anyhow::anyhow!(
+                "Query failed: {}\nSQL: {}",
+                e.as_db_error().unwrap().message(),
+                sql
+            )),
+            Err(_) => Err(anyhow::anyhow!(
+                "Query timeout after 5 seconds\nSQL: {}",
+                sql
+            )),
         }
     }
 
@@ -306,13 +319,27 @@ impl Database {
         let client = &mut self.client;
 
         match timeout(Duration::from_secs(5), async {
-            let stmt = client.prepare(sql).await?;
-            let count = client.execute(&stmt, params).await?;
-            Ok::<_, tokio_postgres::Error>(count)
-        }).await {
+            let stmt = client
+                .prepare(sql)
+                .await
+                .context("Failed to prepare statement")?;
+            let count = client
+                .execute(&stmt, params)
+                .await
+                .context("Failed to execute statement")?;
+            Ok::<_, anyhow::Error>(count)
+        })
+        .await
+        {
             Ok(Ok(count)) => Ok(count),
-            Ok(Err(e)) => Err(anyhow::anyhow!("Execute error: {}", e)),
-            Err(_) => Err(anyhow::anyhow!("Execute timeout after 5 seconds")),
+            Ok(Err(e)) => {
+                debug!("SQL Execute error: {}", e);
+                Err(e.context(format!("Execute failed\nSQL: {}", sql)))
+            }
+            Err(_) => Err(anyhow::anyhow!(
+                "Execute timeout after 5 seconds\nSQL: {}",
+                sql
+            )),
         }
     }
 
@@ -328,23 +355,36 @@ impl Database {
         let client = &mut self.client;
 
         match timeout(Duration::from_secs(5), async {
-            let stmt = client.prepare(sql).await?;
-            let rows = client.query(&stmt, params).await?;
-            
+            let stmt = client
+                .prepare(sql)
+                .await
+                .context("Failed to prepare statement")?;
+            let rows = client
+                .query(&stmt, params)
+                .await
+                .context("Failed to execute query")?;
+
             if rows.is_empty() {
                 return Ok(None);
             }
-            
-            let value: T = rows[0].try_get(0)?;
-            Ok::<_, tokio_postgres::Error>(Some(value))
-        }).await {
+
+            let value: T = rows[0]
+                .try_get(0)
+                .context("Failed to extract value from result")?;
+            Ok::<_, anyhow::Error>(Some(value))
+        })
+        .await
+        {
             Ok(Ok(result)) => Ok(result),
-            Ok(Err(e)) => Err(anyhow::anyhow!("Scalar query error: {}", e)),
-            Err(_) => Err(anyhow::anyhow!("Query timeout after 5 seconds")),
+            Ok(Err(e)) => Err(e.context(format!("Scalar query failed\nSQL: {}", sql))),
+            Err(_) => Err(anyhow::anyhow!(
+                "Scalar query timeout after 5 seconds\nSQL: {}",
+                sql
+            )),
         }
     }
 
-    pub async fn select(&mut self, q: pjl_odata::ODataQuery) -> Result<Table, String> {
+    pub async fn select(&mut self, q: pjl_odata::ODataQuery) -> Result<Table> {
         debug!("query: {:#?}", q);
         let (where_clause, mut params) = q.get_where_sql_specific(PostgresQuery::new());
         let mut sql_parts = vec![];
@@ -361,13 +401,13 @@ impl Database {
         let r = Table::new();
 
         if let Ok(Ok(t)) = timeout(Duration::from_secs(2), client.transaction()).await {
-            let statement = t.prepare(&sql).await.map_err(|e| e.to_string())?;
+            let statement = t.prepare(&sql).await?;
             let mut sql_params: Vec<Box<dyn ToSql + Sync + Send>> = vec![];
             for (idx, typ) in statement.params().iter().enumerate() {
                 let x = params.get_mut(idx).unwrap();
                 match x {
                     Value::PrimitiveValue(primitive_value) => match primitive_value {
-                        PrimitiveValue::Null => return Err("Null value not supported".to_string()),
+                        PrimitiveValue::Null => return Err(anyhow!("Null value not supported")),
                         PrimitiveValue::Boolean(b) => match typ.name() {
                             "int4" => sql_params.push(Box::new(if *b { 1 } else { 0 })),
                             "bool" => sql_params.push(Box::new(*b)),
@@ -378,13 +418,18 @@ impl Database {
                             _ => sql_params.push(Box::new(number.as_str().to_string())),
                         },
                         PrimitiveValue::String(v) => match typ.name() {
-                            "int4" => sql_params.push(Box::new(v.parse::<i32>().map_err(|e| e.to_string())?)),
+                            "int4" => sql_params
+                                .push(Box::new(v.parse::<i32>()?)),
                             _ => sql_params.push(Box::new(v.clone())),
                         },
-                        PrimitiveValue::Custom { .. } => return Err("Custom primitive not supported".to_string()),
+                        PrimitiveValue::Custom { .. } => {
+                            return Err(anyhow!("Custom primitive not supported"))
+                        }
                     },
-                    Value::StructureValue(_) => return Err("StructureValue not supported".to_string()),
-                    Value::ListValue(_) => return Err("ListValue not supported".to_string()),
+                    Value::StructureValue(_) => {
+                        return Err(anyhow!("StructureValue not supported"))
+                    }
+                    Value::ListValue(_) => return Err(anyhow!("ListValue not supported")),
                 }
             }
             assert_eq!(params.len(), sql_params.len());
@@ -394,15 +439,18 @@ impl Database {
                 .map(|x| x.as_ref() as &(dyn ToSql + Sync))
                 .collect::<Vec<_>>();
 
-            let rows = t.query(&statement, &final_sql_params).await.map_err(|e| e.to_string())?;
+            let rows = t
+                .query(&statement, &final_sql_params)
+                .await
+                ?;
             extract_result_to_table(&r, rows);
             Ok(r)
         } else {
-            Err("timout or other error...".to_string())
+            Err(anyhow!("timout or other error..."))
         }
     }
 
-    pub async fn modify(&mut self, tab_name: &str, tab: Table) -> Result<(), String> {
+    pub async fn modify(&mut self, tab_name: &str, tab: Table) -> Result<()> {
         let meta = self.get_table_metadata(tab_name).await?;
 
         let mut colinfos = vec![];
@@ -455,18 +503,20 @@ impl Database {
         let client = &mut self.client;
         let _r = Table::new();
         if let Ok(Ok(t)) = timeout(Duration::from_secs(2), client.transaction()).await {
-            let stmt = t.prepare(&query).await.map_err(|e| e.to_string())?;
+            let stmt = t.prepare(&query).await?;
             for idx in 1..=tab.lines() {
                 let mut sql_params: Vec<Box<dyn ToSql + Sync + Send>> = vec![];
                 let current_row = tab.row(idx);
                 for c in colinfos.iter() {
                     match current_row.get(&c.name) {
                         Some(x) => match c.coltype.as_str() {
-                            "int4" => sql_params.push(Box::new(x.parse::<i32>().map_err(|e| e.to_string())?)),
-                            "bool" => sql_params.push(Box::new(x.parse::<bool>().map_err(|e| e.to_string())?)),
+                            "int4" => sql_params
+                                .push(Box::new(x.parse::<i32>()?)),
+                            "bool" => sql_params
+                                .push(Box::new(x.parse::<bool>()?)),
                             "timestamp" => sql_params.push(Box::new(
                                 chrono::NaiveDateTime::parse_from_str(&x, DATE_TIME_FORMAT)
-                                    .map_err(|e| e.to_string())?,
+                                    ?,
                             )),
                             _ => sql_params.push(Box::new(x)),
                         },
@@ -479,17 +529,16 @@ impl Database {
                     .collect::<Vec<_>>();
 
                 t.execute(&stmt, &final_sql_params)
-                    .await
-                    .map_err(|e| format!("query {:?}: {}", final_sql_params, e))?;
+                    .await?;
             }
-            t.commit().await.map_err(|e| e.to_string())?;
+            t.commit().await?;
             Ok(())
         } else {
-            Err("no transaction found".to_string())
+            Err(anyhow!("no transaction found"))
         }
     }
 
-    pub async fn activate(&mut self, s: Schema) -> Result<(), String> {
+    pub async fn activate(&mut self, s: Schema) -> Result<()> {
         for e in s.entity_types.iter() {
             trace!("activate {}", e.name);
             let m = self.get_table_metadata(&e.name).await?;
@@ -512,17 +561,17 @@ impl Database {
                 if let Ok(Ok(t)) = timeout(Duration::from_secs(2), client.transaction()).await {
                     let stmt = sql.join(" ");
                     debug!("statement: {stmt}");
-                    t.execute(&stmt, &[]).await.map_err(|e| e.to_string())?;
-                    t.commit().await.map_err(|e| e.to_string())?;
+                    t.execute(&stmt, &[]).await?;
+                    t.commit().await?;
                 } else {
-                    return Err("Failed to start transaction or timeout".to_string());
+                    return Err(anyhow!("Failed to start transaction or timeout"));
                 }
             }
         }
         Ok(())
     }
 
-    pub async fn describe(&mut self, tab_name: &str) -> Result<SqlTable, String> {
+    pub async fn describe(&mut self, tab_name: &str) -> Result<SqlTable> {
         let meta = self.get_table_metadata(tab_name).await?;
         let mut r = SqlTable {
             name: tab_name.to_string(),
@@ -542,7 +591,7 @@ impl Database {
         Ok(r)
     }
 
-    pub async fn define(&mut self, def: &SqlTable) -> Result<(), String> {
+    pub async fn define(&mut self, def: &SqlTable) -> Result<()> {
         let m = self.get_table_metadata(&def.name).await?;
         if m.colspecs.len() == 0 {
             let mut sql = vec![];
@@ -560,10 +609,10 @@ impl Database {
             if let Ok(Ok(t)) = timeout(Duration::from_secs(2), client.transaction()).await {
                 let stmt = sql.join(" ");
                 debug!("statement: {stmt}");
-                t.execute(&stmt, &[]).await.map_err(|e| e.to_string())?;
-                t.commit().await.map_err(|e| e.to_string())?;
+                t.execute(&stmt, &[]).await?;
+                t.commit().await?;
             } else {
-                return Err("Failed to start transaction or timeout".to_string());
+                return Err(anyhow!("Failed to start transaction or timeout"));
             }
         }
         Ok(())
@@ -612,6 +661,7 @@ fn extract_result_to_table(r: &Table, rows: Vec<tokio_postgres::Row>) {
         let rrow = r.new_row();
         for (idx, c) in row.columns().iter().enumerate() {
             let ty = c.type_();
+            debug!("Extracting column: {} with type: {}", c.name(), ty.name());
             match ty.name() {
                 "varchar" => {
                     if let Ok(v) = row.try_get(idx) {
@@ -621,6 +671,11 @@ fn extract_result_to_table(r: &Table, rows: Vec<tokio_postgres::Row>) {
                 "text" => {
                     if let Ok(v) = row.try_get(idx) {
                         rrow.set(c.name(), v);
+                    }
+                }
+                "int8" => {
+                    if let Ok(v) = row.try_get::<'_, _, i64>(idx) {
+                        rrow.set(c.name(), &v.to_string());
                     }
                 }
                 "int4" => {
@@ -665,14 +720,9 @@ fn extract_result_to_table(r: &Table, rows: Vec<tokio_postgres::Row>) {
                         rrow.set(c.name(), &s);
                     }
                 }
-                "agent_status" => {
-                    // Custom enum - extract as text  
-                    debug!("Trying to extract agent_status for column {}", c.name());
-                    if let Ok(v) = row.try_get::<'_, _, String>(idx) {
-                        debug!("Successfully got agent_status: {}", v);
-                        rrow.set(c.name(), &v);
-                    } else {
-                        warn!("Failed to get agent_status as String");
+                "float8" => {
+                    if let Ok(v) = row.try_get::<'_, _, f64>(idx) {
+                        rrow.set(c.name(), &v.to_string());
                     }
                 }
                 _ => {
@@ -683,7 +733,11 @@ fn extract_result_to_table(r: &Table, rows: Vec<tokio_postgres::Row>) {
                     } else if let Ok(v) = row.try_get::<'_, _, String>(idx) {
                         rrow.set(c.name(), &v);
                     } else {
-                        warn!("Failed to extract column {} with type {}", c.name(), ty.name());
+                        warn!(
+                            "Failed to extract column {} with type {}",
+                            c.name(),
+                            ty.name()
+                        );
                     }
                 }
             }

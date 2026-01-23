@@ -1,10 +1,10 @@
-use std::collections::HashMap;
-
+use std::{collections::HashMap, fmt::Error};
+use anyhow::Result;
 use pjl_odata::ODataQuery;
 use pjl_pg::Database;
 
 #[tokio::main]
-async fn main() -> Result<(), String> {
+async fn main() -> Result<()> {
     if let Ok(mut db) =
         Database::new("host=localhost user=postgres password=Kennwort01 dbname=rk").await
     {
