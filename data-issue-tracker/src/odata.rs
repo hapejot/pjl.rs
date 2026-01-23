@@ -179,9 +179,11 @@ pub async fn entity(
                 ODataResult::Empty => {
                     let _model = state.get_entity_model(part);
                     // Initial state, list records for the entity
-                    let x = state.load_entity_refs(part);
-                    let lst = state.get_all_records(x);
-                    result = ODataResult::Collection(lst);
+                    let x = state.load_entity_refs(part).iter().map(|r| {
+                        let json_record = serde_json::to_value(r).unwrap_or_default();
+                        json_record
+                    }).collect::<Vec<_>>();
+                    result = ODataResult::Collection(x);
                 }
 
                 ODataResult::Single(record) => {

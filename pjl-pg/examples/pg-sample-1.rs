@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fmt::Error};
+use std::{collections::HashMap};
 use anyhow::Result;
 use pjl_odata::ODataQuery;
 use pjl_pg::Database;

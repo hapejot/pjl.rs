@@ -57,7 +57,7 @@ async fn main() -> Result<()> {
             let tab2: Table = serde_yaml::from_str(&buf).unwrap();
 
             if let Ok(mut db) = Database::new(&connection_string).await {
-                db.modify(&args.table_name, tab2).await;
+                db.modify(&args.table_name, tab2).await.unwrap();
             }
         }
         Commands::Select {

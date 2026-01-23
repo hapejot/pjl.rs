@@ -28,9 +28,7 @@ enum ParseState {
     PartHeaders,
     RequestMethod,
     RequestHeaders,
-    BinaryBody,
     LinesBody,
-    Error,
 }
 
 pub async fn batch(
@@ -156,7 +154,6 @@ pub async fn batch(
                                         context = &context[idx + 1..];
                                     }
                                 }
-                                _ => todo!(),
                             }
                         }
                     }
@@ -316,7 +313,7 @@ pub async fn entity(
                     ODataV4Result::Empty => {
                         let _model = state.get_entity_model(part);
                         let x = state.load_entity_refs(part);
-                        let lst = state.get_all_records(x);
+                        let lst = x.iter().map(|r| json!(r)).collect::<Vec<_>>();
                         result = ODataV4Result::Collection(lst);
                     }
                     ODataV4Result::Single(ref record) => {
@@ -563,18 +560,13 @@ async fn api_get_record_v4(
                 record["id"] = json!(id);
                 return ODataV4Result::Single(record);
             }
-            crate::EntityResult::Collection {
-                entity,
-                etag,
-                count,
-                next_token,
-                value,
-            } => todo!(),
+            crate::EntityResult::Collection { .. } => todo!(),
         },
-        Err(e) => todo!(),
+        Err(_) => todo!(),
     }
 }
 
+#[allow(dead_code)]
 fn handle_batch_json(data: &[u8]) -> serde_json::Value {
     use serde_json::Value;
     let mut responses = Vec::new();

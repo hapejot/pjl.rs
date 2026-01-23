@@ -13,15 +13,6 @@ use dbx::{
 };
 use serde::{Deserialize, Serialize};
 use log::*;
-// use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
-
-#[derive(Serialize, Deserialize)]
-enum Gender {
-    #[serde(rename = "m")]
-    Male,
-    Female,
-    Other,
-}
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename = "person")]

@@ -1,7 +1,4 @@
 use clap::Parser;
-use std::fs;
-use std::thread::sleep;
-use std::time::Duration;
 
 #[cfg(target_os = "windows")]
 mod win_focus {
