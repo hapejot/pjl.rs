@@ -20,14 +20,14 @@ fn main() {
     let model: CsnModel = serde_json::from_str(&contents).expect("Failed to parse CSN JSON");
     for (key, x) in model.definitions.iter() {
         match x {
-            edm::csn::CsnDefinition::Entity(_) => println!("Entity: {}", key),
-            edm::csn::CsnDefinition::Type(csn_type) => println!("Type: {} {}", key, csn_type.base_type.as_deref().unwrap_or("")),
-            edm::csn::CsnDefinition::Service(_) => println!("Service: {}", key),
-            edm::csn::CsnDefinition::Aspect(_) => println!("Aspect: {}", key),
-            edm::csn::CsnDefinition::Context(_) => println!("Context: {}", key),
-            edm::csn::CsnDefinition::Action(_) => println!("Action: {}", key),
-            edm::csn::CsnDefinition::Function(_) => println!("Function: {}", key),
-            edm::csn::CsnDefinition::Other => println!("Other: {}", key),
+                edm::csn::CsnDefinition::Entity(_) => println!("Entity: {}", key),
+                edm::csn::CsnDefinition::Type(csn_type) => println!("Type: {} {}", key, csn_type.base_type.as_deref().unwrap_or("")),
+                edm::csn::CsnDefinition::Service(_) => println!("Service: {}", key),
+                edm::csn::CsnDefinition::Aspect(_) => println!("Aspect: {}", key),
+                edm::csn::CsnDefinition::Context(_) => println!("Context: {}", key),
+                edm::csn::CsnDefinition::Action(_) => println!("Action: {}", key),
+                edm::csn::CsnDefinition::Function(_) => println!("Function: {}", key),
+                edm::csn::CsnDefinition::Other => println!("Other: {}", key),
         }
         
     }

@@ -61,13 +61,13 @@ async fn main() {
                         }
                     }
                 }
-                CsnDefinition::Service(_) => println!("Service: {}", key),
-                CsnDefinition::Aspect(_) => println!("Aspect: {}", key),
-                CsnDefinition::Context(_) => println!("Context: {}", key),
-                CsnDefinition::Action(_) => println!("Action: {}", key),
-                CsnDefinition::Function(_) => println!("Function: {}", key),
+                CsnDefinition::Service(_csn_service) => println!("Service: {}", key),
+                CsnDefinition::Aspect(_csn_aspect) => println!("Aspect: {}", key),
+                CsnDefinition::Context(_csn_context) => println!("Context: {}", key),
+                CsnDefinition::Action(_csn_action) => println!("Action: {}", key),
+                CsnDefinition::Function(_csn_action) => println!("Function: {}", key),
                 CsnDefinition::Other => println!("Other: {}", key),
-                CsnDefinition::Type(_) => todo!(),
+                CsnDefinition::Type(csn_type) => todo!(),
             }
         }
     }

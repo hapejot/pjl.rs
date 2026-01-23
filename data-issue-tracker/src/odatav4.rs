@@ -23,6 +23,7 @@ pub enum ODataV4Result {
     Error(String),
 }
 
+#[allow(dead_code)]
 enum ParseState {
     Boundary,
     PartHeaders,
@@ -577,9 +578,9 @@ fn handle_batch_json(data: &[u8]) -> serde_json::Value {
             let url = req.get("url").and_then(|u| u.as_str()).unwrap_or("");
             let body = req.get("body").cloned().unwrap_or(Value::Null);
             responses.push(json!({
-                "method": method,
-                "url": url,
-                "body": body
+            "method": method,
+            "url": url,
+            "body": body
             }));
         }
         json!({"responses": responses})

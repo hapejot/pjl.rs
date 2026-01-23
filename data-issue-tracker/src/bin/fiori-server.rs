@@ -3,7 +3,7 @@ use axum::{
     Router,
 };
 use data_issue_tracker::{odatav4, AppState};
-use tower_http::services::{ServeDir};
+use tower_http::services::ServeDir;
 use tracing::info;
 
 #[tokio::main]

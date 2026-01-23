@@ -223,7 +223,7 @@ impl Table {
     }
 
     pub fn add_column(&self, name: &str) -> Result<(), String> {
-        let name = name.to_lowercase().to_string();
+        let name = name.to_string();
         if let Ok(mut x) = self.d.try_lock() {
             if x.columns.contains(&name) {
                 return Err(format!("column {name} exists already."));
@@ -265,7 +265,7 @@ impl Table {
 
     fn translate_col(&self, index: &str) -> Option<usize> {
         if let Ok(x) = self.d.try_lock() {
-            let needle = index.to_lowercase();
+            let needle = index;
             if let Some(found) = x.columns.iter().position(|x| x == &needle) {
                 Some(found + 1)
             } else {
@@ -278,7 +278,7 @@ impl Table {
 
     fn make_col_idx(&self, index: &str) -> Option<usize> {
         if let Ok(mut x) = self.d.try_lock() {
-            let needle = index.to_lowercase();
+            let needle = index;
             if let Some(found) = x.columns.iter().position(|x| x == &needle) {
                 Some(found + 1)
             } else {
